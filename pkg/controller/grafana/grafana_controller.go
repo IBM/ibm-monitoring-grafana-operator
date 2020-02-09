@@ -130,3 +130,5 @@ func (r *ReconcileGrafana) Reconcile(request reconcile.Request) (reconcile.Resul
 	reqLogger.Info("Skip reconcile: Pod already exists", "Pod.Namespace", found.Namespace, "Pod.Name", found.Name)
 	return reconcile.Result{}, nil
 }
+
+func UpdateStatus(cr *grafana.Grafana)
