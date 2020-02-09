@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"github.com/ibm-grafana-operator/pkg/controller/grafana"
+	"github.com/IBM/ibm-grafana-operator/pkg/controller/grafana"
 )
 
 func init() {
