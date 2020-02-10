@@ -1,7 +1,7 @@
 package utils
 
 import (
-	grafana "github.com/IBM/ibm-grafana-operator/pkg/apis/cloud/v1alpha1"
+	grafana "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -75,7 +75,7 @@ func getServicePorts(cr *grafana.Grafana, currentState *corev1.Service) []corev1
 	return defaultPorts
 }
 
-func GrafanaService(cr *grafana.Grafana) *corev1.Service {
+func getGrafanaService(cr *grafana.Grafana) *corev1.Service {
 	return &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        GrafanaServiceName,
@@ -94,11 +94,11 @@ func GrafanaService(cr *grafana.Grafana) *corev1.Service {
 	}
 }
 
-func GrafanaServiceReconciled(cr *grafana.Grafana, currentState *corev1.Service) *corev1.Service {
-	reconciled := currentState.DeepCopy()
+func GrafanaServiceReconciled(cr *grafana.Grafana, current *corev1.Service) *corev1.Service {
+	reconciled := current.DeepCopy()
 	reconciled.Labels = getServiceLabels(cr)
 	reconciled.Annotations = getServiceAnnotations(cr)
-	reconciled.Spec.Ports = getServicePorts(cr, currentState)
+	reconciled.Spec.Ports = getServicePorts(cr, current)
 	reconciled.Spec.Type = getServiceType(cr)
 	return reconciled
 }

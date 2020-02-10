@@ -16,15 +16,15 @@ type GrafanaSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html
-	Containers     []corev1.Container           `json:"containers, omitempty"`
-	Service        *GrafanaService              `json:"service,omitempty"`
-	MetaData       *MetaData                    `json:"metaData,omitempty"`
-	Configmaps     []string                     `json:"configMaps,omitempty"`
-	Secrets        []string                     `json:"secrets,omitempty"`
-	Resource       *corev1.ResourceRequirements `json:"resources,omitempty"`
-	BaseImage      string                       `json:"baseImage,omitempty"`
-	InitImage      string                       `json:"initImage,omitempty"`
-	ServiceAccount *corev1.ServiceAccount       `json:"serviceAccount,omitempty"`
+	Containers []corev1.Container           `json:"containers, omitempty"`
+	Service    *GrafanaService              `json:"service,omitempty"`
+	MetaData   *MetaData                    `json:"metaData,omitempty"`
+	Configmaps []string                     `json:"configMaps,omitempty"`
+	Secrets    []string                     `json:"secrets,omitempty"`
+	Resource   *corev1.ResourceRequirements `json:"resources,omitempty"`
+	BaseImage  string                       `json:"baseImage,omitempty"`
+	InitImage  string                       `json:"initImage,omitempty"`
+	Route      GrafanaRoute                 `json:"route,omitempty"`
 }
 
 // GrafanaService provides a means to configure the service
@@ -39,10 +39,20 @@ type GrafanaService struct {
 type MetaData struct {
 	Annotations map[string]string `json:"annotations,omitempty"`
 	Labels      map[string]string `json:"labels,omitempty"`
-	Replica     int32             `json:replica,omitempty`
+	Replicas    int32             `json:replica,omitempty`
 }
 
-// Replica set number of grafana
+type GrafanaRoute struct {
+	Annotations   map[string]string          `json:"annotations,omitempty"`
+	Hostname      string                     `json:"hostname,omitempty"`
+	Labels        map[string]string          `json:"labels,omitempty"`
+	Path          string                     `json:"path,omitempty"`
+	Enabled       bool                       `json:"enabled,omitempty"`
+	TLSEnabled    bool                       `json:"tlsEnabled,omitempty"`
+	TLSSecretName string                     `json:"tlsSecretName,omitempty"`
+	TargetPort    string                     `json:"targetPort,omitempty"`
+	Termination   routev1.TLSTerminationType `json:"termination,omitempty"`
+}
 
 // GrafanaStatus defines the observed state of Grafana
 type GrafanaStatus struct {

@@ -1,27 +1,27 @@
 package utils
 
 import (
-	grafana "github.com/IBM/ibm-grafana-operator/pkg/apis/cloud/v1alpha1"
+	grafana "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 func getServiceAccountLabels(cr *grafana.Grafana) map[string]string {
-	if cr.Spec.ServiceAccount == nil {
+	if cr.Spec.MetaData == nil {
 		return nil
 	}
-	return cr.Spec.ServiceAccount.ObjectMeta.Labels
+	return cr.Spec.MetaData.Labels
 }
 
 func getServiceAccountAnnotations(cr *grafana.Grafana) map[string]string {
-	if cr.Spec.ServiceAccount == nil {
+	if cr.Spec.MetaData == nil {
 		return nil
 	}
-	return cr.Spec.ServiceAccount.ObjectMeta.Annotations
+	return cr.Spec.MetaData.Annotations
 }
 
-func GrafanaServiceAccount(cr *grafana.Grafana) *corev1.ServiceAccount {
+func getGrafanaServiceAccount(cr *grafana.Grafana) *corev1.ServiceAccount {
 	return &corev1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        GrafanaServiceAccountName,

@@ -1,5 +1,7 @@
 package utils
 
+import "time"
+
 const (
 	GrafanaConfig             = "grafana-config"
 	GrafanaLogVolumes         = "grafana-log"
@@ -18,4 +20,7 @@ const (
 	GrafanaDeploymentName     = "grafana-deployment"
 	GrafanaServiceName        = "grafana-service"
 	GrafanaHttpPortName       = "grafana"
+	RequeueDelay              = time.Second * 10
+	DefaultGrafanaIngressPort = 3000
+	GrafanaRouteName          = "grafana-route"
 )

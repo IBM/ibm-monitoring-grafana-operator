@@ -1,7 +1,7 @@
 package apis
 
 import (
-	"github.com/ibm-grafana-operator/pkg/apis/cloud/v1alpha1"
+	"github.com/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 )
 
 func init() {

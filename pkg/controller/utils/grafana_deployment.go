@@ -3,12 +3,13 @@ package utils
 import (
 	"fmt"
 
-	grafana "github.com/IBM/ibm-grafana-operator/pkg/apis/cloud/v1alpha1"
+	grafana "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
@@ -310,10 +311,10 @@ func getInitContainers(cr *grafana.Grafana) []corev1.Container {
 	}
 }
 
-func getReplica(cr *grafana.Grafana) *int32 {
+func getReplicas(cr *grafana.Grafana) *int32 {
 
-	if cr.Spec.DeployData.MetaData.Replica != nil {
-		return &cr.Spec.MetaData.Replica
+	if cr.Spec.MetaData != nil && cr.Spec.DeployData.MetaData.Replicas != nil {
+		return &cr.Spec.MetaData.Replicas
 	}
 
 	var replica int32 = 1
@@ -345,7 +346,7 @@ func getPodAnnotations(cr *grafana.Grafana) map[string]string {
 func getDeploymentSpec(cr *grafana.Grafana) appv1.DeploymentSpec {
 
 	return &appv1.DeploymentSpec{
-		Replicas: getReplica(cr),
+		Replicas: getReplicas(cr),
 		Selector: &metav1.LabelSelector{
 			MatchLabels: map[string]string{
 				"app": "grafana",
@@ -375,4 +376,25 @@ func getDeployment(cr *grafana.Grafana) appv1.Deployment {
 		},
 		Spec: getDeploymentSpec(cr),
 	}
+}
+
+func grafanaSelector(cr *grafana.Grafana) client.ObjectKey {
+
+	return client.ObjectKey{
+		Name:      GrafanaDeploymentName,
+		Namespace: cr.ObjectMeta.Namespace,
+	}
+}
+
+func reconciledGrafanaDeployment(cr *grafana.Grafana, current *appv1.Deployment) *appv1.Deployment {
+
+	reconciled := current.DeepCopy()
+
+	if cr.Spec.MetaData != nil && cr.Spec.MetaData.Replicas != nil {
+		replicas := cr.Spec.MetaData.Replicas
+		if reconciled.Spec.Replicas != replicas {
+			reconciled.Spec.Replicas = replicas
+		}
+	}
+	return reconciled
 }

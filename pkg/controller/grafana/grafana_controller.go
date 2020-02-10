@@ -3,7 +3,7 @@ package grafana
 import (
 	"context"
 
-	cloudv1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/cloud/v1alpha1"
+	cloudv1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	utils "github,com/IBM/ibm-grafana-operato/pkg/controller/utils"
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -117,18 +117,18 @@ func (r *ReconcileGrafana) Reconcile(request reconcile.Request) (reconcile.Resul
 			return reconcile.Result{}, nil
 		}
 		// Error reading the object - requeue the request.
-		return reconcile.Result{}, err
+		return reconcile.Result{Requeue: true, RequeueAfter: utils.RequeDelay}, err
 	}
 
 	//reconcile all the resources
 	cr := instance.DeepCopy()
+	err := reconcileGrafana(r, cr);
 
-	//reconcileDeployment(r.ctx, r.client, cr)
-	//reconcileService(r.ctx, r.client, cr.spec.service)
-	//reconcileServiceAccount(r.ctx, r.client, cr)
+	if err != nil {
+		return handleError(r, cr, err)
+	}
 
-	reqLogger.Info("Skip reconcile: Pod already exists", "Pod.Namespace", found.Namespace, "Pod.Name", found.Name)
-	return reconcile.Result{}, nil
+	return handleSucess(r, cr)
 }
 
-func UpdateStatus(cr *grafana.Grafana)
+
