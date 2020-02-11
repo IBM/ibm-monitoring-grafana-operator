@@ -1,0 +1,6 @@
+apiVersion: operator.ibm.com/v1alpha1
+kind: Grafana
+metadata:
+  name: example-grafana
+spec:
+  baseImage: grafana/grafana:6.5.4
