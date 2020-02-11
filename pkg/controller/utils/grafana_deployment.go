@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 
-	grafana "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
+	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -19,7 +19,7 @@ const (
 	CpuLimit      = "500m"
 )
 
-func getResources(cr *grafana.Grafana) corev1.ResourceRequirements {
+func getResources(cr *v1alpha1.Grafana) corev1.ResourceRequirements {
 
 	if cr.Spec.Resource != nil {
 		return *cr.Spec.Resource
@@ -38,7 +38,7 @@ func getResources(cr *grafana.Grafana) corev1.ResourceRequirements {
 
 }
 
-func getVolumes(cr *grafana.Grafana) []corev1.Volume {
+func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 	var volumes []corev1.Volume
 	var volumeOptional bool = true
 
@@ -113,7 +113,7 @@ func getVolumes(cr *grafana.Grafana) []corev1.Volume {
 	return volumes
 }
 
-func getVolumeMounts(cr grafana.Grafana) []corev1.VolumeMount {
+func getVolumeMounts(cr v1alpha1.Grafana) []corev1.VolumeMount {
 	var mounts []corev1.VolumeMount
 
 	mounts = append(mounts, corev1.VolumeMount{
@@ -160,12 +160,12 @@ func getVolumeMounts(cr grafana.Grafana) []corev1.VolumeMount {
 	return mounts
 }
 
-func getProbe(cr *grafana.Grafana, delay, timeout, failure int32) *corev1.Probe {
+func getProbe(cr *v1alpha1.Grafana, delay, timeout, failure int32) *corev1.Probe {
 	return &corev1.Probe{
 		Handler: corev1.Handler{
 			HTTPGet: &corev1.HTTPGetAction{
 				Path: GrafanaHealthEndpoint,
-				Port: intstr.FromInt(3000),
+				Port: intstr.FromInt(DefaultGrafanaPort),
 			},
 		},
 		InitialDelaySeconds: delay,
@@ -174,7 +174,7 @@ func getProbe(cr *grafana.Grafana, delay, timeout, failure int32) *corev1.Probe 
 	}
 }
 
-func getContainers(cr *grafana.Grafana) []corev1.Container {
+func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 
 	containers := []corev1.Container{}
 	var image string
@@ -190,8 +190,8 @@ func getContainers(cr *grafana.Grafana) []corev1.Container {
 		Args:  []string{"-config=/etc/grafana/grafana.ini"},
 		Ports: []corev1.ContainerPort{
 			{
-				Name:          "grafana-https",
-				ContainerPort: 3000,
+				Name:          "grafana-http",
+				ContainerPort: DefaultGrafanaPort,
 				Protocol:      "TCP",
 			},
 		},
@@ -238,7 +238,7 @@ func getContainers(cr *grafana.Grafana) []corev1.Container {
 }
 
 // Add extra mounts of containers
-func getExtraContainerVolumeMounts(cr grafana.Grafana, mounts []corev1.VolumeMount) []corev1.VolumeMount {
+func getExtraContainerVolumeMounts(cr v1alpha1.Grafana, mounts []corev1.VolumeMount) []corev1.VolumeMount {
 	appendIfEmpty := func(mounts []corev1.VolumeMount, mount corev1.VolumeMount) []corev1.VolumeMount {
 		for _, existing := range mounts {
 			if existing.Name == mount.Name || existing.MountPath == mount.MountPath {
@@ -267,7 +267,7 @@ func getExtraContainerVolumeMounts(cr grafana.Grafana, mounts []corev1.VolumeMou
 	return mounts
 }
 
-func getInitContainers(cr *grafana.Grafana) []corev1.Container {
+func getInitContainers(cr *v1alpha1.Grafana) []corev1.Container {
 
 	var image string
 	if cr.Spec.InitImage != nil {
@@ -311,7 +311,7 @@ func getInitContainers(cr *grafana.Grafana) []corev1.Container {
 	}
 }
 
-func getReplicas(cr *grafana.Grafana) *int32 {
+func getReplicas(cr *v1alpha1.Grafana) *int32 {
 
 	if cr.Spec.MetaData != nil && cr.Spec.DeployData.MetaData.Replicas != nil {
 		return &cr.Spec.MetaData.Replicas
@@ -322,7 +322,7 @@ func getReplicas(cr *grafana.Grafana) *int32 {
 
 }
 
-func getPodLabels(cr *grafana.Grafana) map[string]string {
+func getPodLabels(cr *v1alpha1.Grafana) map[string]string {
 
 	labels := map[string]string{}
 	if cr.Spec.MetaData != nil && cr.Spec.MetaData.Selector != nil {
@@ -334,7 +334,7 @@ func getPodLabels(cr *grafana.Grafana) map[string]string {
 
 }
 
-func getPodAnnotations(cr *grafana.Grafana) map[string]string {
+func getPodAnnotations(cr *v1alpha1.Grafana) map[string]string {
 
 	if cr.Spec.MetaData != nil && cr.Spec.MetaData.Annotations != nil {
 		return cr.Spec.MetaData.Annotations
@@ -343,7 +343,7 @@ func getPodAnnotations(cr *grafana.Grafana) map[string]string {
 	return nil
 }
 
-func getDeploymentSpec(cr *grafana.Grafana) appv1.DeploymentSpec {
+func getDeploymentSpec(cr *v1alpha1.Grafana) appv1.DeploymentSpec {
 
 	return &appv1.DeploymentSpec{
 		Replicas: getReplicas(cr),
@@ -368,7 +368,7 @@ func getDeploymentSpec(cr *grafana.Grafana) appv1.DeploymentSpec {
 	}
 }
 
-func getDeployment(cr *grafana.Grafana) appv1.Deployment {
+func getDeployment(cr *v1alpha1.Grafana) appv1.Deployment {
 	return &appv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      GrafanaDeploymentName,
@@ -378,7 +378,7 @@ func getDeployment(cr *grafana.Grafana) appv1.Deployment {
 	}
 }
 
-func grafanaSelector(cr *grafana.Grafana) client.ObjectKey {
+func grafanaSelector(cr *v1alpha1.Grafana) client.ObjectKey {
 
 	return client.ObjectKey{
 		Name:      GrafanaDeploymentName,
@@ -386,7 +386,7 @@ func grafanaSelector(cr *grafana.Grafana) client.ObjectKey {
 	}
 }
 
-func reconciledGrafanaDeployment(cr *grafana.Grafana, current *appv1.Deployment) *appv1.Deployment {
+func reconciledGrafanaDeployment(cr *v1alpha1.Grafana, current *appv1.Deployment) *appv1.Deployment {
 
 	reconciled := current.DeepCopy()
 

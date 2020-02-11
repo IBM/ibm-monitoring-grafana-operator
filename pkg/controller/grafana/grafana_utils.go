@@ -3,7 +3,7 @@ package grafana
 import (
 	"context"
 
-	cloudv1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
+	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	utils "github.com/IBM/ibm-grafana-operator/pkg/controller/utils"
 	appv1 "k8s.io/api/app/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -13,7 +13,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-func reconcileGrafana(r *reconcileGrafana, cr *cloudv1alpha1) error {
+func reconcileGrafana(r *reconcileGrafana, cr *v1alpha1.Grafana) error {
 
 	err := reconcileGrafanaDeployment(r, cr)
 	if err != nil {
@@ -33,7 +33,7 @@ func reconcileGrafana(r *reconcileGrafana, cr *cloudv1alpha1) error {
 	return nil
 }
 
-func reconcileGrafanaDeployment(r *ReconcileGrafana, cr *cloudv1alpha1) error {
+func reconcileGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
 	selector := utils.grafanaDeploymentSelector(cr)
 	deployment := &appv1.Deployment{}
@@ -60,7 +60,7 @@ func reconcileGrafanaDeployment(r *ReconcileGrafana, cr *cloudv1alpha1) error {
 	return nil
 }
 
-func createGrafanaDeployment(r *ReconcileGrafana, cr *cloudv1alpha1) err {
+func createGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) err {
 
 	dep := utils.getGrafanaDeployment(cr)
 	err := controllerutil.SetControllerReference(cr, dep, r.schemes)
@@ -77,7 +77,7 @@ func createGrafanaDeployment(r *ReconcileGrafana, cr *cloudv1alpha1) err {
 
 }
 
-func reconcileGrafanaService(r *ReconcileGrafana, cr *cloudv1alpha1) error {
+func reconcileGrafanaService(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
 	selector := utils.grafanaDeploymentSelector(cr)
 	svc := &corev1.Service{}
@@ -100,7 +100,7 @@ func reconcileGrafanaService(r *ReconcileGrafana, cr *cloudv1alpha1) error {
 	return nil
 }
 
-func createGrafanaService(r *ReconcileGrafana, cr *cloudv1alpha1) err {
+func createGrafanaService(r *ReconcileGrafana, cr *v1alpha1.Grafana) err {
 	svc := utils.getGrafanaService(cr)
 	err := controllerutil.SetControllerReference(cr, svc, r.scheme)
 
@@ -117,7 +117,7 @@ func createGrafanaService(r *ReconcileGrafana, cr *cloudv1alpha1) err {
 
 }
 
-func reconcileGrafanaServiceAccount(r *ReconcileGrafana, cr *cloudv1alpha1) error {
+func reconcileGrafanaServiceAccount(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
 	sa := &corev1.ServiceAccount{}
 	selector := utils.GrafanaServiceAccountSelector()
@@ -146,7 +146,7 @@ func reconcileGrafanaServiceAccount(r *ReconcileGrafana, cr *cloudv1alpha1) erro
 
 }
 
-func createGrafanaServiceAccount(r *ReconcileGrafana, cr *cloudv1alpha1) err {
+func createGrafanaServiceAccount(r *ReconcileGrafana, cr *v1alpha1.Grafana) err {
 
 	sa := utils.getGrafanaServiceAccount(cr)
 	err := controllerutil.SetControllerReference(cr, sa, r.scheme)
@@ -162,7 +162,7 @@ func createGrafanaServiceAccount(r *ReconcileGrafana, cr *cloudv1alpha1) err {
 	return nil
 }
 
-func reconcileGrafanaRoute(r *ReconcileGrafana, cr *cloudv1alpha1) error {
+func reconcileGrafanaRoute(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	route := utils.getGrafanaRoute(cr)
 	err := controllerutil.SetControllerReference(cr, route, r.scheme)
 	if err != nil {
@@ -176,7 +176,7 @@ func reconcileGrafanaRoute(r *ReconcileGrafana, cr *cloudv1alpha1) error {
 	return nil
 }
 
-func handleError(r *ReconcileGrafana, cr *cloudv1alpha1, issue error) (reconcile.Result, error) {
+func handleError(r *ReconcileGrafana, cr *v1alpha1.Grafana, issue error) (reconcile.Result, error) {
 	cr.Spec.Status.Phase = "failed"
 	cr.Spec.Status.Message = issue.Error()
 
@@ -192,7 +192,7 @@ func handleError(r *ReconcileGrafana, cr *cloudv1alpha1, issue error) (reconcile
 	return reconcile.Result{Requeue: true, RequeueAfter: utils.RequeueDelay}, nil
 }
 
-func handleSucess(r *ReconcileGrafana, cr *cloudv1alpha1) (reconcile.Result, error) {
+func handleSucess(r *ReconcileGrafana, cr *v1alpha1.Grafana) (reconcile.Result, error) {
 
 	cr.Status.Phase = "reconciling"
 	cr.Status.Message = "success"

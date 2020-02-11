@@ -1,4 +1,4 @@
-apiVersion: cloud.ibm.com/v1alpha1
+apiVersion: operator.ibm.com/v1alpha1
 kind: Grafana
 metadata:
   name: example-grafana

@@ -1,28 +1,28 @@
 package utils
 
 import (
-	grafana "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
+	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func getServiceLabels(cr *grafana.Grafana) map[string]string {
+func getServiceLabels(cr *v1alpha1.Grafana) map[string]string {
 	if cr.Spec.Service == nil {
 		return nil
 	}
 	return cr.Spec.Service.Labels
 }
 
-func getServiceAnnotations(cr *grafana.Grafana) map[string]string {
+func getServiceAnnotations(cr *v1alpha1.Grafana) map[string]string {
 	if cr.Spec.Service == nil {
 		return nil
 	}
 	return cr.Spec.Service.Annotations
 }
 
-func getServiceType(cr *grafana.Grafana) corev1.ServiceType {
+func getServiceType(cr *v1alpha1.Grafana) corev1.ServiceType {
 	if cr.Spec.Service == nil {
 		return corev1.ServiceTypeClusterIP
 	}
@@ -32,8 +32,8 @@ func getServiceType(cr *grafana.Grafana) corev1.ServiceType {
 	return cr.Spec.Service.Type
 }
 
-func getServicePorts(cr *grafana.Grafana, currentState *corev1.Service) []corev1.ServicePort {
-	var intPort int32 = 3000
+func getServicePorts(cr *v1alpha1.Grafana, currentState *corev1.Service) []corev1.ServicePort {
+	intPort := DefaultGrafanaPort
 
 	defaultPorts := []corev1.ServicePort{
 		{
@@ -75,7 +75,7 @@ func getServicePorts(cr *grafana.Grafana, currentState *corev1.Service) []corev1
 	return defaultPorts
 }
 
-func getGrafanaService(cr *grafana.Grafana) *corev1.Service {
+func getGrafanaService(cr *v1alpha1.Grafana) *corev1.Service {
 	return &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        GrafanaServiceName,
@@ -94,7 +94,7 @@ func getGrafanaService(cr *grafana.Grafana) *corev1.Service {
 	}
 }
 
-func GrafanaServiceReconciled(cr *grafana.Grafana, current *corev1.Service) *corev1.Service {
+func GrafanaServiceReconciled(cr *v1alpha1.Grafana, current *corev1.Service) *corev1.Service {
 	reconciled := current.DeepCopy()
 	reconciled.Labels = getServiceLabels(cr)
 	reconciled.Annotations = getServiceAnnotations(cr)
@@ -103,7 +103,7 @@ func GrafanaServiceReconciled(cr *grafana.Grafana, current *corev1.Service) *cor
 	return reconciled
 }
 
-func GrafanaServiceSelector(cr *grafana.Grafana) client.ObjectKey {
+func GrafanaServiceSelector(cr *v1alpha1.Grafana) client.ObjectKey {
 	return client.ObjectKey{
 		Namespace: cr.Namespace,
 		Name:      "grafana",

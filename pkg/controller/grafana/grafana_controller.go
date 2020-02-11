@@ -3,8 +3,8 @@ package grafana
 import (
 	"context"
 
-	cloudv1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
-	utils "github,com/IBM/ibm-grafana-operato/pkg/controller/utils"
+	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
+	utils "github.com/IBM/ibm-grafana-operato/pkg/controller/utils"
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -46,7 +46,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	}
 
 	// Watch for changes to primary resource Grafana
-	err = c.Watch(&source.Kind{Type: &cloudv1alpha1.Grafana{}}, &handler.EnqueueRequestForObject{})
+	err = c.Watch(&source.Kind{Type: &v1alpha1.Grafana{}}, &handler.EnqueueRequestForObject{})
 	if err != nil {
 		return err
 	}
@@ -55,7 +55,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	// Watch for changes to secondary resource Pods and requeue the owner Grafana
 	err = c.Watch(&source.Kind{Type: &appv1.Deployment{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
-		OwnerType:    &cloudv1alpha1.Grafana{},
+		OwnerType:    &v1alpha1.Grafana{},
 	})
 	if err != nil {
 		return err
@@ -63,7 +63,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 
 	err := c.Watch(&source.Kind{Type: &corev1.Service{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
-		OwnerType:    &cloudv1alpha1.Grafana{},
+		OwnerType:    &v1alpha1.Grafana{},
 	})
 
 	if err != nil {
@@ -72,7 +72,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 
 	err := c.Watch(&source.Kind{Type: &corev1.ServiceAccount{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
-		OwnerType:    &cloudv1alpha1.Grafana{},
+		OwnerType:    &v1alpha1.Grafana{},
 	})
 
 	if err != nil {
@@ -106,7 +106,7 @@ func (r *ReconcileGrafana) Reconcile(request reconcile.Request) (reconcile.Resul
 	reqLogger.Info("Reconciling Grafana")
 
 	// Fetch the Grafana instance
-	instance := &cloudv1alpha1.Grafana{}
+	instance := &v1alpha1.Grafana{}
 	err := r.client.Get(r.ctx, types.NamespacedName{Name: requrest.Name, Namespace: request.Namespace}, instance)
 	if err != nil {
 		if errors.IsNotFound(err) {

@@ -67,7 +67,7 @@ rules:
   verbs:
   - get
 - apiGroups:
-  - cloud.ibm.com
+  - operator.ibm.com
   resources:
   - '*'
   verbs:

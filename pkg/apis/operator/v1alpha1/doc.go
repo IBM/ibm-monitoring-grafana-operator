@@ -1,4 +1,4 @@
-// Package v1alpha1 contains API Schema definitions for the cloud v1alpha1 API group
+// Package v1alpha1 contains API Schema definitions for the operator v1alpha1 API group
 // +k8s:deepcopy-gen=package,register
-// +groupName=cloud.ibm.com
+// +groupName=operator.ibm.com
 package v1alpha1

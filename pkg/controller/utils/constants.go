@@ -21,6 +21,6 @@ const (
 	GrafanaServiceName        = "grafana-service"
 	GrafanaHttpPortName       = "grafana"
 	RequeueDelay              = time.Second * 10
-	DefaultGrafanaIngressPort = 3000
+	DefaultGrafanaPort        = 3000
 	GrafanaRouteName          = "grafana-route"
 )
