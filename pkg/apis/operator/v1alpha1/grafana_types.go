@@ -24,7 +24,7 @@ type GrafanaSpec struct {
 	Resource   *corev1.ResourceRequirements `json:"resources,omitempty"`
 	BaseImage  string                       `json:"baseImage,omitempty"`
 	InitImage  string                       `json:"initImage,omitempty"`
-	Route      GrafanaRoute                 `json:"route,omitempty"`
+	Route      *GrafanaRoute                `json:"route,omitempty"`
 }
 
 // GrafanaService provides a means to configure the service
@@ -35,13 +35,14 @@ type GrafanaService struct {
 	Ports       []v1.ServicePort  `json:"ports,omitempty"`
 }
 
-// MetaData set the metadata for the pod
+// MetaData set the metadata for the pod, servieaccount.
 type MetaData struct {
 	Annotations map[string]string `json:"annotations,omitempty"`
 	Labels      map[string]string `json:"labels,omitempty"`
 	Replicas    int32             `json:replica,omitempty`
 }
 
+// GrafanaRoute set the config for route.
 type GrafanaRoute struct {
 	Annotations   map[string]string          `json:"annotations,omitempty"`
 	Hostname      string                     `json:"hostname,omitempty"`
