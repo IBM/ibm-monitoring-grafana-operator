@@ -3,13 +3,12 @@ package grafana
 import (
 	"context"
 
-	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	utils "github.com/IBM/ibm-grafana-operato/pkg/controller/utils"
+	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
@@ -34,7 +33,8 @@ func Add(mgr manager.Manager) error {
 
 // newReconciler returns a new reconcile.Reconciler
 func newReconciler(mgr manager.Manager) reconcile.Reconciler {
-	return &ReconcileGrafana{client: mgr.GetClient(), scheme: mgr.GetScheme(), context.Backgroud()}
+	context := context.Background()
+	return &ReconcileGrafana{client: mgr.GetClient(), scheme: mgr.GetScheme(), ctx: context}
 }
 
 // add adds a new Controller to mgr with r as the reconcile.Reconciler
@@ -107,13 +107,13 @@ func (r *ReconcileGrafana) Reconcile(request reconcile.Request) (reconcile.Resul
 
 	// Fetch the Grafana instance
 	instance := &v1alpha1.Grafana{}
-	err := r.client.Get(r.ctx, types.NamespacedName{Name: requrest.Name, Namespace: request.Namespace}, instance)
+	err := r.client.Get(r.ctx, request.NamespacedName, instance)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// Request object not found, could have been deleted after reconcile request.
 			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
 			// Return and don't requeue
-			reqLogger.info("Grafana resource not found, could have been deleted.")
+			reqLogger.Info("Grafana resource not found, could have been deleted.")
 			return reconcile.Result{}, nil
 		}
 		// Error reading the object - requeue the request.
@@ -122,7 +122,7 @@ func (r *ReconcileGrafana) Reconcile(request reconcile.Request) (reconcile.Resul
 
 	//reconcile all the resources
 	cr := instance.DeepCopy()
-	err := reconcileGrafana(r, cr);
+	err = reconcileGrafana(r, cr)
 
 	if err != nil {
 		return handleError(r, cr, err)
@@ -130,5 +130,3 @@ func (r *ReconcileGrafana) Reconcile(request reconcile.Request) (reconcile.Resul
 
 	return handleSucess(r, cr)
 }
-
-

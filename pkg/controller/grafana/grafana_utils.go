@@ -1,19 +1,17 @@
 package grafana
 
 import (
-	"context"
-
 	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	utils "github.com/IBM/ibm-grafana-operator/pkg/controller/utils"
+	routev1 "github.com/openshift/api/route/v1"
 	appv1 "k8s.io/api/app/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-func reconcileGrafana(r *reconcileGrafana, cr *v1alpha1.Grafana) error {
+func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
 	err := reconcileGrafanaDeployment(r, cr)
 	if err != nil {
@@ -26,6 +24,11 @@ func reconcileGrafana(r *reconcileGrafana, cr *v1alpha1.Grafana) error {
 	}
 
 	err = reconcileGrafanaServiceAccount(r, cr)
+	if err != nil {
+		return err
+	}
+
+	err = reconcileGrafanaRoute(r, cr)
 	if err != nil {
 		return err
 	}
@@ -100,7 +103,7 @@ func reconcileGrafanaService(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	return nil
 }
 
-func createGrafanaService(r *ReconcileGrafana, cr *v1alpha1.Grafana) err {
+func createGrafanaService(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	svc := utils.getGrafanaService(cr)
 	err := controllerutil.SetControllerReference(cr, svc, r.scheme)
 
@@ -146,7 +149,7 @@ func reconcileGrafanaServiceAccount(r *ReconcileGrafana, cr *v1alpha1.Grafana) e
 
 }
 
-func createGrafanaServiceAccount(r *ReconcileGrafana, cr *v1alpha1.Grafana) err {
+func createGrafanaServiceAccount(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
 	sa := utils.getGrafanaServiceAccount(cr)
 	err := controllerutil.SetControllerReference(cr, sa, r.scheme)
@@ -163,6 +166,30 @@ func createGrafanaServiceAccount(r *ReconcileGrafana, cr *v1alpha1.Grafana) err 
 }
 
 func reconcileGrafanaRoute(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
+
+	selector := utils.GrafanaRouteSelector(cr)
+	route := &routev1.Route{}
+	err := r.client.Get(r.ctx, selector, route)
+	if err != nil {
+		if error.IsNotFound(err) {
+			err = createGrafanaRoute(r, cr)
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+		return err
+	}
+	toUpdate := utils.grafanaRouteReconciled(cr, route)
+
+	err = r.client.Update(r.ctx, toUpdate)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func createGrafanaRoute(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	route := utils.getGrafanaRoute(cr)
 	err := controllerutil.SetControllerReference(cr, route, r.scheme)
 	if err != nil {
@@ -180,7 +207,7 @@ func handleError(r *ReconcileGrafana, cr *v1alpha1.Grafana, issue error) (reconc
 	cr.Spec.Status.Phase = "failed"
 	cr.Spec.Status.Message = issue.Error()
 
-	err := r.client.Status().Update(r.context, cr)
+	err := r.client.Status().Update(r.ctx, cr)
 	if err != nil {
 		// Ignore conflicts, resource might just be outdated.
 		if errors.IsConflict(err) {
@@ -197,9 +224,9 @@ func handleSucess(r *ReconcileGrafana, cr *v1alpha1.Grafana) (reconcile.Result, 
 	cr.Status.Phase = "reconciling"
 	cr.Status.Message = "success"
 
-	err := r.client.Status().Update(r.context, cr)
+	err := r.client.Status().Update(r.ctx, cr)
 	if err != nil {
-		return r.manageError(cr, err)
+		return handleError(r, cr, err)
 	}
 
 	log.Info("desired cluster state met")

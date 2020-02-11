@@ -8,35 +8,35 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func GetHost(cr *v1alpha1.Grafana) string {
+func getHost(cr *v1alpha1.Grafana) string {
 	if cr.Spec.Route == nil {
 		return ""
 	}
 	return cr.Spec.Route.Hostname
 }
 
-func GetPath(cr *v1alpha1.Grafana) string {
+func getPath(cr *v1alpha1.Grafana) string {
 	if cr.Spec.Route == nil {
 		return "/"
 	}
 	return cr.Spec.Route.Path
 }
 
-func GetRouteLabels(cr *v1alpha1.Grafana) map[string]string {
+func getRouteLabels(cr *v1alpha1.Grafana) map[string]string {
 	if cr.Spec.Route == nil {
 		return nil
 	}
 	return cr.Spec.Route.Labels
 }
 
-func GetRouteAnnotations(cr *v1alpha1.Grafana) map[string]string {
+func getRouteAnnotations(cr *v1alpha1.Grafana) map[string]string {
 	if cr.Spec.Route == nil {
 		return nil
 	}
 	return cr.Spec.Route.Annotations
 }
 
-func GetRouteTargetPort(cr *v1alpha1.Grafana) intstr.IntOrString {
+func getRouteTargetPort(cr *v1alpha1.Grafana) intstr.IntOrString {
 	defaultPort := intstr.FromInt(DefaultGrafanaPort)
 
 	if cr.Spec.Route == nil {
@@ -69,15 +69,15 @@ func getTermination(cr *v1alpha1.Grafana) routev1.TLSTerminationType {
 
 func getRouteSpec(cr *v1alpha1.Grafana) routev1.RouteSpec {
 	return routev1.RouteSpec{
-		Host: GetHost(cr),
-		Path: GetPath(cr),
+		Host: getHost(cr),
+		Path: getPath(cr),
 		To: routev1.RouteTargetReference{
 			Kind: "Service",
 			Name: GrafanaServiceName,
 		},
 		AlternateBackends: nil,
 		Port: &routev1.RoutePort{
-			TargetPort: GetRouteTargetPort(cr),
+			TargetPort: getRouteTargetPort(cr),
 		},
 		TLS: &routev1.TLSConfig{
 			Termination: getTermination(cr),
@@ -86,29 +86,29 @@ func getRouteSpec(cr *v1alpha1.Grafana) routev1.RouteSpec {
 	}
 }
 
-func GrafanaRoute(cr *v1alpha1.Grafana) *routev1.Route {
+func getGrafanaRoute(cr *v1alpha1.Grafana) *routev1.Route {
 	return &routev1.Route{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        GrafanaRouteName,
 			Namespace:   cr.Namespace,
-			Labels:      GetRouteLabels(cr),
-			Annotations: GetRouteAnnotations(cr),
+			Labels:      getRouteLabels(cr),
+			Annotations: getRouteAnnotations(cr),
 		},
 		Spec: getRouteSpec(cr),
 	}
 }
 
-func GrafanaRouteSelector(cr *v1alpha1.Grafana) client.ObjectKey {
+func getGrafanaRouteSelector(cr *v1alpha1.Grafana) client.ObjectKey {
 	return client.ObjectKey{
 		Namespace: cr.Namespace,
 		Name:      GrafanaRouteName,
 	}
 }
 
-func GrafanaRouteReconciled(cr *v1alpha1.Grafana, currentState *routev1.Route) *routev1.Route {
+func grafanaRouteReconciled(cr *v1alpha1.Grafana, currentState *routev1.Route) *routev1.Route {
 	reconciled := currentState.DeepCopy()
-	reconciled.Labels = GetRouteLabels(cr)
-	reconciled.Annotations = GetRouteAnnotations(cr)
+	reconciled.Labels = getRouteLabels(cr)
+	reconciled.Annotations = getRouteAnnotations(cr)
 	reconciled.Spec = getRouteSpec(cr)
 	return reconciled
 }
