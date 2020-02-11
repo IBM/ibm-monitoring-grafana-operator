@@ -86,7 +86,7 @@ func getRouteSpec(cr *v1alpha1.Grafana) routev1.RouteSpec {
 	}
 }
 
-func getGrafanaRoute(cr *v1alpha1.Grafana) *routev1.Route {
+func GrafanaRoute(cr *v1alpha1.Grafana) *routev1.Route {
 	return &routev1.Route{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        GrafanaRouteName,
@@ -98,14 +98,14 @@ func getGrafanaRoute(cr *v1alpha1.Grafana) *routev1.Route {
 	}
 }
 
-func getGrafanaRouteSelector(cr *v1alpha1.Grafana) client.ObjectKey {
+func GrafanaRouteSelector(cr *v1alpha1.Grafana) client.ObjectKey {
 	return client.ObjectKey{
 		Namespace: cr.Namespace,
 		Name:      GrafanaRouteName,
 	}
 }
 
-func grafanaRouteReconciled(cr *v1alpha1.Grafana, currentState *routev1.Route) *routev1.Route {
+func ReconciledGrafanaRoute(cr *v1alpha1.Grafana, currentState *routev1.Route) *routev1.Route {
 	reconciled := currentState.DeepCopy()
 	reconciled.Labels = getRouteLabels(cr)
 	reconciled.Annotations = getRouteAnnotations(cr)

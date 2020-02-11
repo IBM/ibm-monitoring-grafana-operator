@@ -113,7 +113,7 @@ func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 	return volumes
 }
 
-func getVolumeMounts(cr v1alpha1.Grafana) []corev1.VolumeMount {
+func getVolumeMounts(cr *v1alpha1.Grafana) []corev1.VolumeMount {
 	var mounts []corev1.VolumeMount
 
 	mounts = append(mounts, corev1.VolumeMount{
@@ -176,9 +176,9 @@ func getProbe(cr *v1alpha1.Grafana, delay, timeout, failure int32) *corev1.Probe
 
 func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 
-	containers := []corev1.Container{}
 	var image string
-	if cr.Spec.BaseImage != nil {
+	containers := []corev1.Container{}
+	if cr.Spec.BaseImage != "" {
 		image = cr.Spec.BaseImage
 	} else {
 		image = DefaultGrafanaImage
@@ -238,7 +238,7 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 }
 
 // Add extra mounts of containers
-func getExtraContainerVolumeMounts(cr v1alpha1.Grafana, mounts []corev1.VolumeMount) []corev1.VolumeMount {
+func getExtraContainerVolumeMounts(cr *v1alpha1.Grafana, mounts []corev1.VolumeMount) []corev1.VolumeMount {
 	appendIfEmpty := func(mounts []corev1.VolumeMount, mount corev1.VolumeMount) []corev1.VolumeMount {
 		for _, existing := range mounts {
 			if existing.Name == mount.Name || existing.MountPath == mount.MountPath {
@@ -270,7 +270,7 @@ func getExtraContainerVolumeMounts(cr v1alpha1.Grafana, mounts []corev1.VolumeMo
 func getInitContainers(cr *v1alpha1.Grafana) []corev1.Container {
 
 	var image string
-	if cr.Spec.InitImage != nil {
+	if cr.Spec.InitImage != "" {
 		image = cr.Spec.InitImage
 	} else {
 		image = DefaultGrafanaInitImage
@@ -313,20 +313,20 @@ func getInitContainers(cr *v1alpha1.Grafana) []corev1.Container {
 
 func getReplicas(cr *v1alpha1.Grafana) *int32 {
 
-	if cr.Spec.MetaData != nil && cr.Spec.DeployData.MetaData.Replicas != nil {
+	var replicas int32
+	if cr.Spec.MetaData != nil && &cr.Spec.MetaData.Replicas != nil {
 		return &cr.Spec.MetaData.Replicas
 	}
 
-	var replica int32 = 1
-	return &replica
+	return &replicas
 
 }
 
 func getPodLabels(cr *v1alpha1.Grafana) map[string]string {
 
 	labels := map[string]string{}
-	if cr.Spec.MetaData != nil && cr.Spec.MetaData.Selector != nil {
-		labels = cr.MetaData.Selector
+	if cr.Spec.MetaData != nil && cr.Spec.MetaData.Labels != nil {
+		labels = cr.Spec.MetaData.Labels
 	}
 
 	labels["app"] = "grafana"
@@ -345,7 +345,7 @@ func getPodAnnotations(cr *v1alpha1.Grafana) map[string]string {
 
 func getDeploymentSpec(cr *v1alpha1.Grafana) appv1.DeploymentSpec {
 
-	return &appv1.DeploymentSpec{
+	return appv1.DeploymentSpec{
 		Replicas: getReplicas(cr),
 		Selector: &metav1.LabelSelector{
 			MatchLabels: map[string]string{
@@ -368,7 +368,7 @@ func getDeploymentSpec(cr *v1alpha1.Grafana) appv1.DeploymentSpec {
 	}
 }
 
-func getDeployment(cr *v1alpha1.Grafana) appv1.Deployment {
+func GrafanaDeployment(cr *v1alpha1.Grafana) *appv1.Deployment {
 	return &appv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      GrafanaDeploymentName,
@@ -378,7 +378,7 @@ func getDeployment(cr *v1alpha1.Grafana) appv1.Deployment {
 	}
 }
 
-func grafanaSelector(cr *v1alpha1.Grafana) client.ObjectKey {
+func GrafanaDeploymentSelector(cr *v1alpha1.Grafana) client.ObjectKey {
 
 	return client.ObjectKey{
 		Name:      GrafanaDeploymentName,
@@ -386,14 +386,14 @@ func grafanaSelector(cr *v1alpha1.Grafana) client.ObjectKey {
 	}
 }
 
-func reconciledGrafanaDeployment(cr *v1alpha1.Grafana, current *appv1.Deployment) *appv1.Deployment {
+func ReconciledGrafanaDeployment(cr *v1alpha1.Grafana, current *appv1.Deployment) *appv1.Deployment {
 
 	reconciled := current.DeepCopy()
 
-	if cr.Spec.MetaData != nil && cr.Spec.MetaData.Replicas != nil {
+	if cr.Spec.MetaData != nil && &cr.Spec.MetaData.Replicas != nil {
 		replicas := cr.Spec.MetaData.Replicas
-		if reconciled.Spec.Replicas != replicas {
-			reconciled.Spec.Replicas = replicas
+		if *reconciled.Spec.Replicas != replicas {
+			*reconciled.Spec.Replicas = replicas
 		}
 	}
 	return reconciled

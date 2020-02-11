@@ -155,8 +155,8 @@ func (in *GrafanaSpec) DeepCopyInto(out *GrafanaSpec) {
 		*out = new(MetaData)
 		(*in).DeepCopyInto(*out)
 	}
-	if in.Configmaps != nil {
-		in, out := &in.Configmaps, &out.Configmaps
+	if in.ConfigMaps != nil {
+		in, out := &in.ConfigMaps, &out.ConfigMaps
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}

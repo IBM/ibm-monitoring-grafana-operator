@@ -75,7 +75,7 @@ func getServicePorts(cr *v1alpha1.Grafana, currentState *corev1.Service) []corev
 	return defaultPorts
 }
 
-func getGrafanaService(cr *v1alpha1.Grafana) *corev1.Service {
+func GrafanaService(cr *v1alpha1.Grafana) *corev1.Service {
 	return &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        GrafanaServiceName,
@@ -94,7 +94,7 @@ func getGrafanaService(cr *v1alpha1.Grafana) *corev1.Service {
 	}
 }
 
-func GrafanaServiceReconciled(cr *v1alpha1.Grafana, current *corev1.Service) *corev1.Service {
+func ReconciledGrafanaService(cr *v1alpha1.Grafana, current *corev1.Service) *corev1.Service {
 	reconciled := current.DeepCopy()
 	reconciled.Labels = getServiceLabels(cr)
 	reconciled.Annotations = getServiceAnnotations(cr)

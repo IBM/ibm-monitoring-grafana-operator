@@ -4,7 +4,7 @@ import (
 	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	utils "github.com/IBM/ibm-grafana-operator/pkg/controller/utils"
 	routev1 "github.com/openshift/api/route/v1"
-	appv1 "k8s.io/api/app/v1"
+	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -42,7 +42,7 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
 func reconcileGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
-	selector := utils.grafanaDeploymentSelector(cr)
+	selector := utils.GrafanaDeploymentSelector(cr)
 	deployment := &appv1.Deployment{}
 	err := r.client.Get(r.ctx, selector, deployment)
 	if err != nil && errors.IsNotFound(err) {
@@ -57,7 +57,7 @@ func reconcileGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) error
 		return err
 	}
 
-	toUpdate := utils.reconcileDeployment(cr, deployment)
+	toUpdate := utils.ReconciledGrafanaDeployment(cr, deployment)
 	err = r.client.Update(r.ctx, toUpdate)
 	if err != nil {
 		log.Error(err, "Fail to update grafana deployment.")
@@ -69,7 +69,7 @@ func reconcileGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) error
 
 func createGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
-	dep := utils.getGrafanaDeployment(cr)
+	dep := utils.GrafanaDeployment(cr)
 	err := controllerutil.SetControllerReference(cr, dep, r.scheme)
 	if err != nil {
 		return err
@@ -86,7 +86,7 @@ func createGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
 func reconcileGrafanaService(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
-	selector := utils.grafanaDeploymentSelector(cr)
+	selector := utils.GrafanaServiceSelector(cr)
 	svc := &corev1.Service{}
 	err := r.client.Get(r.ctx, selector, svc)
 	if err != nil {
@@ -101,7 +101,7 @@ func reconcileGrafanaService(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 		}
 	}
 
-	toUpdate := utils.reconcileGrafanaService(cr, svc)
+	toUpdate := utils.ReconciledGrafanaService(cr, svc)
 	err = r.client.Update(r.ctx, toUpdate)
 	if err != nil {
 		return err
@@ -110,7 +110,7 @@ func reconcileGrafanaService(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 }
 
 func createGrafanaService(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	svc := utils.getGrafanaService(cr)
+	svc := utils.GrafanaService(cr)
 	err := controllerutil.SetControllerReference(cr, svc, r.scheme)
 
 	if err != nil {
@@ -129,7 +129,7 @@ func createGrafanaService(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 func reconcileGrafanaServiceAccount(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
 	sa := &corev1.ServiceAccount{}
-	selector := utils.GrafanaServiceAccountSelector()
+	selector := utils.GrafanaServiceAccountSelector(cr)
 	err := r.client.Get(r.ctx, selector, sa)
 
 	if err != nil {
@@ -145,7 +145,7 @@ func reconcileGrafanaServiceAccount(r *ReconcileGrafana, cr *v1alpha1.Grafana) e
 
 	}
 
-	toUpdate := utils.reconcileGrafanaService(cr, sa)
+	toUpdate := utils.ReconciledGrafanaServiceAccount(cr, sa)
 	err = r.client.Update(r.ctx, toUpdate)
 	if err != nil {
 		return err
@@ -157,7 +157,7 @@ func reconcileGrafanaServiceAccount(r *ReconcileGrafana, cr *v1alpha1.Grafana) e
 
 func createGrafanaServiceAccount(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
-	sa := utils.getGrafanaServiceAccount(cr)
+	sa := utils.GrafanaServiceAccount(cr)
 	err := controllerutil.SetControllerReference(cr, sa, r.scheme)
 	if err != nil {
 		return err
@@ -186,7 +186,7 @@ func reconcileGrafanaRoute(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 		}
 		return err
 	}
-	toUpdate := utils.grafanaRouteReconciled(cr, route)
+	toUpdate := utils.ReconciledGrafanaRoute(cr, route)
 
 	err = r.client.Update(r.ctx, toUpdate)
 	if err != nil {
@@ -196,7 +196,7 @@ func reconcileGrafanaRoute(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 }
 
 func createGrafanaRoute(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	route := utils.getGrafanaRoute(cr)
+	route := utils.GrafanaRoute(cr)
 	err := controllerutil.SetControllerReference(cr, route, r.scheme)
 	if err != nil {
 		return err
@@ -210,8 +210,8 @@ func createGrafanaRoute(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 }
 
 func handleError(r *ReconcileGrafana, cr *v1alpha1.Grafana, issue error) (reconcile.Result, error) {
-	cr.Spec.Status.Phase = "failed"
-	cr.Spec.Status.Message = issue.Error()
+	cr.Status.Phase = "failed"
+	cr.Status.Message = issue.Error()
 
 	err := r.client.Status().Update(r.ctx, cr)
 	if err != nil {

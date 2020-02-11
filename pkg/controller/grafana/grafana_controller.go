@@ -3,8 +3,8 @@ package grafana
 import (
 	"context"
 
-	utils "github.com/IBM/ibm-grafana-operato/pkg/controller/utils"
 	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
+	utils "github.com/IBM/ibm-grafana-operator/pkg/controller/utils"
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -117,7 +117,7 @@ func (r *ReconcileGrafana) Reconcile(request reconcile.Request) (reconcile.Resul
 			return reconcile.Result{}, nil
 		}
 		// Error reading the object - requeue the request.
-		return reconcile.Result{Requeue: true, RequeueAfter: utils.RequeDelay}, err
+		return reconcile.Result{Requeue: true, RequeueAfter: utils.RequeueDelay}, err
 	}
 
 	//reconcile all the resources

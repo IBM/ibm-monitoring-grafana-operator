@@ -20,7 +20,7 @@ type GrafanaSpec struct {
 	Containers []corev1.Container           `json:"containers, omitempty"`
 	Service    *GrafanaService              `json:"service,omitempty"`
 	MetaData   *MetaData                    `json:"metaData,omitempty"`
-	Configmaps []string                     `json:"configMaps,omitempty"`
+	ConfigMaps []string                     `json:"configMaps,omitempty"`
 	Secrets    []string                     `json:"secrets,omitempty"`
 	Resource   *corev1.ResourceRequirements `json:"resources,omitempty"`
 	BaseImage  string                       `json:"baseImage,omitempty"`
