@@ -15,21 +15,25 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
 	err := reconcileGrafanaDeployment(r, cr)
 	if err != nil {
+		log.Error(err, "Fail to reconcile grafana deployment.")
 		return err
 	}
 
 	err = reconcileGrafanaService(r, cr)
 	if err != nil {
+		log.Error(err, "Fail to reconcile grafana service.")
 		return err
 	}
 
 	err = reconcileGrafanaServiceAccount(r, cr)
 	if err != nil {
+		log.Error(err, "Fail to recocile grafana serviec account.")
 		return err
 	}
 
 	err = reconcileGrafanaRoute(r, cr)
 	if err != nil {
+		log.Error(err, "Fail to reconcile grafana route.")
 		return err
 	}
 
@@ -63,10 +67,10 @@ func reconcileGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) error
 	return nil
 }
 
-func createGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) err {
+func createGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
 	dep := utils.getGrafanaDeployment(cr)
-	err := controllerutil.SetControllerReference(cr, dep, r.schemes)
+	err := controllerutil.SetControllerReference(cr, dep, r.scheme)
 	if err != nil {
 		return err
 	}
@@ -85,14 +89,16 @@ func reconcileGrafanaService(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	selector := utils.grafanaDeploymentSelector(cr)
 	svc := &corev1.Service{}
 	err := r.client.Get(r.ctx, selector, svc)
-	if err != nil && error.IsNotFound(err) {
-		err = createGrafanaService(r, cr)
-		if err != nil {
+	if err != nil {
+		if errors.IsNotFound(err) {
+			err = createGrafanaService(r, cr)
+			if err != nil {
+				return err
+			}
+			return nil
+		} else {
 			return err
 		}
-		return nil
-	} else {
-		return err
 	}
 
 	toUpdate := utils.reconcileGrafanaService(cr, svc)
@@ -127,7 +133,7 @@ func reconcileGrafanaServiceAccount(r *ReconcileGrafana, cr *v1alpha1.Grafana) e
 	err := r.client.Get(r.ctx, selector, sa)
 
 	if err != nil {
-		if error.IsNotFound(err) {
+		if errors.IsNotFound(err) {
 			err = createGrafanaServiceAccount(r, cr)
 			if err != nil {
 				return err
@@ -171,7 +177,7 @@ func reconcileGrafanaRoute(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	route := &routev1.Route{}
 	err := r.client.Get(r.ctx, selector, route)
 	if err != nil {
-		if error.IsNotFound(err) {
+		if errors.IsNotFound(err) {
 			err = createGrafanaRoute(r, cr)
 			if err != nil {
 				return err
