@@ -1,11 +1,12 @@
 package v1alpha1
 
 import (
+	routev1 "github.com/openshift/api/route/v1"
 	corev1 "k8s.io/api/core/v1"
-	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// Status discribe status message of grafana
 type Status string
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
@@ -29,10 +30,10 @@ type GrafanaSpec struct {
 
 // GrafanaService provides a means to configure the service
 type GrafanaService struct {
-	Annotations map[string]string `json:"annotations,omitempty"`
-	Labels      map[string]string `json:"labels,omitempty"`
-	Type        v1.ServiceType    `json:"type,omitempty"`
-	Ports       []v1.ServicePort  `json:"ports,omitempty"`
+	Annotations map[string]string    `json:"annotations,omitempty"`
+	Labels      map[string]string    `json:"labels,omitempty"`
+	Type        corev1.ServiceType   `json:"type,omitempty"`
+	Ports       []corev1.ServicePort `json:"ports,omitempty"`
 }
 
 // MetaData set the metadata for the pod, servieaccount.
