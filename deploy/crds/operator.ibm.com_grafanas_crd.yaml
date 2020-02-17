@@ -33,15 +33,79 @@ spec:
           properties:
             baseImage:
               type: string
+            config:
+              description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+                Important: Run "operator-sdk generate k8s" to regenerate code after
+                modifying this file Add custom validation using kubebuilder tags:
+                https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html'
+              properties:
+                app_mode:
+                  type: string
+                auth:
+                  properties:
+                    disable_login_form:
+                      type: boolean
+                    disable_singout_menu:
+                      type: boolean
+                  type: object
+                auth.proxy:
+                  properties:
+                    auto_sign_up:
+                      type: boolean
+                    enabled:
+                      type: boolean
+                    header_name:
+                      type: string
+                    header_property:
+                      type: string
+                  type: object
+                instance_name:
+                  type: string
+                log:
+                  properties:
+                    filters:
+                      type: string
+                    level:
+                      type: string
+                    mode:
+                      type: string
+                  type: object
+                paths:
+                  properties:
+                    data:
+                      type: string
+                    log:
+                      type: string
+                    plugin:
+                      type: string
+                  type: object
+                server:
+                  properties:
+                    cert_file:
+                      type: string
+                    domain:
+                      type: string
+                    http_port:
+                      type: string
+                    key_file:
+                      type: string
+                    protocal:
+                      type: string
+                    root_url:
+                      type: string
+                  type: object
+                users:
+                  description: grafanfaConfigUser sets basic them for grafan UI
+                  properties:
+                    default_theme:
+                      type: string
+                  type: object
+              type: object
             configMaps:
               items:
                 type: string
               type: array
             containers:
-              description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-                Important: Run "operator-sdk generate k8s" to regenerate code after
-                modifying this file Add custom validation using kubebuilder tags:
-                https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html'
               items:
                 description: A single application container that you want to run within
                   a pod.
@@ -1065,6 +1129,44 @@ spec:
                 - name
                 type: object
               type: array
+            datasource:
+              description: GrafanaDatasource provides config for datasource.
+              properties:
+                access:
+                  type: string
+                editable:
+                  type: boolean
+                isDefault:
+                  type: boolean
+                jsonData:
+                  properties:
+                    keepCookies:
+                      items:
+                        type: string
+                      type: array
+                    tlsAuth:
+                      type: boolean
+                    tlsAuthWithCACert:
+                      type: boolean
+                  required:
+                  - tlsAuthWithCACert
+                  type: object
+                name:
+                  type: string
+                secureJsonData:
+                  properties:
+                    tlsCACert:
+                      type: string
+                    tlsClientCert:
+                      type: string
+                    tlsClientKey:
+                      type: string
+                  type: object
+                type:
+                  type: string
+                url:
+                  type: string
+              type: object
             initImage:
               type: string
             metaData:
@@ -1078,6 +1180,9 @@ spec:
                   additionalProperties:
                     type: string
                   type: object
+                replicas:
+                  format: int32
+                  type: integer
               type: object
             resources:
               description: ResourceRequirements describes the compute resource requirements.
@@ -1191,7 +1296,7 @@ spec:
                   type: string
               type: object
           required:
-          - containers
+          - config
           type: object
         status:
           description: GrafanaStatus defines the observed state of Grafana

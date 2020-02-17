@@ -195,30 +195,6 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 				Protocol:      "TCP",
 			},
 		},
-		Env: []corev1.EnvVar{
-			{
-				Name: "GF_SECURITY_ADMIN_USER",
-				ValueFrom: &corev1.EnvVarSource{
-					SecretKeyRef: &corev1.SecretKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: GrafanaAdminSecretName,
-						},
-						Key: "username",
-					},
-				},
-			},
-			{
-				Name: "GF_SECURITY_ADMIN_PASSWORD",
-				ValueFrom: &corev1.EnvVarSource{
-					SecretKeyRef: &corev1.SecretKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: GrafanaAdminSecretName,
-						},
-						Key: "password",
-					},
-				},
-			},
-		},
 		Resources:                getResources(cr),
 		VolumeMounts:             getVolumeMounts(cr),
 		LivenessProbe:            getProbe(cr, 30, 30, 10),

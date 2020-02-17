@@ -34,13 +34,6 @@ func (i *grafanaConfig) Write() (string, string) {
 		return l
 	}
 
-	appendInt := func(l []string, key string, value *int) []string {
-		if value != nil {
-			return append(l, fmt.Sprintf("%v = %v", key, *value))
-		}
-		return l
-	}
-
 	appendBool := func(l []string, key string, value *bool) []string {
 		if value != nil {
 			return append(l, fmt.Sprintf("%v = %v", key, *value))
