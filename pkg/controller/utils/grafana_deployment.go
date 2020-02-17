@@ -44,11 +44,11 @@ func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 
 	// Volume to mount the config file from a config map
 	volumes = append(volumes, corev1.Volume{
-		Name: GrafanaConfig,
+		Name: GrafanaConfigName,
 		VolumeSource: corev1.VolumeSource{
 			ConfigMap: &corev1.ConfigMapVolumeSource{
 				LocalObjectReference: corev1.LocalObjectReference{
-					Name: GrafanaConfig,
+					Name: GrafanaConfigName,
 				},
 			},
 		},
@@ -72,11 +72,11 @@ func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 
 	// Volume to store the datasources
 	volumes = append(volumes, corev1.Volume{
-		Name: GrafanaDatasources,
+		Name: GrafanaDatasourceName,
 		VolumeSource: corev1.VolumeSource{
 			ConfigMap: &corev1.ConfigMapVolumeSource{
 				LocalObjectReference: corev1.LocalObjectReference{
-					Name: GrafanaDatasources,
+					Name: GrafanaDatasourceName,
 				},
 			},
 		},
@@ -117,7 +117,7 @@ func getVolumeMounts(cr *v1alpha1.Grafana) []corev1.VolumeMount {
 	var mounts []corev1.VolumeMount
 
 	mounts = append(mounts, corev1.VolumeMount{
-		Name:      GrafanaConfig,
+		Name:      GrafanaConfigName,
 		MountPath: "/etc/grafana/",
 	})
 
@@ -132,7 +132,7 @@ func getVolumeMounts(cr *v1alpha1.Grafana) []corev1.VolumeMount {
 	})
 
 	mounts = append(mounts, corev1.VolumeMount{
-		Name:      GrafanaDatasources,
+		Name:      GrafanaDatasourceName,
 		MountPath: "/etc/grafana/provisioning/datasources",
 	})
 
@@ -282,19 +282,6 @@ func getInitContainers(cr *v1alpha1.Grafana) []corev1.Container {
 			Image:     image,
 			Resources: corev1.ResourceRequirements{},
 			VolumeMounts: []corev1.VolumeMount{
-				{
-					Name:      GrafanaDataVolumes,
-					MountPath: "/var/lib/grafana",
-				},
-				{
-					// grafana datasource config
-					Name:      "grafana-ds-entry-config",
-					MountPath: "/etc/grafana-configmaps/grafana-ds-entry-config",
-				},
-				{
-					Name:      GrafanaDatasources,
-					MountPath: "/etc/grafana/provisioning/datasources",
-				},
 				{
 					Name:      "tls-client-certs",
 					MountPath: "/etc/grafana/secrets/tls-client-certs",

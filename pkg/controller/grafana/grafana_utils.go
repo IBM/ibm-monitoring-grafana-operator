@@ -37,6 +37,17 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 		return err
 	}
 
+	err = reconcileGrafanaConfig(r, cr)
+	if err != nil {
+		log.Error(err, "Fail to reconcile grafana initial config.")
+		log.Error(err, "Grafana will stop work.")
+	}
+
+	err = reconcileGrafanaDatasource(r, cr)
+	if err != nil {
+		log.Error(err, "Fail to reconcile grafana datasource.")
+	}
+
 	return nil
 }
 
@@ -205,6 +216,78 @@ func createGrafanaRoute(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	err = r.client.Create(r.ctx, route)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func createGrafanaConfig(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
+	config, _ := utils.GrafanaConfigIni(cr)
+	err := controllerutil.SetControllerReference(cr, config, r.scheme)
+	if err != nil {
+		return err
+	}
+
+	err = r.client.Create(r.ctx, config)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func reconcileGrafanaConfig(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
+	selector := utils.GrafanaConfigSelector(cr)
+	config := corev1.ConfigMap{}
+	err := r.client.Get(r.ctx, selector, config)
+	if err != nil {
+		if error.IsNotFound(err) {
+			err = createGrafanaConfig(r, cr)
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+		return err
+	}
+
+	toUpdate, _ := utils.ReconciledGrafanaConfigIni(cr, config)
+	err = r.client.Update(r.ctx, toUpdate)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func createGrafanaDatasource(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
+	datasource := utils.GrafanaDatasourceConfig(cr)
+	err := controllerutil.SetControllerReference(cr, datasource, r.scheme)
+	if err != nil {
+		return err
+	}
+	err = r.client.Create(r.ctx, datasource)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func reconcileGrafanaDatasource(r *ReconcileGrafana, cr *v1alpha1.Grafana) err {
+	selector := utils.GrafanaDatasourceSelector()
+	datasource := corev1.ConfigMap{}
+	err := r.client.Get(r.ctx, selector, datasource)
+	if err != nil {
+		if error.IsNotFound(err) {
+			err = createGrafanaDatasource(r, cr)
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+		return err
+	}
+	toUpdate, _ := utils.ReconciledGrafanaDatasource(cr, datasource)
+	err = r.client.Update(r.ctx, toUpdate)
+	if err != nil {
+		return nil
 	}
 	return nil
 }

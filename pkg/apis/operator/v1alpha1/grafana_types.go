@@ -17,6 +17,8 @@ type GrafanaSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html
+	Config     GrafanaConfig                `json:"config"`
+	Datasource GrafanaDatasource            `json:"datasource,omitempty"`
 	Containers []corev1.Container           `json:"containers,omitempty"`
 	Service    *GrafanaService              `json:"service,omitempty"`
 	MetaData   *MetaData                    `json:"metaData,omitempty"`
@@ -26,6 +28,86 @@ type GrafanaSpec struct {
 	BaseImage  string                       `json:"baseImage,omitempty"`
 	InitImage  string                       `json:"initImage,omitempty"`
 	Route      *GrafanaRoute                `json:"route,omitempty"`
+}
+
+// GrafanaConfig provides basic config for grafana.ini file.
+type GrafanaConfig struct {
+	AppMode      string                  `json:"app_mode,omitempty" ini:"app_mode,omitempty"`
+	InstanceName string                  `json:"instance_name,omitempty" ini:"instance_name,omitempty"`
+	Paths        *grafanaConfigPath      `json:"paths,omitempty" ini:"path,omitempty"`
+	Server       *grafanaConfigServer    `json:"server,omitempty" ini:"server,omitempty"`
+	Users        *grafanaConfigUser      `json:"users,omitempty" ini:"users,omitempty"`
+	Log          *grafanaConfigLog       `json:"log,omitempty" ini:"log,omitempty"`
+	Auth         *grafanaConfigAuth      `json:"auth,omitempty" ini:"auth,omitempty"`
+	Proxy        *grafanaConfigAuthProxy `json:"auth.proxy,omitempty" ini:"auth.proxy,omitempty"`
+}
+
+type grafanaConfigPath struct {
+	Data   string `json:"data,omitempty" ini:"data,omitempty"`
+	Log    string `json:"log,omitempty" ini:"log,omitempty"`
+	Plugin string `json:"plugin,omitempty" ini:"plugin,omitempty"`
+}
+
+type grafanaConfigServer struct {
+	Protocol string `json:"protocal,omitempty" ini:"protocal,omitempty"`
+	Domain   string `json:"domain,omitempty" ini:"domain,omitempty"`
+	HTTPPort string `json:"http_port,omitempty" ini:"http_port,omitempty"`
+	RootURL  string `json:"root_url,omitempty" ini:"root_url,omitempty"`
+	CertFile string `json:"cert_file,omitempty" ini:"cert_file,omitempty"`
+	KeyFile  string `json:"key_file,omitempty" init:"key_file,omitempty"`
+}
+
+// grafanfaConfigUser sets basic them for grafan UI
+type grafanaConfigUser struct {
+	DefaultTheme string `json:"default_theme,omitempty" ini:"default_theme,omitempty"`
+}
+
+type grafanaConfigLog struct {
+	Mode    string `json:"mode,omitempty" ini:"mode,omitempty"`
+	Level   string `json:"level,omitempty" ini:"level,omitempty"`
+	Filters string `json:"filters,omitempty" ini:"filter,omitempty"`
+}
+
+type grafanaConfigAuth struct {
+	DisableLoginForm   *bool `json:"disable_login_form,omitempty" ini:"disable_login_form,omitempty"`
+	DisableSignoutMenu *bool `json:"disable_singout_menu,omitempty" ini:"disable_singout_menu,omitempty"`
+}
+
+type grafanaConfigAuthProxy struct {
+	Enabled        *bool  `json:"enabled,omitempty" ini:"enabled,omitempty"`
+	HeaderName     string `json:"header_name,omitempty" ini:"header_name,omitempty"`
+	HeaderProperty string `json:"header_property,omitempty" ini:"header_property,omitempty"`
+	AutoSignUp     *bool  `json:"auto_sign_up,omitempty" ini:"auto_sign_up,omitempty"`
+}
+
+type grafanaConfigSecurity struct {
+	DisableInitialAdminCreation *bool  `json:"disabble_initial_admin_creation,omityempty" ini:"disable_initial_admin_creation,omitempty"`
+	AdminUser                   string `json:"admin_user,omityempty" ini:"admin_user,omitempty"`
+	AdminPassword               string `json:"admin_password,omitempty" ini:"admin_password,omitempty"`
+}
+
+// GrafanaDatasource provides config for datasource.
+type GrafanaDatasource struct {
+	Name           string    `json:"name,omitempty"`
+	Type           string    `json:"type,omitempty"`
+	IsDefault      *bool     `json:"isDefault,omitempty"`
+	Editable       *bool     `json:"editable,omitempty"`
+	Access         string    `json:"access,omitempty"`
+	URL            string    `json:"url,omitempty"`
+	JSONData       TLSAuth   `json:"jsonData,omitempty"`
+	SecureJSONData TLSConfig `json:"secureJsonData,omitempty"`
+}
+
+type TLSAuth struct {
+	KeepCookies       []string `json:"keepCookies,omitempty"`
+	TLSAuth           *bool    `json:"tlsAuth,omitempty"`
+	TLSAuthWithCACert *bool    `json:"tlsAuthWithCACert,omiempty"`
+}
+
+type TLSConfig struct {
+	TLSCACert     string `json:"tlsCACert,omitempty"`
+	TLSClientCert string `json:"tlsClientCert,omitempty"`
+	TLSClientKey  string `json:"tlsClientKey,omitempty"`
 }
 
 // GrafanaService provides a means to configure the service
@@ -40,7 +122,7 @@ type GrafanaService struct {
 type MetaData struct {
 	Annotations map[string]string `json:"annotations,omitempty"`
 	Labels      map[string]string `json:"labels,omitempty"`
-	Replicas    int32             `json:replica,omitempty`
+	Replicas    int32             `json:"replicas,omitempty"`
 }
 
 // GrafanaRoute set the config for route.

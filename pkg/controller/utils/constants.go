@@ -3,10 +3,10 @@ package utils
 import "time"
 
 const (
-	GrafanaConfig             = "grafana-config"
+	GrafanaConfigName         = "grafana-config"
 	GrafanaLogVolumes         = "grafana-log"
 	GrafanaDataVolumes        = "grafana-data"
-	GrafanaDatasources        = "gafana-datasource"
+	GrafanaDatasourceName     = "gafana-datasource"
 	GrafanaHealthEndpoint     = "/api/health"
 	GrafanaInitContainer      = "grafana-init-container"
 	DefaultGrafanaImage       = "grafana/grafana:6.5.4"
