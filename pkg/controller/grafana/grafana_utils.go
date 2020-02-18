@@ -3,7 +3,7 @@ package grafana
 import (
 	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	utils "github.com/IBM/ibm-grafana-operator/pkg/controller/utils"
-	routev1 "github.com/openshift/api/route/v1"
+	v1beta1 "k8s.io/api/extensions/v1beta1"
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -31,7 +31,7 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 		return err
 	}
 
-	err = reconcileGrafanaRoute(r, cr)
+	err = reconcileGrafanaIngress(r, cr)
 	if err != nil {
 		log.Error(err, "Fail to reconcile grafana route.")
 		return err
@@ -182,14 +182,14 @@ func createGrafanaServiceAccount(r *ReconcileGrafana, cr *v1alpha1.Grafana) erro
 	return nil
 }
 
-func reconcileGrafanaRoute(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
+func reconcileGrafanaIngress(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
-	selector := utils.GrafanaRouteSelector(cr)
-	route := &routev1.Route{}
+	selector := utils.GrafanaIngressSelector(cr)
+	route := &v1beta1.Ingress{}
 	err := r.client.Get(r.ctx, selector, route)
 	if err != nil {
 		if errors.IsNotFound(err) {
-			err = createGrafanaRoute(r, cr)
+			err = createGrafanaIngress(r, cr)
 			if err != nil {
 				return err
 			}
@@ -197,7 +197,7 @@ func reconcileGrafanaRoute(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 		}
 		return err
 	}
-	toUpdate := utils.ReconciledGrafanaRoute(cr, route)
+	toUpdate := utils.ReconciledGrafanaIngress(cr, route)
 
 	err = r.client.Update(r.ctx, toUpdate)
 	if err != nil {
@@ -206,8 +206,8 @@ func reconcileGrafanaRoute(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	return nil
 }
 
-func createGrafanaRoute(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	route := utils.GrafanaRoute(cr)
+func createGrafanaIngress(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
+	route := utils.GrafanaIngress(cr)
 	err := controllerutil.SetControllerReference(cr, route, r.scheme)
 	if err != nil {
 		return err

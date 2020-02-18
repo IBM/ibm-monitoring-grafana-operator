@@ -27,7 +27,7 @@ type GrafanaSpec struct {
 	Resource   *corev1.ResourceRequirements `json:"resources,omitempty"`
 	BaseImage  string                       `json:"baseImage,omitempty"`
 	InitImage  string                       `json:"initImage,omitempty"`
-	Route      *GrafanaRoute                `json:"route,omitempty"`
+	Ingress    *GrafanaIngress              `json:"route,omitempty"`
 }
 
 // GrafanaConfig provides basic config for grafana.ini file.
@@ -125,8 +125,8 @@ type MetaData struct {
 	Replicas    int32             `json:"replicas,omitempty"`
 }
 
-// GrafanaRoute set the config for route.
-type GrafanaRoute struct {
+// GrafanaIngress set the config for ingress.
+type GrafanaIngress struct {
 	Annotations   map[string]string          `json:"annotations,omitempty"`
 	Hostname      string                     `json:"hostname,omitempty"`
 	Labels        map[string]string          `json:"labels,omitempty"`

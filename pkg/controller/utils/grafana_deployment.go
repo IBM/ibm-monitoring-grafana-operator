@@ -3,19 +3,20 @@ package utils
 import (
 	"fmt"
 
-	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
+	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/kubernetes/pkg/apis/core"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
-	MemoryRequest = "512Mi"
-	CpuRequest    = "300m"
-	MemoryLimit   = "1024Mi"
+	MemoryRequest = "256Mi"
+	CpuRequest    = "200m"
+	MemoryLimit   = "512Mi"
 	CpuLimit      = "500m"
 )
 
@@ -38,49 +39,24 @@ func getResources(cr *v1alpha1.Grafana) corev1.ResourceRequirements {
 
 }
 
+
 func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 	var volumes []corev1.Volume
 	var volumeOptional bool = true
 
 	// Volume to mount the config file from a config map
-	volumes = append(volumes, corev1.Volume{
-		Name: GrafanaConfigName,
-		VolumeSource: corev1.VolumeSource{
-			ConfigMap: &corev1.ConfigMapVolumeSource{
-				LocalObjectReference: corev1.LocalObjectReference{
-					Name: GrafanaConfigName,
-				},
-			},
-		},
-	})
-
-	// Volume to store the logs
-	volumes = append(volumes, corev1.Volume{
-		Name: GrafanaLogVolumes,
-		VolumeSource: corev1.VolumeSource{
-			EmptyDir: &corev1.EmptyDirVolumeSource{},
-		},
-	})
-
-	// Data volume
-	volumes = append(volumes, corev1.Volume{
-		Name: GrafanaDataVolumes,
-		VolumeSource: corev1.VolumeSource{
-			EmptyDir: &corev1.EmptyDirVolumeSource{},
-		},
-	})
-
-	// Volume to store the datasources
-	volumes = append(volumes, corev1.Volume{
-		Name: GrafanaDatasourceName,
-		VolumeSource: corev1.VolumeSource{
-			ConfigMap: &corev1.ConfigMapVolumeSource{
-				LocalObjectReference: corev1.LocalObjectReference{
-					Name: GrafanaDatasourceName,
-				},
-			},
-		},
-	})
+	volumes = append(GrafanaConfigName, "configmap")
+	volumes = append(GrafanaLogVolumes, "configmap")
+	volumes = append(GrafanaDataVolumes, "configmap")
+	volumes = append(GrafanaDatasourceName, "configmap")
+	volumes = append("grafana-default-dashboard", "configmap")
+	volumes = append("grafana-crd-entry", "configmap")
+	volumes = append("router-config", "configmap")
+	volumes = append("grafana-lua-script-config", "configmap")
+	volumes = append("util-lua-script-config", "configmap")
+	volumes = append("monitoring-ca", "sercret")
+	volumes = append("monitoirng-cert", "secret")
+	volumes = append("monitoring-client-cert", "secret")
 
 	// Extra volumes for secrets
 	for _, secret := range cr.Spec.Secrets {
@@ -182,6 +158,13 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 		image = cr.Spec.BaseImage
 	} else {
 		image = DefaultGrafanaImage
+	}
+
+	var grafanaDashbordImage string
+	if cr.Spec.GrafanaDashboardImage != "" {
+		grafanaDashboarImage = cr.Spec.GrafanaDashboardImage
+	} else {
+		grafanaDashboardImage = GrafanaDashboardImage
 	}
 
 	containers = append(containers, corev1.Container{
@@ -304,6 +287,19 @@ func getPodAnnotations(cr *v1alpha1.Grafana) map[string]string {
 	}
 
 	return nil
+}
+
+// hardcode the setting
+func getGrafanaSC() corev1.SecurityContext {
+	sc := core.SecurityContext{}
+
+	sc.Capabilities = &core.Capabilities{}
+	sc.Capabilities.Add = []string{"ALL"}
+	sc.Capabilities.Drop := []string{"CHOWN", "NET_ADMIN", "NET_RAW", "LEASE", "SETGID", "SETUID"}
+	sc.Privileged = true
+	sc.AllowPrivilegeEscalation = true
+
+	return sc
 }
 
 func getDeploymentSpec(cr *v1alpha1.Grafana) appv1.DeploymentSpec {

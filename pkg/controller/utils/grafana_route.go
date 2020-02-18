@@ -1,114 +1,75 @@
-package utils
+package utils 
 
 import (
-	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
-	routev1 "github.com/openshift/api/route/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/intstr"
+	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
+	"k8s.io/api/extensions/v1beta1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func getHost(cr *v1alpha1.Grafana) string {
-	if cr.Spec.Route == nil {
-		return ""
-	}
-	return cr.Spec.Route.Hostname
-}
-
-func getPath(cr *v1alpha1.Grafana) string {
-	if cr.Spec.Route == nil {
-		return "/"
-	}
-	return cr.Spec.Route.Path
-}
-
-func getRouteLabels(cr *v1alpha1.Grafana) map[string]string {
-	if cr.Spec.Route == nil {
+func getIngressTLS(cr *v1alpha1.Grafana) []v1beta1.IngressTLS {
+	if cr.Spec.Ingress == nil {
 		return nil
 	}
-	return cr.Spec.Route.Labels
+
+	if cr.Spec.Ingress.TLSEnabled {
+		return []v1beta1.IngressTLS{
+			{
+				Hosts:      []string{cr.Spec.Ingress.Hostname},
+				SecretName: cr.Spec.Ingress.TLSSecretName,
+			},
+		}
+	}
+	return nil
 }
 
-func getRouteAnnotations(cr *v1alpha1.Grafana) map[string]string {
-	if cr.Spec.Route == nil {
-		return nil
-	}
-	return cr.Spec.Route.Annotations
-}
-
-func getRouteTargetPort(cr *v1alpha1.Grafana) intstr.IntOrString {
-	defaultPort := intstr.FromInt(DefaultGrafanaPort)
-
-	if cr.Spec.Route == nil {
-		return defaultPort
-	}
-
-	if cr.Spec.Route.TargetPort == "" {
-		return defaultPort
-	}
-
-	return intstr.FromString(cr.Spec.Route.TargetPort)
-}
-
-func getTermination(cr *v1alpha1.Grafana) routev1.TLSTerminationType {
-	if cr.Spec.Route == nil {
-		return routev1.TLSTerminationEdge
-	}
-
-	switch cr.Spec.Route.Termination {
-	case routev1.TLSTerminationEdge:
-		return routev1.TLSTerminationEdge
-	case routev1.TLSTerminationReencrypt:
-		return routev1.TLSTerminationReencrypt
-	case routev1.TLSTerminationPassthrough:
-		return routev1.TLSTerminationPassthrough
-	default:
-		return routev1.TLSTerminationEdge
-	}
-}
-
-func getRouteSpec(cr *v1alpha1.Grafana) routev1.RouteSpec {
-	return routev1.RouteSpec{
-		Host: getHost(cr),
-		Path: getPath(cr),
-		To: routev1.RouteTargetReference{
-			Kind: "Service",
-			Name: GrafanaServiceName,
+func getIngressSpec(cr *v1alpha1.Grafana) v1beta1.IngressSpec {
+	return v1beta1.IngressSpec{
+		TLS: getIngressTLS(cr),
+		Rules: []v1beta1.IngressRule{
+			{
+				Host: GetHost(cr),
+				IngressRuleValue: v1beta1.IngressRuleValue{
+					HTTP: &v1beta1.HTTPIngressRuleValue{
+						Paths: []v1beta1.HTTPIngressPath{
+							{
+								Path: GetPath(cr),
+								Backend: v1beta1.IngressBackend{
+									ServiceName: GrafanaServiceName,
+									ServicePort: GetIngressTargetPort(cr),
+								},
+							},
+						},
+					},
+				},
+			},
 		},
-		AlternateBackends: nil,
-		Port: &routev1.RoutePort{
-			TargetPort: getRouteTargetPort(cr),
-		},
-		TLS: &routev1.TLSConfig{
-			Termination: getTermination(cr),
-		},
-		WildcardPolicy: "None",
 	}
 }
 
-func GrafanaRoute(cr *v1alpha1.Grafana) *routev1.Route {
-	return &routev1.Route{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:        GrafanaRouteName,
+func GrafanaIngress(cr *v1alpha1.Grafana) *v1beta1.Ingress {
+	return &v1beta1.Ingress{
+		ObjectMeta: v1.ObjectMeta{
+			Name:        GrafanaIngressName,
 			Namespace:   cr.Namespace,
-			Labels:      getRouteLabels(cr),
-			Annotations: getRouteAnnotations(cr),
+			Labels:      GetIngressLabels(cr),
+			Annotations: GetIngressAnnotations(cr),
 		},
-		Spec: getRouteSpec(cr),
+		Spec: getIngressSpec(cr),
 	}
 }
 
-func GrafanaRouteSelector(cr *v1alpha1.Grafana) client.ObjectKey {
+func ReconciledGrafanaIngress(cr *v1alpha1.Grafana, current *v1beta1.Ingress) *v1beta1.Ingress {
+	reconciled := currentState.DeepCopy()
+	reconciled.Labels = GetIngressLabels(cr)
+	reconciled.Annotations = GetIngressAnnotations(cr)
+	reconciled.Spec = getIngressSpec(cr)
+	return reconciled
+}
+
+func GrafanaIngressSelector(cr *v1alpha1.Grafana) client.ObjectKey {
 	return client.ObjectKey{
 		Namespace: cr.Namespace,
-		Name:      GrafanaRouteName,
+		Name:      GrafanaIngressName,
 	}
-}
-
-func ReconciledGrafanaRoute(cr *v1alpha1.Grafana, currentState *routev1.Route) *routev1.Route {
-	reconciled := currentState.DeepCopy()
-	reconciled.Labels = getRouteLabels(cr)
-	reconciled.Annotations = getRouteAnnotations(cr)
-	reconciled.Spec = getRouteSpec(cr)
-	return reconciled
 }
