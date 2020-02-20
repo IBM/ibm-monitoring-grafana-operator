@@ -20,15 +20,15 @@ const (
 	
 	DashboardData := ["grafana-default-dashboards", "helm-release-dashboard.json",HelmReleaseDashboard], "kubenertes-pod-dashboard.json", KubernetesPodDashboard, "mcm-monitoring-dashboard.json", MCMMonitoringDashboard]
 
-	Namespace = "openshift-cs-monitoring"
-	clusterPort = ""
-	Environment = "openshift"
-	clusterDomain = ""
+	namespace = "openshift-cs-monitoring"
+	clusterPort = 8443
+	environment = "openshift"
+	clusterDomain = "cluster.local"
 	// These should come from ingress setting.
-	prometheusFullName = ""
-	prometheusPort = 0
-	grafanaFullName = ""
-	grafanaPort = 0
+	prometheusFullName = "monitoring-prometheus:9090"
+	prometheusPort = 9090
+	grafanaFullName = "monitoring-grafana:3000"
+	grafanaPort = 3000
 
 )
 
@@ -46,8 +46,8 @@ func createConfigmap(name, fileKey, data string) corev1.ConfigMap {
 	return configmap
 }
 
-// createConfigmaps will create all the confimap for the grafana.
-func CreateConfigmaps(FileKeys map[string]string) []corev1.ConfigMap{
+// CreateConfigmaps will create all the confimap for the grafana.
+func CreateConfigmaps() []corev1.ConfigMap{
 	configmaps := []corev1.ConfigMaps{}
 
 	type Data struct{
@@ -62,15 +62,15 @@ func CreateConfigmaps(FileKeys map[string]string) []corev1.ConfigMap{
 	}
 
 	tplData := Data {
-		Namespace = "openshift-cs-monitoring"
-		ClusterPort = ""
-		Environment = "openshift"
-		ClusterDomain = ""
+		Namespace = namespace
+		ClusterPort = clusterPort
+		Environment = environment
+		ClusterDomain = clusterDomain
 		// These should come from ingress setting.
-		PrometheusFullName = ""
-		PrometheusPort = 0
-		GrafanaFullName = ""
-		GrafanaPort = 0
+		PrometheusFullName = prometheusFullName
+		PrometheusPort = prometheusPort
+		GrafanaFullName = grafanaFullName
+		GrafanaPort = grafanaPort
 	}
 
 	var buff bytes.Buffer
@@ -108,6 +108,7 @@ func CreateConfigmaps(FileKeys map[string]string) []corev1.ConfigMap{
 	return configmaps
 }
 
+// CreateGrafanaSecret create a secret from the user/passwd from config file
 func CreateGrafanaSecret (cr *v1alpha1.Grafana) corev1.Secret {
 	user := cr.Spec.Config.Security.AdminUser
 	password := cr.Spec.Config.Security.AdminPassword

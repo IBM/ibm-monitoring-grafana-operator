@@ -31,15 +31,13 @@ type GrafanaSpec struct {
 
 // GrafanaConfig provides basic config for grafana.ini file.
 type GrafanaConfig struct {
-	AppMode      string                  `json:"app_mode,omitempty" ini:"app_mode,omitempty"`
-	InstanceName string                  `json:"instance_name,omitempty" ini:"instance_name,omitempty"`
-	Paths        *grafanaConfigPath      `json:"paths,omitempty" ini:"path,omitempty"`
-	Server       *grafanaConfigServer    `json:"server,omitempty" ini:"server,omitempty"`
-	Users        *grafanaConfigUser      `json:"users,omitempty" ini:"users,omitempty"`
-	Log          *grafanaConfigLog       `json:"log,omitempty" ini:"log,omitempty"`
-	Auth         *grafanaConfigAuth      `json:"auth,omitempty" ini:"auth,omitempty"`
-	Proxy        *grafanaConfigAuthProxy `json:"auth.proxy,omitempty" ini:"auth.proxy,omitempty"`
-	Security     *grafanaConfigSecurity  `json:"security" ini:"security"`
+	Paths    *grafanaConfigPath      `json:"paths,omitempty" ini:"path,omitempty"`
+	Server   *grafanaConfigServer    `json:"server,omitempty" ini:"server,omitempty"`
+	Users    *grafanaConfigUser      `json:"users,omitempty" ini:"users,omitempty"`
+	Log      *grafanaConfigLog       `json:"log,omitempty" ini:"log,omitempty"`
+	Auth     *grafanaConfigAuth      `json:"auth,omitempty" ini:"auth,omitempty"`
+	Proxy    *grafanaConfigAuthProxy `json:"auth.proxy,omitempty" ini:"auth.proxy,omitempty"`
+	Security *grafanaConfigSecurity  `json:"security" ini:"security"`
 }
 
 type grafanaConfigPath struct {
