@@ -8,7 +8,6 @@ error_log stderr notice;
         worker_connections 1024;
     }
 
-
     http {
         access_log off;
 

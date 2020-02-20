@@ -27,4 +27,7 @@ const (
 	GrafanaRouteName             = "grafana-route"
 	GrafanaAdminUserEnvVar       = "username"
 	GrafanaAdminPasswordEnvVar   = "password"
+	IAMNamespace                 = ""
+	ClusterDomain                = ""
+	PrometheuPort                = 9090
 )

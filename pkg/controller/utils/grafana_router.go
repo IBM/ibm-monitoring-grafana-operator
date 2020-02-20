@@ -5,6 +5,10 @@ import (
 	core "k8s.io/kubernetes/api/core"
 )
 
+const {
+	checkUrl = "wget --spider --no-check-certificate -S 'https://platform-identity-provider" + IAMNamespace +".svc." + ClusterDomain + ":4300/v1/info'"
+}
+
 func getVolumeMountsForRouter()[]corev1.VolumeMount {
 	return []corev1.VolumeMount{
 		corev1.VolumeMount{
@@ -16,12 +20,12 @@ func getVolumeMountsForRouter()[]corev1.VolumeMount {
 			MountPath: "/opt/ibm/router/entry",
 		},
 		corev1.VolumeMount{
-			Name: "monitoring-ca-cert",
-			MountPath: "/opt/ibm/router/ca-cert",
+			Name: "monitoring-ca-certs",
+			MountPath: "/opt/ibm/router/ca-certs",
 		},
 		corev1.VolumeMount{
-			Name: "monitoring-cert",
-			MountPath: "/opt/ibm/router/cert",
+			Name: "monitoring-certs",
+			MountPath: "/opt/ibm/router/certs",
 		},
 		corev1.VolumeMount{
 			Name: "grafana-lua-script-config",
@@ -49,10 +53,24 @@ func getGrafanaRouterSC() core.SecurityContext {
 	return sc
 }
 
-func setupEnvforRouter() []corev1.EnvVar {
+func getRouterProbe(delay, period int) *corev1.Probe{
+
+	checkCMD := ["sh", "-c", checkUrl]
+	return *corev1.Probe{
+		Handler: corev1.Handler{
+			Exec: &corev1.ExecAction{
+				Command: checkCMD
+			}
+		},
+		InitialDelaySeconds: delay,
+		TimeoutSeconds:      timeout,
+	}
+}
+
+func setupEnv(username, password string) []corev1.EnvVar {
 	return []corev1.EnvVar{
 		{
-			Name: "GF_SECURITY_ADMIN_USER"
+			Name: username
 			ValueFrom: &corev1.EnvVarSource{
 				SecretKeyRef: &corev1.SecretKeySelector{
 					LocalObjectReference: corev1.LocalObjectReference{
@@ -63,7 +81,7 @@ func setupEnvforRouter() []corev1.EnvVar {
 			},
 		},
 		{
-			Name: "GF_SECURITY_ADMIN_PASSWORD"
+			Name: password
 			ValueFrom: &corev1.EnvVarSource{
 				SecretKeyRef: &corev1.SecretKeySelector{
 					LocalObjectReference: corev1.LocalObjectReference{
@@ -91,16 +109,17 @@ func createRouterContainer(image string) corev1.Container{
 			ContainerPort: DefaultRouterPort,
 			Protocol: "TCP",
 		},
+		Probe: getRouterProbe(30, 10)
 		SecurityContext: getGrafanaRouterSC(),
 		VolumeMounts: getVolumeMountsForRouter(),
-		Env: setupEnvforRouter()
+		Env: setEnv("GF_SECURITY_ADMIN_USER", "GF_SECURITY_ADMIN_PASSWORD")
 		TerminationMessagePath:   "/dev/termination-log",
 		TerminationMessagePolicy: "File",
 		ImagePullPolicy:          "IfNotPresent",
 	}
 }
 
-func createVolumesFromSource(Name, tp string ) corev1.Volume {
+func createVolumeFromSource(Name, tp string ) corev1.Volume {
 
 	if tp == "confimap" {
 		return corev1.Volume{

@@ -1,11 +1,89 @@
-package utils 
+package utils
 
 import (
+	"strconv"
+
 	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	"k8s.io/api/extensions/v1beta1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
+
+func GetHost(cr *v1alpha1.Grafana) string {
+	if cr.Spec.Ingress == nil {
+		return ""
+	}
+	return cr.Spec.Ingress.Hostname
+}
+
+func GetPath(cr *v1alpha1.Grafana) string {
+	if cr.Spec.Ingress == nil {
+		return "/grafana"
+	}
+	return cr.Spec.Ingress.Path
+}
+
+func GetIngressLabels(cr *v1alpha1.Grafana) map[string]string {
+	if cr.Spec.Ingress == nil {
+		return nil
+	}
+	return cr.Spec.Ingress.Labels
+}
+
+func GetIngressAnnotations(cr *v1alpha1.Grafana) map[string]string {
+	if cr.Spec.Ingress == nil {
+		return nil
+	}
+	return cr.Spec.Ingress.Annotations
+}
+
+func GetIngressTargetPort(cr *v1alpha1.Grafana) intstr.IntOrString {
+	defaultPort := intstr.FromInt(GetGrafanaPort(cr))
+
+	if cr.Spec.Ingress == nil {
+		return defaultPort
+	}
+
+	if cr.Spec.Ingress.TargetPort == "" {
+		return defaultPort
+	}
+
+	return intstr.FromString(cr.Spec.Ingress.TargetPort)
+}
+
+func GetGrafanaPort(cr *v1alpha1.Grafana) int {
+	if cr.Spec.Config.Server == nil {
+		return DefaultGrafanaPort
+	}
+
+	if cr.Spec.Config.Server.HTTPPort == "" {
+		return DefaultGrafanaPort
+	}
+
+	port, err := strconv.Atoi(cr.Spec.Config.Server.HttpPort)
+	if err != nil {
+		return DefaultGrafanaPort
+	}
+
+	return port
+}
+
+func getTermination(cr *v1alpha1.Grafana) v1.TLSTerminationType {
+	if cr.Spec.Ingress == nil {
+		return v1.TLSTerminationEdge
+	}
+
+	switch cr.Spec.Ingress.Termination {
+	case v1.TLSTerminationEdge:
+		return v1.TLSTerminationEdge
+	case v1.TLSTerminationReencrypt:
+		return v1.TLSTerminationReencrypt
+	case v1.TLSTerminationPassthrough:
+		return v1.TLSTerminationPassthrough
+	default:
+		return v1.TLSTerminationEdge
+	}
+}
 
 func getIngressTLS(cr *v1alpha1.Grafana) []v1beta1.IngressTLS {
 	if cr.Spec.Ingress == nil {

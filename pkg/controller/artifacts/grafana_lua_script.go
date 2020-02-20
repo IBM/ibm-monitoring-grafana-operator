@@ -1,5 +1,6 @@
 package artifacts
 
+// With parameter clusterPort
 var grafana_lua_script string = `
 local cjson = require "cjson"
     local util = require "monitoring-util"
@@ -10,7 +11,7 @@ local cjson = require "cjson"
         local httpc = http.new()
         local request_body = '{"name":"'..name..'", "email":"'..name..'@grafana.com", "login":"'..name..'", "password":"'..name..'password"}'
         ngx.log(ngx.DEBUG, "request body is "..request_body)
-        local res, err = httpc:request_uri("https://127.0.0.1:{{ .Values.clusterPort }}/api/admin/users", {
+        local res, err = httpc:request_uri("https://127.0.0.1:{{ .ClusterPort }}/api/admin/users", {
             method = "POST",
             headers = {
               ["Content-Type"] = "application/json",
@@ -31,7 +32,7 @@ local cjson = require "cjson"
 
     local function get_grafana_uid(name)
         local httpc = http.new()
-        local res, err = httpc:request_uri("https://127.0.0.1:{{ .Values.clusterPort }}/api/users/lookup", {
+        local res, err = httpc:request_uri("https://127.0.0.1:{{ .ClusterPort }}/api/users/lookup", {
             method = "GET",
             headers = {
               ["Content-Type"] = "application/json",
@@ -58,7 +59,7 @@ local cjson = require "cjson"
 
     local function get_grafana_orgs(uid)
         local httpc = http.new()
-        local res, err = httpc:request_uri("https://127.0.0.1:{{ .Values.clusterPort }}/api/users/"..uid.."/orgs", {
+        local res, err = httpc:request_uri("https://127.0.0.1:{{ .ClusterPort }}/api/users/"..uid.."/orgs", {
             method = "GET",
             headers = {
               ["Content-Type"] = "application/json",
@@ -82,7 +83,7 @@ local cjson = require "cjson"
 
     local function add_org_user(org_id, user_name, role)
         local httpc = http.new()
-        local res, err = httpc:request_uri("https://127.0.0.1:{{ .Values.clusterPort }}/api/orgs/"..org_id.."/users", {
+        local res, err = httpc:request_uri("https://127.0.0.1:{{ .ClusterPort }}/api/orgs/"..org_id.."/users", {
             method = "POST",
             headers = {
               ["Content-Type"] = "application/json",
@@ -100,7 +101,7 @@ local cjson = require "cjson"
 
     local function update_org_user(org_id, user_id, role)
         local httpc = http.new()
-        local res, err = httpc:request_uri("https://127.0.0.1:{{ .Values.clusterPort }}/api/orgs/"..org_id.."/users/"..user_id, {
+        local res, err = httpc:request_uri("https://127.0.0.1:{{ .ClusterPort }}/api/orgs/"..org_id.."/users/"..user_id, {
             method = "PATCH",
             headers = {
               ["Content-Type"] = "application/json",
@@ -122,7 +123,7 @@ local cjson = require "cjson"
 
     local function del_org_user(org_id, user_id)
         local httpc = http.new()
-        local res, err = httpc:request_uri("https://127.0.0.1:{{ .Values.clusterPort }}/api/orgs/"..org_id.."/users/"..user_id, {
+        local res, err = httpc:request_uri("https://127.0.0.1:{{ .ClusterPort }}/api/orgs/"..org_id.."/users/"..user_id, {
             method = "DELETE",
             headers = {
               ["Content-Type"] = "application/json",
@@ -143,7 +144,7 @@ local cjson = require "cjson"
 
     local function create_org(org_name)
         local httpc = http.new()
-        local res, err = httpc:request_uri("https://127.0.0.1:{{ .Values.clusterPort }}/api/orgs/", {
+        local res, err = httpc:request_uri("https://127.0.0.1:{{ .ClusterPort }}/api/orgs/", {
             method = "POST",
             headers = {
               ["Content-Type"] = "application/json",
@@ -171,7 +172,7 @@ local cjson = require "cjson"
             return "1"
         end
         local httpc = http.new()
-        local res, err = httpc:request_uri("https://127.0.0.1:{{ .Values.clusterPort }}/api/orgs/name/"..ngx.escape_uri(org_name), {
+        local res, err = httpc:request_uri("https://127.0.0.1:{{ .ClusterPort }}/api/orgs/name/"..ngx.escape_uri(org_name), {
             method = "GET",
             headers = {
               ["Content-Type"] = "application/json",
@@ -219,7 +220,7 @@ local cjson = require "cjson"
             return util.exit_401()
         else
             local httpc = http.new()
-            local res, err = httpc:request_uri("https://127.0.0.1:{{ .Values.clusterPort }}/api/user/using/"..org_id, {
+            local res, err = httpc:request_uri("https://127.0.0.1:{{ .ClusterPort }}/api/user/using/"..org_id, {
                 method = "POST",
                 headers = {
                   ["Accept"] = "application/json",
@@ -351,7 +352,7 @@ local cjson = require "cjson"
 
     local function get_grafana_users()
         local httpc = http.new()
-        local res, err = httpc:request_uri("https://127.0.0.1:{{ .Values.clusterPort }}/api/users?perpage=10&page=1", {
+        local res, err = httpc:request_uri("https://127.0.0.1:{{ .ClusterPort }}/api/users?perpage=10&page=1", {
             method = "GET",
             headers = {
               ["Accept"] = "application/json",
@@ -375,7 +376,7 @@ local cjson = require "cjson"
 
     local function delete_grafana_user(user_id)
         local httpc = http.new()
-        local res, err = httpc:request_uri("https://127.0.0.1:{{ .Values.clusterPort }}/api/admin/users/"..user_id, {
+        local res, err = httpc:request_uri("https://127.0.0.1:{{ .ClusterPort }}/api/admin/users/"..user_id, {
             method = "DELETE",
             headers = {
               ["Accept"] = "application/json",

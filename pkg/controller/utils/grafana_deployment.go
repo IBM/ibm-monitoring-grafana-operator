@@ -39,24 +39,36 @@ func getResources(cr *v1alpha1.Grafana) corev1.ResourceRequirements {
 
 }
 
-
 func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 	var volumes []corev1.Volume
 	var volumeOptional bool = true
 
-	// Volume to mount the config file from a config map
-	volumes = append(GrafanaConfigName, "configmap")
-	volumes = append(GrafanaLogVolumes, "configmap")
-	volumes = append(GrafanaDataVolumes, "configmap")
-	volumes = append(GrafanaDatasourceName, "configmap")
-	volumes = append("grafana-default-dashboard", "configmap")
-	volumes = append("grafana-crd-entry", "configmap")
-	volumes = append("router-config", "configmap")
-	volumes = append("grafana-lua-script-config", "configmap")
-	volumes = append("util-lua-script-config", "configmap")
-	volumes = append("monitoring-ca", "sercret")
-	volumes = append("monitoirng-cert", "secret")
-	volumes = append("monitoring-client-cert", "secret")
+	// Volume to store the logs
+	volumes = append(volumes, corev1.Volume{
+		Name: GrafanaLogsVolumeName,
+		VolumeSource: corev1.VolumeSource{
+			EmptyDir: &corev1.EmptyDirVolumeSource{},
+		},
+	})
+
+	// Data volume
+	volumes = append(volumes, corev1.Volume{
+		Name: GrafanaDataVolumeName,
+		VolumeSource: corev1.VolumeSource{
+			EmptyDir: &corev1.EmptyDirVolumeSource{},
+		},
+	})
+
+	volumes = append(volumes, createVolumeFromSource(GrafanaConfigName, "configmap"))
+	volumes = append(volumes, createVolumeFromSource(GrafanaDatasourceName, "configmap"))
+	volumes = append(volumes, createVolumeFromSource("grafana-default-dashboards", "configmap"))
+	volumes = append(volumes, createVolumeFromSource("grafana-crd-entry", "configmap"))
+	volumes = append(volumes, createVolumeFromSource("router-config", "configmap"))
+	volumes = append(volumes, createVolumeFromSource("grafana-lua-script-config", "configmap"))
+	volumes = append(volumes, createVolumeFromSource("util-lua-script-config", "configmap"))
+	volumes = append(volumes, createVolumeFromSource("monitoring-ca-certs", "sercret"))
+	volumes = append(volumes, createVolumeFromSource("monitoirng-certs", "secret"))
+	volumes = append(volumes, createVolumeFromSource("monitoring-client-certs", "secret"))
 
 	// Extra volumes for secrets
 	for _, secret := range cr.Spec.Secrets {
@@ -117,6 +129,11 @@ func getVolumeMounts(cr *v1alpha1.Grafana) []corev1.VolumeMount {
 		MountPath: "/var/lib/grafana/plugins",
 	})
 
+	mounts = append(mounts, corev1.VolumeMount{
+		Name: "monitoring-certs",
+		MountPath: "/opt/ibm/monitoring/certs",
+	})
+
 	for _, secret := range cr.Spec.Secrets {
 		mountName := fmt.Sprintf("secret-%s", secret)
 		mounts = append(mounts, corev1.VolumeMount{
@@ -136,13 +153,18 @@ func getVolumeMounts(cr *v1alpha1.Grafana) []corev1.VolumeMount {
 	return mounts
 }
 
-func getProbe(cr *v1alpha1.Grafana, delay, timeout, failure int32) *corev1.Probe {
+func getProbe(cr *v1alpha1.Grafana, exec []string, delay, timeout, failure int32) *corev1.Probe {
+
+	port := GetGrafanaPort(cr)
 	return &corev1.Probe{
 		Handler: corev1.Handler{
 			HTTPGet: &corev1.HTTPGetAction{
 				Path: GrafanaHealthEndpoint,
-				Port: intstr.FromInt(DefaultGrafanaPort),
+				Port: port,
 			},
+			Exec: &corev1.ExecAction{
+				Command: exec
+			}
 		},
 		InitialDelaySeconds: delay,
 		TimeoutSeconds:      timeout,
@@ -167,10 +189,16 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 		grafanaDashboardImage = GrafanaDashboardImage
 	}
 
+	var routerImage string
+	if cr.Spec.RouterImage != "" {
+		routerImage = cr.Spec.RouterImage
+	} else {
+		routerImage = DefaultGrafanaRouterImage
+	}
+
 	containers = append(containers, corev1.Container{
 		Name:  "grafana",
 		Image: image,
-		Args:  []string{"-config=/etc/grafana/grafana.ini"},
 		Ports: []corev1.ContainerPort{
 			{
 				Name:          "grafana-http",
@@ -178,10 +206,11 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 				Protocol:      "TCP",
 			},
 		},
+		SecurityContext:		  getGrafanaSC()
 		Resources:                getResources(cr),
 		VolumeMounts:             getVolumeMounts(cr),
-		LivenessProbe:            getProbe(cr, 30, 30, 10),
-		ReadinessProbe:           getProbe(cr, 30, 30, 10),
+		LivenessProbe:            getProbe(cr, [], 30, 30, 10),
+		ReadinessProbe:           getProbe(cr, [], 30, 30, 10),
 		TerminationMessagePath:   "/dev/termination-log",
 		TerminationMessagePolicy: "File",
 		ImagePullPolicy:          "IfNotPresent",
@@ -192,6 +221,9 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 		container.VolumeMounts = getExtraContainerVolumeMounts(cr, container.VolumeMounts)
 		containers = append(containers, container)
 	}
+
+	containers = append(containers, createRouterContainer(routerImage))
+	containers = append(containers, createDashboardContainer(dashboardImage))
 
 	return containers
 }
@@ -224,37 +256,6 @@ func getExtraContainerVolumeMounts(cr *v1alpha1.Grafana, mounts []corev1.VolumeM
 	}
 
 	return mounts
-}
-
-func getInitContainers(cr *v1alpha1.Grafana) []corev1.Container {
-
-	var image string
-	if cr.Spec.InitImage != "" {
-		image = cr.Spec.InitImage
-	} else {
-		image = DefaultGrafanaInitImage
-	}
-
-	return []corev1.Container{
-		{
-			Name:      GrafanaInitContainer,
-			Image:     image,
-			Resources: corev1.ResourceRequirements{},
-			VolumeMounts: []corev1.VolumeMount{
-				{
-					Name:      "tls-client-certs",
-					MountPath: "/etc/grafana/secrets/tls-client-certs",
-				},
-				{
-					Name:      "monitoring-ca-certs",
-					MountPath: "/etc/grafana/secrets/tls-ca-certs",
-				},
-			},
-			TerminationMessagePath:   "/dev/termination-log",
-			TerminationMessagePolicy: "File",
-			ImagePullPolicy:          "IfNotPresent",
-		},
-	}
 }
 
 func getReplicas(cr *v1alpha1.Grafana) *int32 {
@@ -318,6 +319,9 @@ func getDeploymentSpec(cr *v1alpha1.Grafana) appv1.DeploymentSpec {
 				Annotations: getPodAnnotations(cr),
 			},
 			Spec: corev1.PodSpec{
+				HostPID: false,
+				HostIPC: false,
+				HostNetwork: false,
 				Volumes:            getVolumes(cr),
 				InitContainers:     getInitContainers(cr),
 				Containers:         getContainers(cr),

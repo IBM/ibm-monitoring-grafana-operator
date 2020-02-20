@@ -3,9 +3,9 @@ package grafana
 import (
 	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	utils "github.com/IBM/ibm-grafana-operator/pkg/controller/utils"
-	v1beta1 "k8s.io/api/extensions/v1beta1"
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	v1beta1 "k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
@@ -236,10 +236,10 @@ func createGrafanaConfig(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
 func reconcileGrafanaConfig(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	selector := utils.GrafanaConfigSelector(cr)
-	config := corev1.ConfigMap{}
+	config := &corev1.ConfigMap{}
 	err := r.client.Get(r.ctx, selector, config)
 	if err != nil {
-		if error.IsNotFound(err) {
+		if errors.IsNotFound(err) {
 			err = createGrafanaConfig(r, cr)
 			if err != nil {
 				return err
@@ -270,12 +270,12 @@ func createGrafanaDatasource(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	return nil
 }
 
-func reconcileGrafanaDatasource(r *ReconcileGrafana, cr *v1alpha1.Grafana) err {
+func reconcileGrafanaDatasource(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	selector := utils.GrafanaDatasourceSelector()
-	datasource := corev1.ConfigMap{}
+	datasource := &corev1.ConfigMap{}
 	err := r.client.Get(r.ctx, selector, datasource)
 	if err != nil {
-		if error.IsNotFound(err) {
+		if errors.IsNotFound(err) {
 			err = createGrafanaDatasource(r, cr)
 			if err != nil {
 				return err
@@ -284,7 +284,7 @@ func reconcileGrafanaDatasource(r *ReconcileGrafana, cr *v1alpha1.Grafana) err {
 		}
 		return err
 	}
-	toUpdate, _ := utils.ReconciledGrafanaDatasource(cr, datasource)
+	toUpdate := utils.ReconciledGrafanaDatasource(cr, datasource)
 	err = r.client.Update(r.ctx, toUpdate)
 	if err != nil {
 		return nil

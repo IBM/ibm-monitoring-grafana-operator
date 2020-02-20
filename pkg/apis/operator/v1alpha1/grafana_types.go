@@ -26,7 +26,6 @@ type GrafanaSpec struct {
 	Secrets    []string                     `json:"secrets,omitempty"`
 	Resource   *corev1.ResourceRequirements `json:"resources,omitempty"`
 	BaseImage  string                       `json:"baseImage,omitempty"`
-	InitImage  string                       `json:"initImage,omitempty"`
 	Ingress    *GrafanaIngress              `json:"route,omitempty"`
 }
 
@@ -40,6 +39,7 @@ type GrafanaConfig struct {
 	Log          *grafanaConfigLog       `json:"log,omitempty" ini:"log,omitempty"`
 	Auth         *grafanaConfigAuth      `json:"auth,omitempty" ini:"auth,omitempty"`
 	Proxy        *grafanaConfigAuthProxy `json:"auth.proxy,omitempty" ini:"auth.proxy,omitempty"`
+	Security     *grafanaConfigSecurity  `json:"security" ini:"security"`
 }
 
 type grafanaConfigPath struct {
@@ -82,8 +82,8 @@ type grafanaConfigAuthProxy struct {
 
 type grafanaConfigSecurity struct {
 	DisableInitialAdminCreation *bool  `json:"disabble_initial_admin_creation,omityempty" ini:"disable_initial_admin_creation,omitempty"`
-	AdminUser                   string `json:"admin_user,omityempty" ini:"admin_user,omitempty"`
-	AdminPassword               string `json:"admin_password,omitempty" ini:"admin_password,omitempty"`
+	AdminUser                   string `json:"admin_user" ini:"admin_user"`
+	AdminPassword               string `json:"admin_password" ini:"admin_password"`
 }
 
 // GrafanaDatasource provides config for datasource.

@@ -67,7 +67,6 @@ func (i *grafanaConfig) Write() (string, string) {
 
 	if i.cfg.Auth != nil {
 		var items []string
-
 		items = appendBool(items, "disable_login_form", i.cfg.Auth.DisableLoginForm)
 		items = appendBool(items, "disable_signout_menu", i.cfg.Auth.DisableSignoutMenu)
 		config["auth"] = items
@@ -79,6 +78,23 @@ func (i *grafanaConfig) Write() (string, string) {
 		items = appendStr(items, "level", i.cfg.Log.Level)
 		items = appendStr(items, "filters", i.cfg.Log.Filters)
 		config["log"] = items
+	}
+
+	if i.cfg.Proxy != nil {
+		var items []string
+		items = appendStr(items, "header_name", i.cfg.Proxy.HeaderName)
+		items = appendStr(items, "header_property", i.cfg.Proxy.HeaderProperty)
+		items = appendBool(items, "enabled", i.cfg.Proxy.Enabled)
+		items = appendBool(items, "auto_signup", i.cfg.Proxy.AutoSignUp)
+		config["proxy"] = items
+	}
+
+	if i.cfg.Security != nil {
+		var items []string
+		items = appendBool(items, "disabble_initial_admin_creation", i.cfg.Security.DisableInitialAdminCreation)
+		items = appendStr(items, "admin_user", i.cfg.Security.AdminUser)
+		items = appendStr(items, "admin_password", i.cfg.Security.AdminPassword)
+		config["security"] = items
 	}
 
 	sb := strings.Builder{}

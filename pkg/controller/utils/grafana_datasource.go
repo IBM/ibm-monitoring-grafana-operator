@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 	"encoding/json"
+	"io/ioutil"
 
 	"k8s.io/apimachinery/pkg/util/yaml"
 	corev1 "k8s.io/api/core/v1"
@@ -15,17 +16,48 @@ import (
 	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 )
 
-const GrafanaDatasourceFile = "datasource.yaml"
+const (
+	GrafanaDatasourceFile = "datasource.yaml"
+	certBasePath = "/opt/ibm/monitoring/certs/"
+	caBasePath = "/opt/ibm/monitoring/caCerts/"
+	certFile = "tls.crt"
+	keyFile = "tls.key"
+)
 
 type grafanaDatasoure struct{
 	APIVersion int	`json:"apiVersion,omitempty"`
 	Datasource v1alpha1.GrafanaDatasource `json:"datasources,omitempty"`
 }
 
+// The certs paths are hardcoded. So we just get them.
+func convertCertToString() string {
+
+}
+
 func GrafanaDatasourceConfig(cr *v1alpha1.Grafana) *corev1.ConfigMap {
 
+	caCert, err := ioutil.ReadFile(path.Join(caBasePath, certFile))
+    if err != nil {
+        log.Errorf("Failed to read cert file %s: %v", path.Join(caBasePath, certFile), err)
+        return
+	}
+	
+	clientCert, err := ioutil.ReadFile(path.Join(certBasePath, certFile))
+    if err != nil {
+        log.Errorf("Failed to read cert file %s: %v", path.Join(certBasePath, certFile), err)
+        return
+    }
+    clientKey, err := ioutil.ReadFile(path.Join(certBasePath, keyFile))
+    if err != nil {
+        log.Errorf("Failed to read key file %s: %v", path.Join(certBasePath, keyFile),err)
+        return
+	}
+	
 	apiVersion := 1
 	cfg := cr.Spec.Datasource
+	cfg.SecureJSONData.TLSCACert = caCert
+	cfg.SecureJSONData.TLSClientCert = clientCert
+	cfg.SecureJSONData.TLSClientKey = clientKey
 
 	dataSource := grafanaDatasource{
 		apiVersion: 1
@@ -45,7 +77,7 @@ func GrafanaDatasourceConfig(cr *v1alpha1.Grafana) *corev1.ConfigMap {
 	configMap.Annotations = map[string]string{
 		"lastConfig": hashMark
 	}
-	configMap.Data[GrafanaDatasourceFile] = bytesData
+	configMap.Data[GrafanaDatasourceFile] = string(bytesData)
 
 	return &configMap
 }
@@ -72,5 +104,4 @@ func GrafanaDatasourceSelector(cr *v1alpha1.Grafana) client.ObjectKey {
 		Name:      GrafanaDatasourceName
 		Namespace: cr.Namespace,
 	}
-
 }

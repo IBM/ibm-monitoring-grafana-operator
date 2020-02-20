@@ -17,12 +17,12 @@ func setVolumeMountsForDashboard(){
 
 	mounts = append(mounts, corev1.VolumeMoust{
 		Name: "monitoring-client-cert",
-		MountPath: "/opt/ibm/monitoring/cert"
+		MountPath: "/opt/ibm/monitoring/certs"
 	})
 
 	mounts = append(mounts, corev1.VolumeMount{
-		Name: "monitoring-ca-cert"
-		MountPath: "/opt/ibm/monitoring/ca-cert"
+		Name: "monitoring-ca-certs"
+		MountPath: "/opt/ibm/monitoring/ca-certs"
 	})
 
 	mounts = append(mounts, corev1.VolumeMount{
@@ -32,47 +32,31 @@ func setVolumeMountsForDashboard(){
 
 }
 
-func setupEnvForDashboard()[]corev1.EnvVar {
-	return []corev1.EnvVar{
-		{
-			Name: "USER"
-			ValueFrom: &corev1.EnvVarSource{
-				SecretKeyRef: &corev1.SecretKeySelector{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: GrafanaAdminSecretName,
-					},
-					Key: GrafanaAdminUserEnvVar,
-				},
-			},
-		},
-		{
-			Name: "PASSWORD"
-			ValueFrom: &corev1.EnvVarSource{
-				SecretKeyRef: &corev1.SecretKeySelector{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: GrafanaAdminSecretName,
-					},
-					Key: GrafanaAdminPasswordEnvVar,
-				},
-			},
-		},
-		{
+func setupEnvForDashboard(cr *v1alpha1.Grafana)[]corev1.EnvVar {
+
+	port := GetGrafanaPort(cr)
+	envs := []corev1.EnvVar
+	envs = append(envs, setEnv("USER", "PASSWORD"))
+	
+	envs = append(envs, corev1.EnvVar {
 			Name: "PROMETHEUS_HOST",
-			Value: "monioring.prometheus"
-		},
-		{
+			Value: "monitoring.prometheus"
+		})
+	envs = append(envs, corev1.EnvVar {
 			Name: "PROMETHEUS_PORT",
-			Value: 0
-		},
-		{
+			Value: PrometheusPort
+		}
+
+	envs = append(envs, corev1.EnvVar {
 			Name: "PORT",
-			Value: 0
-		},
-		{
+			Value: port
+		}
+	envs = append(envs, corev1.EnvVar {
 			Name: "IS_HUB_CLUSTER",
 			Value: false
-		},
-	}
+		}
+
+	return envs
 }
 
 func getDashboardSC() core.SecurityContext {
@@ -87,7 +71,7 @@ func getDashboardSC() core.SecurityContext {
 	return sc
 }
 
-func createContainerForDashboard(image string) corev1.Container {
+func createDashboardContainer(image string) corev1.Container {
 	if len(image) == 0{
 		image = DefaultGrafanaDashboardImage
 	}
