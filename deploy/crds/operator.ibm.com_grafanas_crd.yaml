@@ -39,8 +39,6 @@ spec:
                 modifying this file Add custom validation using kubebuilder tags:
                 https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html'
               properties:
-                app_mode:
-                  type: string
                 auth:
                   properties:
                     disable_login_form:
@@ -59,8 +57,6 @@ spec:
                     header_property:
                       type: string
                   type: object
-                instance_name:
-                  type: string
                 log:
                   properties:
                     filters:
@@ -78,6 +74,19 @@ spec:
                       type: string
                     plugin:
                       type: string
+                  type: object
+                security:
+                  properties:
+                    admin_password:
+                      type: string
+                    admin_user:
+                      type: string
+                    disabble_initial_admin_creation:
+                      type: boolean
+                  required:
+                  - admin_password
+                  - admin_user
+                  - disabble_initial_admin_creation
                   type: object
                 server:
                   properties:
@@ -100,6 +109,8 @@ spec:
                     default_theme:
                       type: string
                   type: object
+              required:
+              - security
               type: object
             configMaps:
               items:
@@ -1167,8 +1178,6 @@ spec:
                 url:
                   type: string
               type: object
-            initImage:
-              type: string
             metaData:
               description: MetaData set the metadata for the pod, servieaccount.
               properties:
@@ -1203,7 +1212,7 @@ spec:
                   type: object
               type: object
             route:
-              description: GrafanaRoute set the config for route.
+              description: GrafanaIngress set the config for ingress.
               properties:
                 annotations:
                   additionalProperties:
@@ -1230,6 +1239,8 @@ spec:
                 tlsSecretName:
                   type: string
               type: object
+            routerImage:
+              type: string
             secrets:
               items:
                 type: string
