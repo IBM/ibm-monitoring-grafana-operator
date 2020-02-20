@@ -54,8 +54,8 @@ func (i *grafanaConfig) Write() (string, string) {
 		items = appendStr(items, "protocol", i.cfg.Server.Protocol)
 		items = appendStr(items, "domain", i.cfg.Server.Domain)
 		items = appendStr(items, "root_url", i.cfg.Server.RootURL)
-		items = appendStr(items, "cert_file", i.cfg.Server.CertFile)
-		items = appendStr(items, "cert_key", i.cfg.Server.KeyFile)
+		items = appendStr(items, "cert_file", "/opt/ibm/monitoring/certs/tls.crt")
+		items = appendStr(items, "cert_key", "/opt/ibm/monitoring/certs/tls.key")
 		config["server"] = items
 	}
 

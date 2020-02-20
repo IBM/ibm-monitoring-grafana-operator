@@ -13,9 +13,8 @@ import (
 
 func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
-	err := reconcileGrafanaDeployment(r, cr)
+	err := createAllVolumeSource(r)
 	if err != nil {
-		log.Error(err, "Fail to reconcile grafana deployment.")
 		return err
 	}
 
@@ -48,7 +47,35 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 		log.Error(err, "Fail to reconcile grafana datasource.")
 	}
 
+	err = reconcileGrafanaDeployment(r, cr)
+	if err != nil {
+		log.Error(err, "Fail to reconcile grafana deployment.")
+		return err
+	}
+
 	return nil
+}
+
+func createAllVolumeSource(r *ReconcileGrafana) error {
+	secret := utils.CreateGrafanaSecret()
+	configmaps := utils.CreateConfigMaps()
+
+	err := r.client.Create(r.ctx, secret)
+	if err != nil {
+		log.Error(err, "fail to create grafana secret.")
+		return err
+	}
+
+	for _, cm := range configmaps {
+		err = r.client.Create(r.ctx, cm)
+		if err != nil {
+			log.Error(err, "fail to create configmap volume.")
+			return nil
+		}
+	}
+
+	return nil
+
 }
 
 func reconcileGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {

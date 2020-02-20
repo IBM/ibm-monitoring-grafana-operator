@@ -17,16 +17,17 @@ type GrafanaSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html
-	Config     GrafanaConfig                `json:"config"`
-	Datasource GrafanaDatasource            `json:"datasource,omitempty"`
-	Containers []corev1.Container           `json:"containers,omitempty"`
-	Service    *GrafanaService              `json:"service,omitempty"`
-	MetaData   *MetaData                    `json:"metaData,omitempty"`
-	ConfigMaps []string                     `json:"configMaps,omitempty"`
-	Secrets    []string                     `json:"secrets,omitempty"`
-	Resource   *corev1.ResourceRequirements `json:"resources,omitempty"`
-	BaseImage  string                       `json:"baseImage,omitempty"`
-	Ingress    *GrafanaIngress              `json:"route,omitempty"`
+	Config      GrafanaConfig                `json:"config"`
+	Datasource  GrafanaDatasource            `json:"datasource,omitempty"`
+	Containers  []corev1.Container           `json:"containers,omitempty"`
+	Service     *GrafanaService              `json:"service,omitempty"`
+	MetaData    *MetaData                    `json:"metaData,omitempty"`
+	ConfigMaps  []string                     `json:"configMaps,omitempty"`
+	Secrets     []string                     `json:"secrets,omitempty"`
+	Resource    *corev1.ResourceRequirements `json:"resources,omitempty"`
+	BaseImage   string                       `json:"baseImage,omitempty"`
+	Ingress     *GrafanaIngress              `json:"route,omitempty"`
+	RouterImage string                       `json:"routerImage,omitempty"`
 }
 
 // GrafanaConfig provides basic config for grafana.ini file.
@@ -50,7 +51,7 @@ type grafanaConfigServer struct {
 	Protocol string `json:"protocal,omitempty" ini:"protocal,omitempty"`
 	Domain   string `json:"domain,omitempty" ini:"domain,omitempty"`
 	HTTPPort string `json:"http_port,omitempty" ini:"http_port,omitempty"`
-	RootURL  string `json:"root_url,omitempty" ini:"root_url,omitempty"`
+	Rooturl  string `json:"root_url,omitempty" ini:"root_url,omitempty"`
 	CertFile string `json:"cert_file,omitempty" ini:"cert_file,omitempty"`
 	KeyFile  string `json:"key_file,omitempty" init:"key_file,omitempty"`
 }

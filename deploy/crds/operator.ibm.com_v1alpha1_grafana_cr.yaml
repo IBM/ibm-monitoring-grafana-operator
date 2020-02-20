@@ -3,4 +3,58 @@ kind: Grafana
 metadata:
   name: example-grafana
 spec:
-  baseImage: grafana/grafana:6.5.4
+  config:
+    server:
+      protocol: https
+      domain: mycluster.com
+      http_port: 3000
+      root_url: https://mycluster.com:3000/grafana
+    users:
+      default_theme: light
+    log:
+      mode: console
+      level: info
+    proxy:
+      enabled: true
+      header_name: X-WEBAUTH-USER
+      header_property: username
+      auto_sign_up: false
+    auth:
+      disable_login_form: true
+      disable_singout_menu: true
+    security:
+      username: admin
+      password: admin
+      disabble_initial_admin_creation: true
+  datasource:
+    name: prometheus
+    type: prometheus
+    isDefault: true
+    editable: false
+    access: proxy
+    url: https://mycluster.com/prometheus
+    jsonData:
+      keepCookies: false
+      tlsAuth: true
+      tlsAuthWithCACert: true
+  service:
+    type: NodePort
+    ports: 3000
+  metaData:
+    replicas: 1
+  ingress:
+    path: /grafana
+    enabled: true
+    tlsEnabled: true
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "1024Mi"
+      cpu: "1000m"
+  baseImage: ibmcom/grafana:v6.5.2-build.1
+  routerImage: ibmcom/icp-management-ingress:2.5.0
+  containers:
+  configmaps:
+  secrets:
