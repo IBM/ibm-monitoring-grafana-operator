@@ -130,7 +130,7 @@ func getVolumeMounts(cr *v1alpha1.Grafana) []corev1.VolumeMount {
 	})
 
 	mounts = append(mounts, corev1.VolumeMount{
-		Name: "monitoring-certs",
+		Name:      "monitoring-certs",
 		MountPath: "/opt/ibm/monitoring/certs",
 	})
 
@@ -163,8 +163,8 @@ func getProbe(cr *v1alpha1.Grafana, exec []string, delay, timeout, failure int32
 				Port: port,
 			},
 			Exec: &corev1.ExecAction{
-				Command: exec
-			}
+				Command: exec,
+			},
 		},
 		InitialDelaySeconds: delay,
 		TimeoutSeconds:      timeout,
@@ -201,16 +201,16 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 		Image: image,
 		Ports: []corev1.ContainerPort{
 			{
-				Name:          "grafana-http",
-				ContainerPort: DefaultGrafanaPort,
+				Name:          "grafana-https",
+				ContainerPort: int32(GetGrafanaPort(cr)),
 				Protocol:      "TCP",
 			},
 		},
-		SecurityContext:		  getGrafanaSC()
+		SecurityContext:          getGrafanaSC(),
 		Resources:                getResources(cr),
 		VolumeMounts:             getVolumeMounts(cr),
-		LivenessProbe:            getProbe(cr, [], 30, 30, 10),
-		ReadinessProbe:           getProbe(cr, [], 30, 30, 10),
+		LivenessProbe:            getProbe(cr, []string{}, 30, 30, 10),
+		ReadinessProbe:           getProbe(cr, []string{}, 30, 30, 10),
 		TerminationMessagePath:   "/dev/termination-log",
 		TerminationMessagePolicy: "File",
 		ImagePullPolicy:          "IfNotPresent",
@@ -296,7 +296,7 @@ func getGrafanaSC() corev1.SecurityContext {
 
 	sc.Capabilities = &core.Capabilities{}
 	sc.Capabilities.Add = []string{"ALL"}
-	sc.Capabilities.Drop := []string{"CHOWN", "NET_ADMIN", "NET_RAW", "LEASE", "SETGID", "SETUID"}
+	sc.Capabilities.Drop = []string{"CHOWN", "NET_ADMIN", "NET_RAW", "LEASE", "SETGID", "SETUID"}
 	sc.Privileged = true
 	sc.AllowPrivilegeEscalation = true
 
@@ -319,9 +319,9 @@ func getDeploymentSpec(cr *v1alpha1.Grafana) appv1.DeploymentSpec {
 				Annotations: getPodAnnotations(cr),
 			},
 			Spec: corev1.PodSpec{
-				HostPID: false,
-				HostIPC: false,
-				HostNetwork: false,
+				HostPID:            false,
+				HostIPC:            false,
+				HostNetwork:        false,
 				Volumes:            getVolumes(cr),
 				InitContainers:     getInitContainers(cr),
 				Containers:         getContainers(cr),
