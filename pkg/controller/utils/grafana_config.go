@@ -25,6 +25,10 @@ func newGrafanaConfig(cfg v1alpha1.GrafanaConfig) *grafanaConfig {
 }
 
 func (i *grafanaConfig) Write() (string, string) {
+
+	//hartcode protocol and domain
+	protocol := "https"
+	domain := "127.0.0.1"
 	config := map[string][]string{}
 
 	appendStr := func(l []string, key, value string) []string {
@@ -51,9 +55,9 @@ func (i *grafanaConfig) Write() (string, string) {
 	if i.cfg.Server != nil {
 		var items []string
 		items = appendStr(items, "http_port", i.cfg.Server.HTTPPort)
-		items = appendStr(items, "protocol", i.cfg.Server.Protocol)
-		items = appendStr(items, "domain", i.cfg.Server.Domain)
-		items = appendStr(items, "root_url", i.cfg.Server.RootURL)
+		items = appendStr(items, "protocol", protocol)
+		items = appendStr(items, "domain", domain)
+		items = appendStr(items, "root_url", protocol+"://"+domain+":"+i.cfg.Server.HTTPPort)
 		items = appendStr(items, "cert_file", "/opt/ibm/monitoring/certs/tls.crt")
 		items = appendStr(items, "cert_key", "/opt/ibm/monitoring/certs/tls.key")
 		config["server"] = items
@@ -168,7 +172,7 @@ func ReconciledGrafanaConfigIni(cr *v1alpha1.Grafana, current *corev1.ConfigMap)
 func GrafanaConfigSelector(cr *v1alpha1.Grafana) client.ObjectKey {
 
 	return client.ObjectKey{
-		Name:      GrafanaConfigName
+		Name:      GrafanaConfigName,
 		Namespace: cr.Namespace,
 	}
 }
