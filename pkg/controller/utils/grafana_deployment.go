@@ -9,7 +9,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	"k8s.io/kubernetes/pkg/apis/core"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -45,7 +44,7 @@ func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 
 	// Volume to store the logs
 	volumes = append(volumes, corev1.Volume{
-		Name: GrafanaLogsVolumeName,
+		Name: GrafanaLogVolumes,
 		VolumeSource: corev1.VolumeSource{
 			EmptyDir: &corev1.EmptyDirVolumeSource{},
 		},
@@ -53,7 +52,7 @@ func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 
 	// Data volume
 	volumes = append(volumes, corev1.Volume{
-		Name: GrafanaDataVolumeName,
+		Name: GrafanaDataVolumes,
 		VolumeSource: corev1.VolumeSource{
 			EmptyDir: &corev1.EmptyDirVolumeSource{},
 		},
@@ -160,7 +159,7 @@ func getProbe(cr *v1alpha1.Grafana, exec []string, delay, timeout, failure int32
 		Handler: corev1.Handler{
 			HTTPGet: &corev1.HTTPGetAction{
 				Path: GrafanaHealthEndpoint,
-				Port: port,
+				Port: intstr.FromInt(port),
 			},
 			Exec: &corev1.ExecAction{
 				Command: exec,
@@ -182,11 +181,11 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 		image = DefaultGrafanaImage
 	}
 
-	var grafanaDashbordImage string
+	var grafanaDashboardImage string
 	if cr.Spec.GrafanaDashboardImage != "" {
-		grafanaDashboarImage = cr.Spec.GrafanaDashboardImage
+		grafanaDashboardImage = cr.Spec.GrafanaDashboardImage
 	} else {
-		grafanaDashboardImage = GrafanaDashboardImage
+		grafanaDashboardImage = DefaultGrafanaDashboardImage
 	}
 
 	var routerImage string
@@ -223,7 +222,7 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 	}
 
 	containers = append(containers, createRouterContainer(routerImage))
-	containers = append(containers, createDashboardContainer(dashboardImage))
+	containers = append(containers, createDashboardContainer(grafanaDashboardImage))
 
 	return containers
 }
@@ -291,14 +290,16 @@ func getPodAnnotations(cr *v1alpha1.Grafana) map[string]string {
 }
 
 // hardcode the setting
-func getGrafanaSC() corev1.SecurityContext {
-	sc := core.SecurityContext{}
+func getGrafanaSC() *corev1.SecurityContext {
+	sc := &corev1.SecurityContext{}
 
-	sc.Capabilities = &core.Capabilities{}
-	sc.Capabilities.Add = []string{"ALL"}
-	sc.Capabilities.Drop = []string{"CHOWN", "NET_ADMIN", "NET_RAW", "LEASE", "SETGID", "SETUID"}
-	sc.Privileged = true
-	sc.AllowPrivilegeEscalation = true
+	cap := &corev1.Capabilities{}
+	True := true
+	sc.Capabilities = cap
+	cap.Add = []corev1.Capability{"ALL"}
+	cap.Drop = []corev1.Capability{"CHOWN", "NET_ADMIN", "NET_RAW", "LEASE", "SETGID", "SETUID"}
+	sc.Privileged = &True
+	sc.AllowPrivilegeEscalation = &True
 
 	return sc
 }
@@ -323,7 +324,6 @@ func getDeploymentSpec(cr *v1alpha1.Grafana) appv1.DeploymentSpec {
 				HostIPC:            false,
 				HostNetwork:        false,
 				Volumes:            getVolumes(cr),
-				InitContainers:     getInitContainers(cr),
 				Containers:         getContainers(cr),
 				ServiceAccountName: GrafanaServiceAccountName,
 			},
@@ -352,12 +352,9 @@ func GrafanaDeploymentSelector(cr *v1alpha1.Grafana) client.ObjectKey {
 func ReconciledGrafanaDeployment(cr *v1alpha1.Grafana, current *appv1.Deployment) *appv1.Deployment {
 
 	reconciled := current.DeepCopy()
-
-	if cr.Spec.MetaData != nil && &cr.Spec.MetaData.Replicas != nil {
-		replicas := cr.Spec.MetaData.Replicas
-		if *reconciled.Spec.Replicas != replicas {
-			*reconciled.Spec.Replicas = replicas
-		}
+	replicas := getReplicas(cr)
+	if reconciled.Spec.Replicas != replicas {
+		reconciled.Spec.Replicas = replicas
 	}
 	return reconciled
 }

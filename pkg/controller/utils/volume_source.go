@@ -8,18 +8,10 @@ import (
 	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	_ "github.com/IBM/ibm-grafana-operator/pkg/artifacts"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const (
-	// configmap name and file key
-	FileKeys = map[string]map[string]*template.Template{
-		"grafana-lua-script-config":  {"grafana.lua": GrafanaLuaScript},
-		"util-lua-script-config":     {"monitoring-util.lua": UtilLuaScript},
-		"router-config":              {"nginx.conf": RouterConfig},
-		"grafana-crd-entry":          {"run.sh": RouterEntry},
-		"grafana-default-dashboards": {"helm-release-dashboard.json": HelmReleaseDashboard, "kubenertes-pod-dashboard.json": KubernetesPodDashboard, "mcm-monitoring-dashboard.json": MCMMonitoringDashboard},
-	}
-
 	namespace     = "openshift-cs-monitoring"
 	clusterPort   = 8443
 	environment   = "openshift"
@@ -31,21 +23,34 @@ const (
 	grafanaPort        = 3000
 )
 
+type file_keys map[string]map[string]*template.Template
+
+// configmap name and file key
+var FileKeys file_keys
+
+func intiFileKeys() {
+	FileKeys["grafana-lua-script-config"] = map[string]*template.Template{"grafana.lua": GrafanaLuaScript}
+	FileKeys["util-lua-script-config"] = map[string]*template.Template{"monitoring-util.lua": UtilLuaScript}
+	FileKeys["router-config"] = map[string]*template.Template{"nginx.conf": RouterConfig}
+	FileKeys["grafana-crd-entry"] = map[string]*template.Template{"run.sh": RouterEntry}
+	FileKeys["grafana-default-dashboards"] = map[string]*template.Template{"helm-release-dashboard.json": HelmReleaseDashboard, "kubenertes-pod-dashboard.json": KubernetesPodDashboard, "mcm-monitoring-dashboard.json": MCMMonitoringDashboard}
+}
+
 func createConfigmap(name string, data map[string]string) corev1.ConfigMap {
 
-	configmap := &corev1.ConfigMap{
-		ObejctMeta: core.ObejctMeta{
+	configmap := corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
 			Name: name,
 		},
 		Data: data,
 	}
-	configmap.ObejctMeta.Labels["app"] = "grafana"
+	configmap.ObjectMeta.Labels["app"] = "grafana"
 	return configmap
 }
 
 // CreateConfigmaps will create all the confimap for the grafana.
 func CreateConfigmaps() []corev1.ConfigMap {
-	configmaps := []corev1.ConfigMaps{}
+	configmaps := []corev1.ConfigMap{}
 
 	type Data struct {
 		Namespace          string
@@ -70,16 +75,16 @@ func CreateConfigmaps() []corev1.ConfigMap {
 	}
 
 	var buff bytes.Buffer
+	var configData map[string]string
 	for fileKey, dValue := range FileKeys {
-		for name, data := range dValue {
-			configData := make(map[string]string)
-			err := tpl.Execute(&buff, data)
+		for name, tpl := range dValue {
+			err := tpl.Execute(&buff, tplData)
 			if err != nil {
 				panic(err)
 			}
 			configData[name] = buff.String()
 		}
-		configmaps = append(configmaps, createConfigmap(name, configData))
+		configmaps = append(configmaps, createConfigmap(fileKey, configData))
 	}
 
 	return configmaps
@@ -92,12 +97,13 @@ func CreateGrafanaSecret(cr *v1alpha1.Grafana) corev1.Secret {
 
 	encUser := b64.StdEncoding.EncodeToString([]byte(user))
 	encPass := b64.StdEncoding.EncodeToString([]byte(password))
+	data := map[string][]byte{"usernam": []byte(encUser), "password": []byte(encPass)}
 	return corev1.Secret{
-		corev1.ObejctMeta{
+		ObjectMeta: metav1.ObjectMeta{
 			Name:   "grafana-secret",
 			Labels: map[string]string{"app": "grafana"},
 		},
-		corev1.SecretType: corev1.SecretTypeOpauqe,
-		Data:              map[string]string{"usernam": encUser, "password": encPass},
+		Type: "Opaque",
+		Data: data,
 	}
 }

@@ -5,10 +5,7 @@ metadata:
 spec:
   config:
     server:
-      protocol: https
-      domain: mycluster.com
-      http_port: 3000
-      root_url: https://mycluster.com:3000/grafana
+      http_port: 8443
     users:
       default_theme: light
     log:
@@ -32,9 +29,9 @@ spec:
     isDefault: true
     editable: false
     access: proxy
-    url: https://mycluster.com/prometheus
+    url: https://prometheus:9090
     jsonData:
-      keepCookies: false
+      keepCookies: cfc-access-token-cookie
       tlsAuth: true
       tlsAuthWithCACert: true
   service:
@@ -53,8 +50,9 @@ spec:
     limits:
       memory: "1024Mi"
       cpu: "1000m"
-  baseImage: ibmcom/grafana:v6.5.2-build.1
-  routerImage: ibmcom/icp-management-ingress:2.5.0
+  baseImage: hyc-cloud-private-release-docker-local.artifactory.swg-devops.com/ibmcom-amd64/grafana:v6.5.2-build.1
+  routerImage: hyc-cloud-private-release-docker-local.artifactory.swg-devops.com/ibmcom-amd64/icp-management-ingress:2.5.0.1910-rhel
+  grafanaDashboardImage: hyc-cloud-private-release-docker-local.artifactory.swg-devops.com/ibm-amd64/dashboard-controller:v1.2.0-build.2
   containers:
   configmaps:
   secrets:

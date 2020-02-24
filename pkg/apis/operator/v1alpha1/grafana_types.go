@@ -17,17 +17,18 @@ type GrafanaSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html
-	Config      GrafanaConfig                `json:"config"`
-	Datasource  GrafanaDatasource            `json:"datasource,omitempty"`
-	Containers  []corev1.Container           `json:"containers,omitempty"`
-	Service     *GrafanaService              `json:"service,omitempty"`
-	MetaData    *MetaData                    `json:"metaData,omitempty"`
-	ConfigMaps  []string                     `json:"configMaps,omitempty"`
-	Secrets     []string                     `json:"secrets,omitempty"`
-	Resource    *corev1.ResourceRequirements `json:"resources,omitempty"`
-	BaseImage   string                       `json:"baseImage,omitempty"`
-	Ingress     *GrafanaIngress              `json:"route,omitempty"`
-	RouterImage string                       `json:"routerImage,omitempty"`
+	Config                GrafanaConfig                `json:"config"`
+	Datasource            GrafanaDatasource            `json:"datasource,omitempty"`
+	Containers            []corev1.Container           `json:"containers,omitempty"`
+	Service               *GrafanaService              `json:"service,omitempty"`
+	MetaData              *MetaData                    `json:"metaData,omitempty"`
+	ConfigMaps            []string                     `json:"configMaps,omitempty"`
+	Secrets               []string                     `json:"secrets,omitempty"`
+	Resource              *corev1.ResourceRequirements `json:"resources,omitempty"`
+	BaseImage             string                       `json:"baseImage,omitempty"`
+	Ingress               *GrafanaIngress              `json:"route,omitempty"`
+	RouterImage           string                       `json:"routerImage,omitempty"`
+	GrafanaDashboardImage string                       `json:"grafanaDashboardImage,omitempty"`
 }
 
 // GrafanaConfig provides basic config for grafana.ini file.

@@ -40,15 +40,17 @@ func getVolumeMountsForRouter()[]corev1.VolumeMount {
 }
 
 // hardcode the setting
-func getGrafanaRouterSC() core.SecurityContext {
-	sc := corev1.SecurityContext{}
+func getGrafanaRouterSC() *core.SecurityContext {
+	sc := &core.SecurityContext{}
 
+	True := true
+	False := false
 	sc.Capabilities = &core.Capabilities{}
-	sc.Capabilities.Add = []string{"ALL"}
-	sc.Capabilities.Drop = []string{"CHOWN", "NET_ADMIN", "NET_RAW", "LEASE", "SETGID", "SETUID"}
-	sc.Privileged = false
-	sc.AllowPrivilegeEscalation = false
-	sc.ReadOnlyRootFilesystem = true
+	sc.Capabilities.Add = []core.Capability{"ALL"}
+	sc.Capabilities.Drop = []core.Capability{"CHOWN", "NET_ADMIN", "NET_RAW", "LEASE", "SETGID", "SETUID"}
+	sc.Privileged = &True
+	sc.AllowPrivilegeEscalation = &False
+	sc.ReadOnlyRootFilesystem = &True
 
 	return sc
 }
