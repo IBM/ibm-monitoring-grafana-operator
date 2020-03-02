@@ -6,17 +6,16 @@ import (
 	"text/template"
 
 	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
-	_ "github.com/IBM/ibm-grafana-operator/pkg/artifacts"
+	_ "github.com/IBM/ibm-grafana-operator/pkg/controller/artifacts"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const (
-	namespace     = "openshift-cs-monitoring"
-	clusterPort   = 8443
-	environment   = "openshift"
-	clusterDomain = "cluster.local"
-	// These should come from ingress setting.
+	namespace          = "openshift-cs-monitoring"
+	clusterPort        = 8443
+	environment        = "openshift"
+	clusterDomain      = "cluster.local"
 	prometheusFullName = "monitoring-prometheus:9090"
 	prometheusPort     = 9090
 	grafanaFullName    = "monitoring-grafana:3000"

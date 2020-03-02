@@ -8,10 +8,10 @@ const (
 	GrafanaDataVolumes           = "grafana-data"
 	GrafanaDatasourceName        = "gafana-datasource"
 	GrafanaHealthEndpoint        = "/api/health"
-	GrafanaInitContainer         = "grafana-init-container"
 	DefaultGrafanaImage          = "grafana/grafana:6.5.4"
 	DefaultGrafanaRouterImage    = "icp-management-ingress:2.5.0"
 	DefaultGrafanaDashboardImage = "dashboard-controller:1.2.0"
+	GrafanaInitContainerName     = "init-container"
 	DefaultRouterPort            = 8080
 	GrafanaAdminSecretName       = "grafana-secret"
 	GrafanaInitMounts            = "grafana-init-mount"
@@ -29,5 +29,5 @@ const (
 	GrafanaAdminPasswordEnvVar   = "password"
 	IAMNamespace                 = "cs-iam"
 	ClusterDomain                = "cluster.local"
-	PrometheuPort                = 9090
+	PrometheusPort               = 9090
 )

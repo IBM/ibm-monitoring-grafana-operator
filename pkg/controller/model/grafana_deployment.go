@@ -2,17 +2,20 @@ package utils
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
-	"github.com/integr8ly/grafana-operator/v3/pkg/controller/config"
+	"github.com/IBM/ibm-grafana-operator/pkg/controller/config"
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/kubernetes/pkg/apis/core"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+// Baisc resource unit
 const (
 	MemoryRequest = "256Mi"
 	CpuRequest    = "200m"
@@ -20,20 +23,35 @@ const (
 	CpuLimit      = "500m"
 )
 
-func getResources(cr *v1alpha1.Grafana) corev1.ResourceRequirements {
+func getContainerResource(cr *v1alpha1.Grafana, name string) corev1.Resource {
 
-	if cr.Spec.Resource != nil {
-		return *cr.Spec.Resource
+	var resources *v1alpha1.GrafanaResources
+	var times int
+	if cr.Spec.Resources != nil {
+		resources = cr.Spec.Resources
+	} else {
+		times = 1
 	}
+
+	if resources != nil {
+		r := reflect.ValueOf(resources)
+		value := reflect.Indirect(r).FieldByName(name)
+		times := int(value.Int())
+	}
+
+	return getResources(times)
+}
+
+func getResource(times int) corev1.ResourceRequirements {
 
 	return corev1.ResourceRequirements{
 		Requests: corev1.ResourceList{
-			corev1.ResourceMemory: resource.MustParse(MemoryRequest),
-			corev1.ResourceCPU:    resource.MustParse(CpuRequest),
+			corev1.ResourceMemory: resource.MustParse(MemoryRequest * times),
+			corev1.ResourceCPU:    resource.MustParse(CpuRequest * times),
 		},
 		Limits: corev1.ResourceList{
-			corev1.ResourceMemory: resource.MustParse(MemoryLimit),
-			corev1.ResourceCPU:    resource.MustParse(CpuLimit),
+			corev1.ResourceMemory: resource.MustParse(MemoryLimit * times),
+			corev1.ResourceCPU:    resource.MustParse(CpuLimit * times),
 		},
 	}
 
@@ -182,20 +200,6 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 		image = DefaultGrafanaImage
 	}
 
-	var grafanaDashboardImage string
-	if cr.Spec.GrafanaDashboardImage != "" {
-		grafanaDashboardImage = cr.Spec.GrafanaDashboardImage
-	} else {
-		grafanaDashboardImage = DefaultGrafanaDashboardImage
-	}
-
-	var routerImage string
-	if cr.Spec.RouterImage != "" {
-		routerImage = cr.Spec.RouterImage
-	} else {
-		routerImage = DefaultGrafanaRouterImage
-	}
-
 	containers = append(containers, corev1.Container{
 		Name:  "grafana",
 		Image: image,
@@ -207,7 +211,7 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 			},
 		},
 		SecurityContext:          getGrafanaSC(),
-		Resources:                getResources(cr),
+		Resources:                getContainerResources(cr, "Grafana"),
 		VolumeMounts:             getVolumeMounts(cr),
 		LivenessProbe:            getProbe(cr, []string{}, 30, 30, 10),
 		ReadinessProbe:           getProbe(cr, []string{}, 30, 30, 10),
@@ -222,8 +226,8 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 		containers = append(containers, container)
 	}
 
-	containers = append(containers, createRouterContainer(routerImage))
-	containers = append(containers, createDashboardContainer(grafanaDashboardImage))
+	containers = append(containers, createRouterContainer(cr))
+	containers = append(containers, createDashboardContainer(cr))
 
 	return containers
 }
@@ -305,27 +309,22 @@ func getGrafanaSC() *corev1.SecurityContext {
 	return sc
 }
 
-func getInitContainers(plugins string) []corev1.Container {
+func getInitContainers() []corev1.Container {
 	cfg := config.GetControllerConfig()
-	image := cfg.GetConfigString(config.ConfigPluginsInitContainerImage, config.PluginsInitContainerImage)
-	tag := cfg.GetConfigString(config.ConfigPluginsInitContainerTag, config.PluginsInitContainerTag)
+	image := cfg.GetConfigString(config.InitContainerImage, config.InitContainerImage)
+	tag := cfg.GetConfigString(config.InitContainerTag, config.InitContainerTag)
 
+	False := false
 	return []corev1.Container{
 		{
-			Name:  GrafanaInitContainerName,
-			Image: fmt.Sprintf("%s:%s", image, tag),
-			Env: []corev1.EnvVar{
-				{
-					Name:  "GRAFANA_PLUGINS",
-					Value: plugins,
-				},
-			},
+			Name:      GrafanaInitContainerName,
+			Image:     fmt.Sprintf("%s:%s", image, tag),
 			Resources: corev1.ResourceRequirements{},
-			VolumeMounts: []corev1.VolumeMount{
-				{
-					Name:      GrafanaPluginsVolumeName,
-					ReadOnly:  false,
-					MountPath: "/opt/plugins",
+			SecurityContext: core.SecurityContext{
+				AllowPrivilegeEscalation: &False,
+				Privileged:               &False,
+				corev1.Capabilities{
+					Add: []corev1.Capability{"all"},
 				},
 			},
 			TerminationMessagePath:   "/dev/termination-log",
@@ -355,6 +354,7 @@ func getDeploymentSpec(cr *v1alpha1.Grafana) appv1.DeploymentSpec {
 				HostIPC:            false,
 				HostNetwork:        false,
 				Volumes:            getVolumes(cr),
+				InitContainers:     getInitContainers(),
 				Containers:         getContainers(cr),
 				ServiceAccountName: GrafanaServiceAccountName,
 			},

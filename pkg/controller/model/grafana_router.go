@@ -55,7 +55,7 @@ func getGrafanaRouterSC() *core.SecurityContext {
 
 func getRouterProbe(delay, period int) *corev1.Probe{
 
-	checkCMD := []string{"sh", "-c", checkUrl}
+	checkCMD := ["sh", "-c", checkUrl]
 	return *corev1.Probe{
 		Handler: corev1.Handler{
 			Exec: &corev1.ExecAction{
@@ -94,21 +94,18 @@ func setupEnv(username, password string) []corev1.EnvVar {
 	},
 }
 
-func createRouterContainer(image string) corev1.Container{
-
-	if len(image) == 0 {
-		image = DefaultGrafanaRouterImage
-	}
+func createRouterContainer(cr *v1alpha1) corev1.Container{
 
 	return corev1.Container{
 		Name: "router",
-		Image: image,
+		Image: DefaultGrafanaRouterImage,
 		Args:  "",
 		Ports: []corev1.ContaierPort{
 			Name: "router",
 			ContainerPort: DefaultRouterPort,
 			Protocol: "TCP",
 		},
+		Resources: getContainerResource(cr, "Router"),
 		Probe: getRouterProbe(30, 10)
 		SecurityContext: getGrafanaRouterSC(),
 		VolumeMounts: getVolumeMountsForRouter(),

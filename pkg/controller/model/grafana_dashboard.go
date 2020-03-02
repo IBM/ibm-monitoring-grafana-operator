@@ -34,7 +34,7 @@ func setupEnvForDashboard(cr *v1alpha1.Grafana) []corev1.EnvVar {
 
 	port := GetGrafanaPort(cr)
 	envs := []corev1.EnvVar{}
-	envs = append(envs, setEnv("USER", "PASSWORD"))
+	envs = append(envs, setupEnv("USER", "PASSWORD"))
 
 	envs = append(envs, corev1.EnvVar{
 		Name:  "PROMETHEUS_HOST",
@@ -57,6 +57,21 @@ func setupEnvForDashboard(cr *v1alpha1.Grafana) []corev1.EnvVar {
 	return envs
 }
 
+// setup the default resource for dashboard controller
+func setupResource() corev1.Resources {
+	return corev1.Resourcescorev1.ResourceRequirements{
+		Requests: corev1.ResourceList{
+			corev1.ResourceMemory: resource.MustParse(MemoryRequest),
+			corev1.ResourceCPU:    resource.MustParse(CpuRequest),
+		},
+		Limits: corev1.ResourceList{
+			corev1.ResourceMemory: resource.MustParse(MemoryLimit),
+			corev1.ResourceCPU:    resource.MustParse(CpuLimit),
+		},
+	}
+
+}
+
 func getDashboardSC() *corev1.SecurityContext {
 	sc := &corev1.SecurityContext{}
 
@@ -70,16 +85,13 @@ func getDashboardSC() *corev1.SecurityContext {
 	return sc
 }
 
-func createDashboardContainer(image string, cr *v1alpha1.Grafana) corev1.Container {
-	if len(image) == 0 {
-		image = DefaultGrafanaDashboardImage
-	}
+func createDashboardContainer(cr *v1alpha1.Grafana) corev1.Container {
 
 	return corev1.Container{
 		Name:                     "dashboard-crd-controller",
 		Image:                    image,
 		ImagePullPolicy:          "IfNotPresent",
-		Resources:                getResources(cr),
+		Resources:                getContainerResources(cr, "Dashboard"),
 		SecurityContext:          getDashboardSC(),
 		Env:                      setupEnvForDashboard(cr),
 		VolumeMounts:             setVolumeMountsForDashboard(),

@@ -17,18 +17,16 @@ type GrafanaSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html
-	Config                GrafanaConfig                `json:"config"`
-	Datasource            GrafanaDatasource            `json:"datasource,omitempty"`
-	Containers            []corev1.Container           `json:"containers,omitempty"`
-	Service               *GrafanaService              `json:"service,omitempty"`
-	MetaData              *MetaData                    `json:"metaData,omitempty"`
-	ConfigMaps            []string                     `json:"configMaps,omitempty"`
-	Secrets               []string                     `json:"secrets,omitempty"`
-	Resource              *corev1.ResourceRequirements `json:"resources,omitempty"`
-	BaseImage             string                       `json:"baseImage,omitempty"`
-	Ingress               *GrafanaIngress              `json:"route,omitempty"`
-	RouterImage           string                       `json:"routerImage,omitempty"`
-	GrafanaDashboardImage string                       `json:"grafanaDashboardImage,omitempty"`
+	Config     GrafanaConfig      `json:"config"`
+	Datasource GrafanaDatasource  `json:"datasource,omitempty"`
+	Containers []corev1.Container `json:"containers,omitempty"`
+	Service    *GrafanaService    `json:"service,omitempty"`
+	MetaData   *MetaData          `json:"metaData,omitempty"`
+	ConfigMaps []string           `json:"configMaps,omitempty"`
+	Secrets    []string           `json:"secrets,omitempty"`
+	BaseImage  string             `json:"baseImage,omitempty"`
+	Ingress    *GrafanaIngress    `json:"ingress,omitempty"`
+	Resources  *GrafanaResources  `json:"resources,omitempty"`
 }
 
 // GrafanaConfig provides basic config for grafana.ini file.
@@ -82,8 +80,14 @@ type grafanaConfigAuthProxy struct {
 
 type grafanaConfigSecurity struct {
 	DisableInitialAdminCreation *bool  `json:"disabble_initial_admin_creation,omityempty" ini:"disable_initial_admin_creation,omitempty"`
-	AdminUser                   string `json:"admin_user" ini:"admin_user"`
-	AdminPassword               string `json:"admin_password" ini:"admin_password"`
+	AdminUser                   string `json:"admin_user" ini:"admin_user,omitempty"`
+	AdminPassword               string `json:"admin_password" ini:"admin_password,omitempty"`
+}
+
+type GrafanaResources struct {
+	Grafana   int `json:"grafanaResource,omitempty"`
+	Dashboard int `json:"dashboardResource,omitempty"`
+	Router    int `json:"routerResource,omitempty"`
 }
 
 // GrafanaDatasource provides config for datasource.

@@ -13,6 +13,8 @@ import (
 
 	"github.com/IBM/ibm-grafana-operator/pkg/apis"
 	"github.com/IBM/ibm-grafana-operator/pkg/controller"
+	conf "github.com/IBM/ibm-grafana-operator/pkg/controller/config"
+	utils "github.com/IBM/ibm-grafana-operator/pkg/controller/model"
 	"github.com/IBM/ibm-grafana-operator/version"
 
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
@@ -31,6 +33,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
 )
 
+var iamNamespace string
+var initImage string
+var initImageTag string
+
 // Change below variables to serve metrics on different host or port.
 var (
 	metricsHost               = "0.0.0.0"
@@ -46,15 +52,20 @@ func printVersion() {
 	log.Info(fmt.Sprintf("Version of operator-sdk: %v", sdkVersion.Version))
 }
 
-func main() {
+func init() {
 	// Add the zap logger flag set to the CLI. The flag set must
 	// be added before calling pflag.Parse().
-	pflag.CommandLine.AddFlagSet(zap.FlagSet())
+	flagSet := pflag.CommandLine
+	flagSet.AddFlagSet(zap.FlagSet())
+	defaultInitImage := utils.DefaultGrafanaInitImage
+	defaultInitImageTag := utils.DefaultGrafanaInitTag
 
 	// Add flags registered by imported packages (e.g. glog and
 	// controller-runtime)
-	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
-
+	flagSet.AddGoFlagSet(flag.CommandLine)
+	flag.StringVar(&iamNamespace, "iam-namespace", "iam-namespace", "The iam namespace.")
+	flag.StringVar(&initImage, "init-image", defaultInitImage, "Set initial container image.")
+	flag.StringVar(&initImageTag, "init-image-tag", defaultInitImageTag, "Set initial container image tag.")
 	pflag.Parse()
 
 	// Use a zap logr.Logger implementation. If none of the zap
@@ -68,12 +79,20 @@ func main() {
 	logf.SetLogger(zap.Logger())
 
 	printVersion()
+}
+
+func main() {
 
 	namespace, err := k8sutil.GetWatchNamespace()
 	if err != nil {
 		log.Error(err, "Failed to get watch namespace")
 		os.Exit(1)
 	}
+
+	newConfig := conf.GetControllerConfig()
+	newCofig.AddConfigItem("iam-namespace", iamNamespace)
+	newConfig.AddConfigItem("init-image", initImage)
+	newConfig.AddConfigItem("init-image-tag", initImageTag)
 
 	// Get a config to talk to the apiserver
 	cfg, err := config.GetConfig()

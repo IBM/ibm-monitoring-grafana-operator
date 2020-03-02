@@ -10,6 +10,12 @@ import (
 	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+)
+
+const (
+	defaultAdminUser     = "user"
+	defaultAdminPassword = "admin"
 )
 
 // grafanaConfig is a generaric type used to process grafana.ini and datasoure config.
@@ -94,10 +100,23 @@ func (i *grafanaConfig) Write() (string, string) {
 	}
 
 	if i.cfg.Security != nil {
+		var adminUser, adminPassword string
+		if i.cfg.Security.AdminUser != "" {
+			adminUser = i.cfg.Security.AdminUser
+		} else {
+			adminUser = defaultAdminUser
+		}
+
+		if i.cfg.Security.AdminPassword != "" {
+			adminPassword = i.cfg.Security.AdminPassword
+		} else {
+			adminPassword = defaultAdminPassword
+		}
+
 		var items []string
 		items = appendBool(items, "disabble_initial_admin_creation", i.cfg.Security.DisableInitialAdminCreation)
-		items = appendStr(items, "admin_user", i.cfg.Security.AdminUser)
-		items = appendStr(items, "admin_password", i.cfg.Security.AdminPassword)
+		items = appendStr(items, "admin_user", adminUser)
+		items = appendStr(items, "admin_password", adminPassword)
 		config["security"] = items
 	}
 
@@ -134,7 +153,7 @@ func (i *grafanaConfig) Write() (string, string) {
 }
 
 func GrafanaConfigIni(cr *v1alpha1.Grafana) (*corev1.ConfigMap, error) {
-	ini := newGrafanaConfig(cr.Spec.Config)
+	ini := newGrafanaConfig(&cr.Spec.Config)
 	config, hash := ini.Write()
 
 	configMap := &corev1.ConfigMap{}
@@ -158,7 +177,7 @@ func ReconciledGrafanaConfigIni(cr *v1alpha1.Grafana, current *corev1.ConfigMap)
 
 	reconciled := current.DeepCopy()
 
-	newConfig := newGrafanaConfig(cr.Spec.Config)
+	newConfig := newGrafanaIni(cr.Spec.GrafanaConfig)
 	data, hash := newConfig.Write()
 
 	if reconciled.Annotations["lastConfig"] != hash {
@@ -169,9 +188,9 @@ func ReconciledGrafanaConfigIni(cr *v1alpha1.Grafana, current *corev1.ConfigMap)
 	return reconciled, nil
 }
 
-func GrafanaConfigSelector(cr *v1alpha1.Grafana) corev1.client.ObjectKey {
+func GrafanaConfigSelector(cr *v1alpha1.Grafana) client.ObjectKey {
 
-	return corev1.client.ObjectKey{
+	return client.ObjectKey{
 		Name:      GrafanaConfigName,
 		Namespace: cr.Namespace,
 	}

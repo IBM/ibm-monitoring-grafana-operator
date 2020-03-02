@@ -4,6 +4,7 @@ import (
 	"context"
 
 	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
+	"github.com/IBM/ibm-grafana-operator/pkg/controller/config"
 	utils "github.com/IBM/ibm-grafana-operator/pkg/controller/utils"
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -34,7 +35,13 @@ func Add(mgr manager.Manager) error {
 // newReconciler returns a new reconcile.Reconciler
 func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 	context := context.Background()
-	return &ReconcileGrafana{client: mgr.GetClient(), scheme: mgr.GetScheme(), ctx: context}
+	config := config.GetControllerConfig()
+	return &ReconcileGrafana{
+		client: mgr.GetClient(),
+		scheme: mgr.GetScheme(),
+		ctx:    context,
+		config: config,
+	}
 }
 
 // add adds a new Controller to mgr with r as the reconcile.Reconciler
@@ -92,6 +99,7 @@ type ReconcileGrafana struct {
 	client client.Client
 	scheme *runtime.Scheme
 	ctx    context.Context
+	config config.ControllerConfig
 }
 
 // Reconcile reads that state of the cluster for a Grafana object and makes changes based on the state read

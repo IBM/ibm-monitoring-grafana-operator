@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"sort"
-	"strings"
+	"path"
 
+	"google.golang.org/appengine/log"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/yaml"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 )
@@ -27,11 +27,6 @@ const (
 type grafanaDatasoure struct {
 	APIVersion int                        `json:"apiVersion,omitempty"`
 	Datasource v1alpha1.GrafanaDatasource `json:"datasources,omitempty"`
-}
-
-// The certs paths are hardcoded. So we just get them.
-func convertCertToString() string {
-
 }
 
 func GrafanaDatasourceConfig(cr *v1alpha1.Grafana) *corev1.ConfigMap {
