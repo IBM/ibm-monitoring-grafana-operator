@@ -2,7 +2,7 @@ package model
 
 import (
 	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
-	corev1 "k8s.io/core/api/v1"
+	corev1 "k8s.io/api/core/v1"
 )
 
 func setVolumeMountsForDashboard() {

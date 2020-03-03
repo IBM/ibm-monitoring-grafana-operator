@@ -2,7 +2,6 @@ package model
 
 import (
 	corev1 "k8s.io/api/core/v1"
-	core "k8s.io/kubernetes/api/core"
 )
 
 const checkUrl = "wget --spider --no-check-certificate -S 'https://platform-identity-provider" + IAMNamespace + ".svc." + ClusterDomain + ":4300/v1/info'"

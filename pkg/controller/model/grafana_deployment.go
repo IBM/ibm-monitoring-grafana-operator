@@ -11,12 +11,8 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	"k8s.io/kubernetes/pkg/apis/core"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
-
-// image url prefix Used as test
-const url_prefix = "hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com"
 
 // Baisc resource unit
 const (
