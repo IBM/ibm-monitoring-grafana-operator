@@ -1,4 +1,4 @@
-package utils
+package model
 
 import (
 	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"

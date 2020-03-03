@@ -1,38 +1,38 @@
-package utils
+package model
 
 import (
 	corev1 "k8s.io/api/core/v1"
 	core "k8s.io/kubernetes/api/core"
 )
 
-const checkUrl = "wget --spider --no-check-certificate -S 'https://platform-identity-provider" + IAMNamespace +".svc." + ClusterDomain + ":4300/v1/info'"
+const checkUrl = "wget --spider --no-check-certificate -S 'https://platform-identity-provider" + IAMNamespace + ".svc." + ClusterDomain + ":4300/v1/info'"
 
-func getVolumeMountsForRouter()[]corev1.VolumeMount {
+func getVolumeMountsForRouter() []corev1.VolumeMount {
 	return []corev1.VolumeMount{
 		corev1.VolumeMount{
-			Name: "router-config",
+			Name:      "router-config",
 			MountPath: "/opt/ibm/router/conf",
 		},
 		corev1.VolumeMount{
-			Name: "router-entry",
+			Name:      "router-entry",
 			MountPath: "/opt/ibm/router/entry",
 		},
 		corev1.VolumeMount{
-			Name: "monitoring-ca-certs",
+			Name:      "monitoring-ca-certs",
 			MountPath: "/opt/ibm/router/ca-certs",
 		},
 		corev1.VolumeMount{
-			Name: "monitoring-certs",
+			Name:      "monitoring-certs",
 			MountPath: "/opt/ibm/router/certs",
 		},
 		corev1.VolumeMount{
-			Name: "grafana-lua-script-config",
+			Name:      "grafana-lua-script-config",
 			MountPath: "/opt/lua-scripts",
 		},
 		corev1.VolumeMount{
-			Name: "util-lua-script-config",
+			Name:      "util-lua-script-config",
 			MountPath: "/opt/ibm/router/nginx/conf/monitoring-util.lua",
-			SubPath: "monitoring-util.lua",
+			SubPath:   "monitoring-util.lua",
 		},
 	}
 }
@@ -53,14 +53,14 @@ func getGrafanaRouterSC() *core.SecurityContext {
 	return sc
 }
 
-func getRouterProbe(delay, period int) *corev1.Probe{
+func getRouterProbe(delay, period int) *corev1.Probe {
 
-	checkCMD := ["sh", "-c", checkUrl]
+	checkCMD := []string{"sh", "-c", checkUrl}
 	return *corev1.Probe{
 		Handler: corev1.Handler{
 			Exec: &corev1.ExecAction{
-				Command: checkCMD
-			}
+				Command: checkCMD,
+			},
 		},
 		InitialDelaySeconds: delay,
 		TimeoutSeconds:      timeout,
@@ -70,7 +70,7 @@ func getRouterProbe(delay, period int) *corev1.Probe{
 func setupEnv(username, password string) []corev1.EnvVar {
 	return []corev1.EnvVar{
 		{
-			Name: username
+			Name: username,
 			ValueFrom: &corev1.EnvVarSource{
 				SecretKeyRef: &corev1.SecretKeySelector{
 					LocalObjectReference: corev1.LocalObjectReference{
@@ -81,7 +81,7 @@ func setupEnv(username, password string) []corev1.EnvVar {
 			},
 		},
 		{
-			Name: password
+			Name: password,
 			ValueFrom: &corev1.EnvVarSource{
 				SecretKeyRef: &corev1.SecretKeySelector{
 					LocalObjectReference: corev1.LocalObjectReference{
@@ -89,34 +89,34 @@ func setupEnv(username, password string) []corev1.EnvVar {
 					},
 					Key: GrafanaAdminPasswordEnvVar,
 				},
-			}
+			},
 		},
-	},
+	}
 }
 
-func createRouterContainer(cr *v1alpha1) corev1.Container{
+func createRouterContainer(cr *v1alpha1) corev1.Container {
 
 	return corev1.Container{
-		Name: "router",
+		Name:  "router",
 		Image: DefaultGrafanaRouterImage,
 		Args:  "",
 		Ports: []corev1.ContaierPort{
-			Name: "router",
+			Name:          "router",
 			ContainerPort: DefaultRouterPort,
-			Protocol: "TCP",
+			Protocol:      "TCP",
 		},
-		Resources: getContainerResource(cr, "Router"),
-		Probe: getRouterProbe(30, 10)
-		SecurityContext: getGrafanaRouterSC(),
-		VolumeMounts: getVolumeMountsForRouter(),
-		Env: setEnv("GF_SECURITY_ADMIN_USER", "GF_SECURITY_ADMIN_PASSWORD")
+		Resources:                getContainerResource(cr, "Router"),
+		Probe:                    getRouterProbe(30, 10),
+		SecurityContext:          getGrafanaRouterSC(),
+		VolumeMounts:             getVolumeMountsForRouter(),
+		Env:                      setEnv("GF_SECURITY_ADMIN_USER", "GF_SECURITY_ADMIN_PASSWORD"),
 		TerminationMessagePath:   "/dev/termination-log",
 		TerminationMessagePolicy: "File",
 		ImagePullPolicy:          "IfNotPresent",
 	}
 }
 
-func createVolumeFromSource(Name, tp string ) corev1.Volume {
+func createVolumeFromSource(Name, tp string) corev1.Volume {
 
 	if tp == "confimap" {
 		return corev1.Volume{
@@ -127,7 +127,7 @@ func createVolumeFromSource(Name, tp string ) corev1.Volume {
 						Name: Name,
 					},
 				},
-			}
+			},
 		}
 	}
 
@@ -141,6 +141,6 @@ func createVolumeFromSource(Name, tp string ) corev1.Volume {
 					},
 				},
 			},
-		
+		}
 	}
 }

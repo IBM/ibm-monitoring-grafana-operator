@@ -14,7 +14,6 @@ import (
 	"github.com/IBM/ibm-grafana-operator/pkg/apis"
 	"github.com/IBM/ibm-grafana-operator/pkg/controller"
 	conf "github.com/IBM/ibm-grafana-operator/pkg/controller/config"
-	utils "github.com/IBM/ibm-grafana-operator/pkg/controller/model"
 	"github.com/IBM/ibm-grafana-operator/version"
 
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
@@ -57,15 +56,13 @@ func init() {
 	// be added before calling pflag.Parse().
 	flagSet := pflag.CommandLine
 	flagSet.AddFlagSet(zap.FlagSet())
-	defaultInitImage := utils.DefaultGrafanaInitImage
-	defaultInitImageTag := utils.DefaultGrafanaInitTag
 
 	// Add flags registered by imported packages (e.g. glog and
 	// controller-runtime)
 	flagSet.AddGoFlagSet(flag.CommandLine)
-	flag.StringVar(&iamNamespace, "iam-namespace", "iam-namespace", "The iam namespace.")
-	flag.StringVar(&initImage, "init-image", defaultInitImage, "Set initial container image.")
-	flag.StringVar(&initImageTag, "init-image-tag", defaultInitImageTag, "Set initial container image tag.")
+	flag.StringVar(&iamNamespace, "iam-namespace", conf.DefaultIamNamespace, "Set iam namespace.")
+	flag.StringVar(&initImage, "init-container-image", "Set initial container image.")
+	flag.StringVar(&initImageTag, "init-container-image-tag", conf.DefaultInitImageTag, "Set initial container image tag.")
 	pflag.Parse()
 
 	// Use a zap logr.Logger implementation. If none of the zap
@@ -89,11 +86,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	operatorNs, err := k8sutil.GetOperatorNamespace()
+	if err != nil {
+		log.Error(err, "Failed to get operator namespace")
+		os.Exit(1)
+	}
 	newConfig := conf.GetControllerConfig()
-	newCofig.AddConfigItem("iam-namespace", iamNamespace)
-	newConfig.AddConfigItem("init-image", initImage)
-	newConfig.AddConfigItem("init-image-tag", initImageTag)
-
+	newCofig.AddConfigItem(conf.IAMNamespaceName, iamNamespace)
+	newConfig.AddConfigItem(conf.DefaultInitImageName, initImage)
+	newConfig.AddConfigItem(conf.DefaultInitImageTagName, initImageTag)
+	newConfig.AddConfigItrms(conf.OperatorNS, operatorNS)
 	// Get a config to talk to the apiserver
 	cfg, err := config.GetConfig()
 	if err != nil {

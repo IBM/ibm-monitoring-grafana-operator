@@ -233,7 +233,7 @@ local cjson = require "cjson"
 
     local function get_servicemonitor()
         local httpc = http.new()
-        local res, err = httpc:request_uri("https://" .. os.getenv("KUBERNETES_SERVICE_HOST") .. ":" .. os.getenv("KUBERNETES_SERVICE_PORT_HTTPS") .. "/apis/monitoring.coreos.com/v1/namespaces/{{ .Release.Namespace }}/servicemonitors", {
+        local res, err = httpc:request_uri("https://" .. os.getenv("KUBERNETES_SERVICE_HOST") .. ":" .. os.getenv("KUBERNETES_SERVICE_PORT_HTTPS") .. "/apis/monitoring.coreos.com/v1/namespaces/{{ .Namespace }}/servicemonitors", {
             method = "GET",
             headers = {
               ["Content-Type"] = "application/json",
