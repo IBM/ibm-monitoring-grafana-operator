@@ -98,7 +98,7 @@ func createRouterContainer(cr *v1alpha1) corev1.Container {
 
 	return corev1.Container{
 		Name:  "router",
-		Image: DefaultGrafanaRouterImage,
+		Image: fmt.Fprintf("%s:%s", RouterImage, RouterImageTag),
 		Args:  "",
 		Ports: []corev1.ContaierPort{
 			Name:          "router",

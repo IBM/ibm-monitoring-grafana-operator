@@ -57,21 +57,6 @@ func setupEnvForDashboard(cr *v1alpha1.Grafana) []corev1.EnvVar {
 	return envs
 }
 
-// setup the default resource for dashboard controller
-func setupResource() corev1.Resources {
-	return corev1.Resourcescorev1.ResourceRequirements{
-		Requests: corev1.ResourceList{
-			corev1.ResourceMemory: resource.MustParse(MemoryRequest),
-			corev1.ResourceCPU:    resource.MustParse(CpuRequest),
-		},
-		Limits: corev1.ResourceList{
-			corev1.ResourceMemory: resource.MustParse(MemoryLimit),
-			corev1.ResourceCPU:    resource.MustParse(CpuLimit),
-		},
-	}
-
-}
-
 func getDashboardSC() *corev1.SecurityContext {
 	sc := &corev1.SecurityContext{}
 
@@ -88,8 +73,8 @@ func getDashboardSC() *corev1.SecurityContext {
 func createDashboardContainer(cr *v1alpha1.Grafana) corev1.Container {
 
 	return corev1.Container{
-		Name:                     "dashboard-crd-controller",
-		Image:                    image,
+		Name:                     "dashboard-controller",
+		Image:                    fmt.Fprintf("%s:%s", DashboardImage, DashboradImageTag),
 		ImagePullPolicy:          "IfNotPresent",
 		Resources:                getContainerResources(cr, "Dashboard"),
 		SecurityContext:          getDashboardSC(),

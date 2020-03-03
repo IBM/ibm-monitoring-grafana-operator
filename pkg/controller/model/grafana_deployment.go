@@ -15,6 +15,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+// image url prefix Used as test
+const url_prefix = "hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com"
+
 // Baisc resource unit
 const (
 	MemoryRequest = "256Mi"
@@ -202,7 +205,7 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 
 	containers = append(containers, corev1.Container{
 		Name:  "grafana",
-		Image: image,
+		Image: fmt.Fprintf("%s:%s", image, tag),
 		Ports: []corev1.ContainerPort{
 			{
 				Name:          "grafana-https",

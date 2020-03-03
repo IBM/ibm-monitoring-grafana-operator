@@ -9,7 +9,7 @@ var (
 	InitContainerImageName    = "init-image"
 	InitContainerImageTagName = "init-image-tag"
 	IAMNamespaceName          = "iam-namespace"
-	DefaultInitImage          = "grafana-init-container"
+	DefaultInitImage          = "hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com/ibmcom/icp-initcontainer"
 	DefaultInitImageTag       = "1.0.0-build.2"
 	DefaultIamNamespace       = "iam-namespace"
 	OperatorNS                = "openshift-monitoring"

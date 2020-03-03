@@ -61,7 +61,7 @@ func init() {
 	// controller-runtime)
 	flagSet.AddGoFlagSet(flag.CommandLine)
 	flag.StringVar(&iamNamespace, "iam-namespace", conf.DefaultIamNamespace, "Set iam namespace.")
-	flag.StringVar(&initImage, "init-container-image", "Set initial container image.")
+	flag.StringVar(&initImage, "init-container-image", conf.DefaultInitImage, "Set initial container image.")
 	flag.StringVar(&initImageTag, "init-container-image-tag", conf.DefaultInitImageTag, "Set initial container image tag.")
 	pflag.Parse()
 

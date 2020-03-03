@@ -8,7 +8,6 @@ import (
 	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	_ "github.com/IBM/ibm-grafana-operator/pkg/controller/artifacts"
 	config "github.com/IBM/ibm-grafana-operator/pkg/controller/config"
-	utils "github.com/IBM/ibm-grafana-operator/pkg/controller/model"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -16,7 +15,6 @@ import (
 const (
 	clusterPort           = 8443
 	environment           = "openshift"
-	clusterDomain         = "cluster.local"
 	prometheusServiceName = "monitoring-prometheus"
 	grafanaServiceName    = "monitoring-grafana"
 )
@@ -50,9 +48,9 @@ func createConfigmap(name string, data map[string]string) corev1.ConfigMap {
 func CreateConfigMaps(cr *v1alpha1.Grafana) []corev1.ConfigMap {
 	configmaps := []corev1.ConfigMap{}
 	namespace := config.getConfigString(config.operatorNS, "")
-	prometheusPort := utils.PrometheusPort
+	prometheusPort := PrometheusPort
 	prometheusFullName := PrometheusServiceName + ":" + prometheusPort
-	grafanaPort := util.GetGrafanaPort(cr)
+	grafanaPort := GetGrafanaPort(cr)
 	grafanaFullName := grafanaServiceName + ":" + grafanaPort
 	type Data struct {
 		Namespace          string
@@ -69,7 +67,7 @@ func CreateConfigMaps(cr *v1alpha1.Grafana) []corev1.ConfigMap {
 		Namespace:          namespace,
 		ClusterPort:        clusterPort,
 		Environment:        environment,
-		ClusterDomain:      clusterDomain,
+		ClusterDomain:      ClusterDomain,
 		PrometheusFullName: prometheusFullName,
 		PrometheusPort:     prometheusPort,
 		GrafanaFullName:    grafanaFullName,
