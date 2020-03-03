@@ -153,7 +153,7 @@ func (i *grafanaConfig) Write() (string, string) {
 }
 
 func GrafanaConfigIni(cr *v1alpha1.Grafana) (*corev1.ConfigMap, error) {
-	ini := newGrafanaConfig(&cr.Spec.Config)
+	ini := newGrafanaConfig(cr.Spec.Config)
 	config, hash := ini.Write()
 
 	configMap := &corev1.ConfigMap{}

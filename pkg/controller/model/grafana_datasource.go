@@ -56,7 +56,7 @@ func GrafanaDatasourceConfig(cr *v1alpha1.Grafana) *corev1.ConfigMap {
 
 	dataSource := grafanaDatasource{
 		apiVersion: 1,
-		datasource: cfg,
+		datasource: *cfg,
 	}
 	bytesData := json.Marshal(dataSource)
 

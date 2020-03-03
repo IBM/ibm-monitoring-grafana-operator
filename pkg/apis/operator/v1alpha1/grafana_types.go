@@ -17,8 +17,8 @@ type GrafanaSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html
-	Config     GrafanaConfig      `json:"config"`
-	Datasource GrafanaDatasource  `json:"datasource,omitempty"`
+	Config     *GrafanaConfig     `json:"config,omitempty"`
+	Datasource *GrafanaDatasource `json:"datasource,omitempty"`
 	Containers []corev1.Container `json:"containers,omitempty"`
 	Service    *GrafanaService    `json:"service,omitempty"`
 	MetaData   *MetaData          `json:"metaData,omitempty"`
@@ -37,7 +37,7 @@ type GrafanaConfig struct {
 	Log      *grafanaConfigLog       `json:"log,omitempty" ini:"log,omitempty"`
 	Auth     *grafanaConfigAuth      `json:"auth,omitempty" ini:"auth,omitempty"`
 	Proxy    *grafanaConfigAuthProxy `json:"auth.proxy,omitempty" ini:"auth.proxy,omitempty"`
-	Security *grafanaConfigSecurity  `json:"security" ini:"security"`
+	Security *grafanaConfigSecurity  `json:"security,omitempty" ini:"security,omitempty"`
 }
 
 type grafanaConfigPath struct {
