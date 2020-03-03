@@ -56,9 +56,9 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	return nil
 }
 
-func createAllVolumeSource(r *ReconcileGrafana) error {
+func createAllVolumeSource(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	secret := utils.CreateGrafanaSecret()
-	configmaps := utils.CreateConfigMaps()
+	configmaps := utils.CreateConfigMaps(cr)
 
 	err := r.client.Create(r.ctx, secret)
 	if err != nil {

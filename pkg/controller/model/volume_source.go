@@ -7,19 +7,18 @@ import (
 
 	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	_ "github.com/IBM/ibm-grafana-operator/pkg/controller/artifacts"
+	config "github.com/IBM/ibm-grafana-operator/pkg/controller/config"
+	utils "github.com/IBM/ibm-grafana-operator/pkg/controller/model"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const (
-	namespace          = "openshift-cs-monitoring"
-	clusterPort        = 8443
-	environment        = "openshift"
-	clusterDomain      = "cluster.local"
-	prometheusFullName = "monitoring-prometheus:9090"
-	prometheusPort     = 9090
-	grafanaFullName    = "monitoring-grafana:3000"
-	grafanaPort        = 3000
+	clusterPort           = 8443
+	environment           = "openshift"
+	clusterDomain         = "cluster.local"
+	prometheusServiceName = "monitoring-prometheus"
+	grafanaServiceName    = "monitoring-grafana"
 )
 
 type file_keys map[string]map[string]*template.Template
@@ -48,9 +47,13 @@ func createConfigmap(name string, data map[string]string) corev1.ConfigMap {
 }
 
 // CreateConfigmaps will create all the confimap for the grafana.
-func CreateConfigmaps() []corev1.ConfigMap {
+func CreateConfigMaps(cr *v1alpha1.Grafana) []corev1.ConfigMap {
 	configmaps := []corev1.ConfigMap{}
-
+	namespace := config.getConfigString(config.operatorNS, "")
+	prometheusPort := utils.PrometheusPort
+	prometheusFullName := PrometheusServiceName + ":" + prometheusPort
+	grafanaPort := util.GetGrafanaPort(cr)
+	grafanaFullName := grafanaServiceName + ":" + grafanaPort
 	type Data struct {
 		Namespace          string
 		Environment        string
@@ -73,9 +76,9 @@ func CreateConfigmaps() []corev1.ConfigMap {
 		GrafanaPort:        grafanaPort,
 	}
 
-	var buff bytes.Buffer
-	var configData map[string]string
 	for fileKey, dValue := range FileKeys {
+		var buff bytes.Buffer
+		var configData map[string]string
 		for name, tpl := range dValue {
 			err := tpl.Execute(&buff, tplData)
 			if err != nil {
