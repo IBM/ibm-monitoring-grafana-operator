@@ -1178,40 +1178,7 @@ spec:
                 url:
                   type: string
               type: object
-            metaData:
-              description: MetaData set the metadata for the pod, servieaccount.
-              properties:
-                annotations:
-                  additionalProperties:
-                    type: string
-                  type: object
-                labels:
-                  additionalProperties:
-                    type: string
-                  type: object
-                replicas:
-                  format: int32
-                  type: integer
-              type: object
-            resources:
-              description: ResourceRequirements describes the compute resource requirements.
-              properties:
-                limits:
-                  additionalProperties:
-                    type: string
-                  description: 'Limits describes the maximum amount of compute resources
-                    allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
-                  type: object
-                requests:
-                  additionalProperties:
-                    type: string
-                  description: 'Requests describes the minimum amount of compute resources
-                    required. If Requests is omitted for a container, it defaults
-                    to Limits if that is explicitly specified, otherwise to an implementation-defined
-                    value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
-                  type: object
-              type: object
-            route:
+            ingress:
               description: GrafanaIngress set the config for ingress.
               properties:
                 annotations:
@@ -1239,8 +1206,30 @@ spec:
                 tlsSecretName:
                   type: string
               type: object
-            routerImage:
-              type: string
+            metaData:
+              description: MetaData set the metadata for the pod, servieaccount.
+              properties:
+                annotations:
+                  additionalProperties:
+                    type: string
+                  type: object
+                labels:
+                  additionalProperties:
+                    type: string
+                  type: object
+                replicas:
+                  format: int32
+                  type: integer
+              type: object
+            resources:
+              properties:
+                dashboardResource:
+                  type: integer
+                grafanaResource:
+                  type: integer
+                routerResource:
+                  type: integer
+              type: object
             secrets:
               items:
                 type: string
