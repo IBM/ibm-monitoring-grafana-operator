@@ -1,7 +1,10 @@
 package model
 
 import (
-	"github.com/IBM/ibm-grafana-operator/pkg/controller/config"
+	"fmt"
+
+	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
+	conf "github.com/IBM/ibm-grafana-operator/pkg/controller/config"
 	corev1 "k8s.io/api/core/v1"
 )
 
@@ -36,14 +39,14 @@ func getVolumeMountsForRouter() []corev1.VolumeMount {
 }
 
 // hardcode the setting
-func getGrafanaRouterSC() *core.SecurityContext {
-	sc := &core.SecurityContext{}
+func getGrafanaRouterSC() *corev1.SecurityContext {
+	sc := &corev1.SecurityContext{}
 
 	True := true
 	False := false
-	sc.Capabilities = &core.Capabilities{}
-	sc.Capabilities.Add = []core.Capability{"ALL"}
-	sc.Capabilities.Drop = []core.Capability{"CHOWN", "NET_ADMIN", "NET_RAW", "LEASE", "SETGID", "SETUID"}
+	sc.Capabilities = &corev1.Capabilities{}
+	sc.Capabilities.Add = []corev1.Capability{"ALL"}
+	sc.Capabilities.Drop = []corev1.Capability{"CHOWN", "NET_ADMIN", "NET_RAW", "LEASE", "SETGID", "SETUID"}
 	sc.Privileged = &True
 	sc.AllowPrivilegeEscalation = &False
 	sc.ReadOnlyRootFilesystem = &True
@@ -52,20 +55,20 @@ func getGrafanaRouterSC() *core.SecurityContext {
 }
 
 func getRouterProbe(delay, period int) *corev1.Probe {
-	config := config.GetControllerConfig()
-	iamNamespace := config.GetConfigString(config.IAMNamespaceName)
-	iamServicePort := config.GetConfigString(config.IAMServicePortName)
+	config := conf.GetControllerConfig()
+	iamNamespace := config.GetConfigString(conf.IAMNamespaceName, "")
+	iamServicePort := config.GetConfigString(conf.IAMServicePortName, "")
 	wget := "wget --spider --no-check-certificate -S 'https://platform-identity-provider"
-	checkUrl := wget + iamNamespace + ".svc." + ClusterDomain + ":" + iamServicePort + "/v1/info"
-	checkCMD := []string{"sh", "-c", checkUrl}
-	return *corev1.Probe{
-		Handler: corev1.Handler{
-			Exec: &corev1.ExecAction{
-				Command: checkCMD,
-			},
-		},
-		InitialDelaySeconds: delay,
-		TimeoutSeconds:      timeout,
+	checkURL := wget + iamNamespace + ".svc." + ClusterDomain + ":" + iamServicePort + "/v1/info"
+	checkCMD := []string{"sh", "-c", checkURL}
+
+	handler := corev1.Handler{}
+	handler.Exec = &corev1.ExecAction{}
+	handler.Exec.Command = checkCMD
+	return &corev1.Probe{
+		Handler:             handler,
+		InitialDelaySeconds: int32(delay),
+		TimeoutSeconds:      int32(delay),
 	}
 }
 
@@ -96,22 +99,25 @@ func setupEnv(username, password string) []corev1.EnvVar {
 	}
 }
 
-func createRouterContainer(cr *v1alpha1) corev1.Container {
+func createRouterContainer(cr *v1alpha1.Grafana) corev1.Container {
 
 	return corev1.Container{
 		Name:  "router",
-		Image: fmt.Fprintf("%s:%s", RouterImage, RouterImageTag),
-		Args:  "",
-		Ports: []corev1.ContaierPort{
-			Name:          "router",
-			ContainerPort: DefaultRouterPort,
-			Protocol:      "TCP",
+		Image: fmt.Sprintf("%s:%s", RouterImage, RouterImageTag),
+		Args:  []string{},
+		Ports: []corev1.ContainerPort{
+			{
+				Name:          "router",
+				ContainerPort: DefaultRouterPort,
+				Protocol:      "TCP",
+			},
 		},
 		Resources:                getContainerResource(cr, "Router"),
-		Probe:                    getRouterProbe(30, 10),
+		LivenessProbe:            getRouterProbe(30, 20),
+		ReadinessProbe:           getRouterProbe(32, 10),
 		SecurityContext:          getGrafanaRouterSC(),
 		VolumeMounts:             getVolumeMountsForRouter(),
-		Env:                      setEnv("GF_SECURITY_ADMIN_USER", "GF_SECURITY_ADMIN_PASSWORD"),
+		Env:                      setupEnv("GF_SECURITY_ADMIN_USER", "GF_SECURITY_ADMIN_PASSWORD"),
 		TerminationMessagePath:   "/dev/termination-log",
 		TerminationMessagePolicy: "File",
 		ImagePullPolicy:          "IfNotPresent",
@@ -132,17 +138,12 @@ func createVolumeFromSource(Name, tp string) corev1.Volume {
 			},
 		}
 	}
-
-	if tp == "secret" {
-		return corev1.Volume{
-			Name: Name,
-			VolumeSource: corev1.Secret{
-				Secret: &corev1.SecretVolumeSource{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: Name,
-					},
-				},
+	return corev1.Volume{
+		Name: Name,
+		VolumeSource: corev1.VolumeSource{
+			Secret: &corev1.SecretVolumeSource{
+				SecretName: Name,
 			},
-		}
+		},
 	}
 }

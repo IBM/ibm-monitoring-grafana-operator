@@ -13,7 +13,7 @@ import (
 
 func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
-	err := createAllVolumeSource(r)
+	err := createAllVolumeSource(r, cr)
 	if err != nil {
 		return err
 	}
@@ -57,7 +57,7 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 }
 
 func createAllVolumeSource(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	secret := utils.CreateGrafanaSecret()
+	secret := utils.CreateGrafanaSecret(cr)
 	configmaps := utils.CreateConfigMaps(cr)
 
 	err := r.client.Create(r.ctx, secret)
@@ -67,7 +67,7 @@ func createAllVolumeSource(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	}
 
 	for _, cm := range configmaps {
-		err = r.client.Create(r.ctx, cm)
+		err = r.client.Create(r.ctx, &cm)
 		if err != nil {
 			log.Error(err, "fail to create configmap volume.")
 			return nil
@@ -298,7 +298,7 @@ func createGrafanaDatasource(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 }
 
 func reconcileGrafanaDatasource(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	selector := utils.GrafanaDatasourceSelector()
+	selector := utils.GrafanaDatasourceSelector(cr)
 	datasource := &corev1.ConfigMap{}
 	err := r.client.Get(r.ctx, selector, datasource)
 	if err != nil {

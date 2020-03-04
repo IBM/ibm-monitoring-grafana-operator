@@ -1,11 +1,14 @@
 package model
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 )
 
-func setVolumeMountsForDashboard() {
+func setVolumeMountsForDashboard() []corev1.VolumeMount {
 	var mounts []corev1.VolumeMount
 
 	mounts = append(mounts, corev1.VolumeMount{
@@ -13,7 +16,7 @@ func setVolumeMountsForDashboard() {
 		MountPath: "/grafana/entry",
 	})
 
-	mounts = append(mounts, corev1.VolumeMoust{
+	mounts = append(mounts, corev1.VolumeMount{
 		Name:      "monitoring-client-cert",
 		MountPath: "/opt/ibm/monitoring/certs",
 	})
@@ -27,6 +30,7 @@ func setVolumeMountsForDashboard() {
 		Name:      "default-dashboards-config",
 		MountPath: "/opt/dashboards",
 	})
+	return mounts
 
 }
 
@@ -34,7 +38,7 @@ func setupEnvForDashboard(cr *v1alpha1.Grafana) []corev1.EnvVar {
 
 	port := GetGrafanaPort(cr)
 	envs := []corev1.EnvVar{}
-	envs = append(envs, setupEnv("USER", "PASSWORD"))
+	envs = append(envs, setupEnv("USER", "PASSWORD")...)
 
 	envs = append(envs, corev1.EnvVar{
 		Name:  "PROMETHEUS_HOST",
@@ -42,16 +46,16 @@ func setupEnvForDashboard(cr *v1alpha1.Grafana) []corev1.EnvVar {
 	})
 	envs = append(envs, corev1.EnvVar{
 		Name:  "PROMETHEUS_PORT",
-		Value: PrometheusPort,
+		Value: string(PrometheusPort),
 	})
 
 	envs = append(envs, corev1.EnvVar{
 		Name:  "PORT",
-		Value: port,
+		Value: string(port),
 	})
 	envs = append(envs, corev1.EnvVar{
 		Name:  "IS_HUB_CLUSTER",
-		Value: false,
+		Value: strconv.FormatBool(false),
 	})
 
 	return envs
@@ -74,9 +78,9 @@ func createDashboardContainer(cr *v1alpha1.Grafana) corev1.Container {
 
 	return corev1.Container{
 		Name:                     "dashboard-controller",
-		Image:                    fmt.Fprintf("%s:%s", DashboardImage, DashboradImageTag),
+		Image:                    fmt.Sprintf("%s:%s", DashboardImage, DashboardImageTag),
 		ImagePullPolicy:          "IfNotPresent",
-		Resources:                getContainerResources(cr, "Dashboard"),
+		Resources:                getContainerResource(cr, "Dashboard"),
 		SecurityContext:          getDashboardSC(),
 		Env:                      setupEnvForDashboard(cr),
 		VolumeMounts:             setVolumeMountsForDashboard(),

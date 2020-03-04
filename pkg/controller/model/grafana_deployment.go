@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 
 	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	"github.com/IBM/ibm-grafana-operator/pkg/controller/config"
@@ -15,14 +16,12 @@ import (
 )
 
 // Baisc resource unit
-const (
-	MemoryRequest = "256Mi"
-	CpuRequest    = "200m"
-	MemoryLimit   = "512Mi"
-	CpuLimit      = "500m"
-)
+var MemoryRequest int = 256
+var CpuRequest int = 200
+var MemoryLimit int = 512
+var CpuLimit int = 500
 
-func getContainerResource(cr *v1alpha1.Grafana, name string) corev1.Resources {
+func getContainerResource(cr *v1alpha1.Grafana, name string) corev1.ResourceRequirements {
 
 	var resources *v1alpha1.GrafanaResources
 	var times int
@@ -35,22 +34,26 @@ func getContainerResource(cr *v1alpha1.Grafana, name string) corev1.Resources {
 	if resources != nil {
 		r := reflect.ValueOf(resources)
 		value := reflect.Indirect(r).FieldByName(name)
-		times := int(value.int())
+		times = int(value.Int())
 	}
 
-	return getResources(times)
+	return getResource(times)
 }
 
 func getResource(times int) corev1.ResourceRequirements {
 
+	MR := strconv.Itoa(MemoryRequest*times) + "Mi"
+	CR := strconv.Itoa(CpuRequest*times) + "m"
+	ML := strconv.Itoa(MemoryLimit*times) + "Mi"
+	CL := strconv.Itoa(CpuLimit*times) + "m"
 	return corev1.ResourceRequirements{
 		Requests: corev1.ResourceList{
-			corev1.ResourceMemory: resource.MustParse(MemoryRequest * times),
-			corev1.ResourceCPU:    resource.MustParse(CpuRequest * times),
+			corev1.ResourceMemory: resource.MustParse(MR),
+			corev1.ResourceCPU:    resource.MustParse(CR),
 		},
 		Limits: corev1.ResourceList{
-			corev1.ResourceMemory: resource.MustParse(MemoryLimit * times),
-			corev1.ResourceCPU:    resource.MustParse(CpuLimit * times),
+			corev1.ResourceMemory: resource.MustParse(ML),
+			corev1.ResourceCPU:    resource.MustParse(CL),
 		},
 	}
 
@@ -191,7 +194,7 @@ func getProbe(cr *v1alpha1.Grafana, exec []string, delay, timeout, failure int32
 
 func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 
-	var image string
+	var image, tag string
 	containers := []corev1.Container{}
 	if cr.Spec.BaseImage != "" {
 		image = cr.Spec.BaseImage
@@ -199,9 +202,15 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 		image = DefaultGrafanaImage
 	}
 
+	if cr.Spec.Tag != "" {
+		tag = cr.Spec.Tag
+	} else {
+		tag = DefaultGrafanaImageTag
+	}
+
 	containers = append(containers, corev1.Container{
 		Name:  "grafana",
-		Image: fmt.Fprintf("%s:%s", image, tag),
+		Image: fmt.Sprintf("%s:%s", image, tag),
 		Ports: []corev1.ContainerPort{
 			{
 				Name:          "grafana-https",
@@ -210,7 +219,7 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 			},
 		},
 		SecurityContext:          getGrafanaSC(),
-		Resources:                getContainerResources(cr, "Grafana"),
+		Resources:                getContainerResource(cr, "Grafana"),
 		VolumeMounts:             getVolumeMounts(cr),
 		LivenessProbe:            getProbe(cr, []string{}, 30, 30, 10),
 		ReadinessProbe:           getProbe(cr, []string{}, 30, 30, 10),
@@ -233,6 +242,7 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 
 // Add extra mounts of containers
 func getExtraContainerVolumeMounts(cr *v1alpha1.Grafana, mounts []corev1.VolumeMount) []corev1.VolumeMount {
+
 	appendIfEmpty := func(mounts []corev1.VolumeMount, mount corev1.VolumeMount) []corev1.VolumeMount {
 		for _, existing := range mounts {
 			if existing.Name == mount.Name || existing.MountPath == mount.MountPath {
@@ -310,22 +320,24 @@ func getGrafanaSC() *corev1.SecurityContext {
 
 func getInitContainers() []corev1.Container {
 	cfg := config.GetControllerConfig()
-	image := cfg.GetConfigString(config.InitContainerImage, config.InitContainerImage)
-	tag := cfg.GetConfigString(config.InitContainerTag, config.InitContainerTag)
-
+	image := cfg.GetConfigString(config.InitImageName, "")
+	tag := cfg.GetConfigString(config.InitImageTagName, "")
 	False := false
+
+	dropCap := []corev1.Capability{"all"}
+	Cap := corev1.Capabilities{Drop: dropCap}
+	SC := corev1.SecurityContext{
+		AllowPrivilegeEscalation: &False,
+		Privileged:               &False,
+		Capabilities:             &Cap,
+	}
+
 	return []corev1.Container{
 		{
-			Name:      GrafanaInitContainerName,
-			Image:     fmt.Sprintf("%s:%s", image, tag),
-			Resources: corev1.ResourceRequirements{},
-			SecurityContext: core.SecurityContext{
-				AllowPrivilegeEscalation: &False,
-				Privileged:               &False,
-				corev1.Capabilities{
-					Add: []corev1.Capability{"all"},
-				},
-			},
+			Name:                     InitContainerName,
+			Image:                    fmt.Sprintf("%s:%s", image, tag),
+			Resources:                corev1.ResourceRequirements{},
+			SecurityContext:          &SC,
 			TerminationMessagePath:   "/dev/termination-log",
 			TerminationMessagePolicy: "File",
 			ImagePullPolicy:          "IfNotPresent",

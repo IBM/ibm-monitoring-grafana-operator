@@ -99,7 +99,7 @@ type ReconcileGrafana struct {
 	client client.Client
 	scheme *runtime.Scheme
 	ctx    context.Context
-	config config.ControllerConfig
+	config *config.ControllerConfig
 }
 
 // Reconcile reads that state of the cluster for a Grafana object and makes changes based on the state read

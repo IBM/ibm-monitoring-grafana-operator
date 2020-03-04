@@ -13,11 +13,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-const (
-	defaultAdminUser     = "user"
-	defaultAdminPassword = "admin"
-)
-
 // grafanaConfig is a generaric type used to process grafana.ini and datasoure config.
 type grafanaConfig struct {
 	cfg *v1alpha1.GrafanaConfig

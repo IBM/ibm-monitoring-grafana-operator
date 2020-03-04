@@ -5,9 +5,12 @@ import (
 
 	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	"k8s.io/api/extensions/v1beta1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
+
+var GrafanaIngressName string = "grafana-ingress"
 
 func GetHost(cr *v1alpha1.Grafana) string {
 	if cr.Spec.Ingress == nil {
@@ -60,29 +63,12 @@ func GetGrafanaPort(cr *v1alpha1.Grafana) int {
 		return DefaultGrafanaPort
 	}
 
-	port, err := strconv.Atoi(cr.Spec.Config.Server.HttpPort)
+	port, err := strconv.Atoi(cr.Spec.Config.Server.HTTPPort)
 	if err != nil {
 		return DefaultGrafanaPort
 	}
 
 	return port
-}
-
-func getTermination(cr *v1alpha1.Grafana) v1beta1.TLSTerminationType {
-	if cr.Spec.Ingress == nil {
-		return v1.TLSTerminationEdge
-	}
-
-	switch cr.Spec.Ingress.Termination {
-	case v1.TLSTerminationEdge:
-		return v1.TLSTerminationEdge
-	case v1.TLSTerminationReencrypt:
-		return v1.TLSTerminationReencrypt
-	case v1.TLSTerminationPassthrough:
-		return v1.TLSTerminationPassthrough
-	default:
-		return v1.TLSTerminationEdge
-	}
 }
 
 func getIngressTLS(cr *v1alpha1.Grafana) []v1beta1.IngressTLS {
@@ -138,7 +124,7 @@ func GrafanaIngress(cr *v1alpha1.Grafana) *v1beta1.Ingress {
 }
 
 func ReconciledGrafanaIngress(cr *v1alpha1.Grafana, current *v1beta1.Ingress) *v1beta1.Ingress {
-	reconciled := currentState.DeepCopy()
+	reconciled := current.DeepCopy()
 	reconciled.Labels = GetIngressLabels(cr)
 	reconciled.Annotations = GetIngressAnnotations(cr)
 	reconciled.Spec = getIngressSpec(cr)

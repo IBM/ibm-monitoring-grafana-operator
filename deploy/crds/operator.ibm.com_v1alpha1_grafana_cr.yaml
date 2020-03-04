@@ -51,8 +51,6 @@ spec:
       memory: "1024Mi"
       cpu: "1000m"
   baseImage: hyc-cloud-private-release-docker-local.artifactory.swg-devops.com/ibmcom-amd64/grafana:v6.5.2-build.1
-  routerImage: hyc-cloud-private-release-docker-local.artifactory.swg-devops.com/ibmcom-amd64/icp-management-ingress:2.5.0.1910-rhel
-  grafanaDashboardImage: hyc-cloud-private-release-docker-local.artifactory.swg-devops.com/ibm-amd64/dashboard-controller:v1.2.0-build.2
   containers:
   configmaps:
   secrets:

@@ -25,6 +25,7 @@ type GrafanaSpec struct {
 	ConfigMaps []string           `json:"configMaps,omitempty"`
 	Secrets    []string           `json:"secrets,omitempty"`
 	BaseImage  string             `json:"baseImage,omitempty"`
+	Tag        string             `json:"tag,omitempty"`
 	Ingress    *GrafanaIngress    `json:"ingress,omitempty"`
 	Resources  *GrafanaResources  `json:"resources,omitempty"`
 }

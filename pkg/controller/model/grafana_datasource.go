@@ -8,13 +8,15 @@ import (
 	"io/ioutil"
 	"path"
 
-	"google.golang.org/appengine/log"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 )
+
+var log = logf.Log.WithName("data-source")
 
 const (
 	GrafanaDatasourceFile = "datasource.yaml"
@@ -24,7 +26,7 @@ const (
 	keyFile               = "tls.key"
 )
 
-type grafanaDatasoure struct {
+type grafanaDatasource struct {
 	APIVersion int                        `json:"apiVersion,omitempty"`
 	Datasource v1alpha1.GrafanaDatasource `json:"datasources,omitempty"`
 }
@@ -33,32 +35,34 @@ func GrafanaDatasourceConfig(cr *v1alpha1.Grafana) *corev1.ConfigMap {
 
 	caCert, err := ioutil.ReadFile(path.Join(caBasePath, certFile))
 	if err != nil {
-		log.Errorf("Failed to read cert file %s: %v", path.Join(caBasePath, certFile), err)
-		return
+		log.Error(err, "Failed to read ca-cert file.")
+		return nil
 	}
 
 	clientCert, err := ioutil.ReadFile(path.Join(certBasePath, certFile))
 	if err != nil {
-		log.Errorf("Failed to read cert file %s: %v", path.Join(certBasePath, certFile), err)
-		return
+		log.Error(err, "Failed to read cert file.")
+		return nil
 	}
 	clientKey, err := ioutil.ReadFile(path.Join(certBasePath, keyFile))
 	if err != nil {
-		log.Errorf("Failed to read key file %s: %v", path.Join(certBasePath, keyFile), err)
-		return
+		log.Error(err, "Failed to read key file.")
+		return nil
 	}
 
-	apiVersion := 1
 	cfg := cr.Spec.Datasource
-	cfg.SecureJSONData.TLSCACert = caCert
-	cfg.SecureJSONData.TLSClientCert = clientCert
-	cfg.SecureJSONData.TLSClientKey = clientKey
+	cfg.SecureJSONData.TLSCACert = string(caCert)
+	cfg.SecureJSONData.TLSClientCert = string(clientCert)
+	cfg.SecureJSONData.TLSClientKey = string(clientKey)
 
 	dataSource := grafanaDatasource{
-		apiVersion: 1,
-		datasource: *cfg,
+		APIVersion: 1,
+		Datasource: *cfg,
 	}
-	bytesData := json.Marshal(dataSource)
+	bytesData, err := json.Marshal(dataSource)
+	if err != nil {
+		log.Error(err, "Fail to mashal the data source struct.")
+	}
 
 	configMap := corev1.ConfigMap{}
 	configMap.ObjectMeta = metav1.ObjectMeta{
@@ -84,7 +88,7 @@ func ReconciledGrafanaDatasource(cr *v1alpha1.Grafana, current *corev1.ConfigMap
 
 	newHash := newConfig.Annotations["lastConfig"]
 	newData := newConfig.Data[GrafanaDatasourceFile]
-	if reconciled.Annotations["lastConfig"] {
+	if reconciled.Annotations["lastConfig"] != "" {
 		reconciled.Annotations["lastConfig"] = newHash
 		reconciled.Data[GrafanaDatasourceFile] = newData
 	}

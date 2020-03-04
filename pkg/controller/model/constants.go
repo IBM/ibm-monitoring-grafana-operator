@@ -34,4 +34,6 @@ const (
 	GrafanaAdminPasswordEnvVar = "password"
 	ClusterDomain              = "cluster.local"
 	PrometheusPort             = 9090
+	defaultAdminUser           = "admin"
+	defaultAdminPassword       = "admin"
 )

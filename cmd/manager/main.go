@@ -33,7 +33,7 @@ import (
 )
 
 var iamNamespace string
-var iamServicePort int
+var iamServicePort string
 var initImage string
 var initImageTag string
 
@@ -88,16 +88,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	operatorNs, err := k8sutil.GetOperatorNamespace()
+	operatorNS, err := k8sutil.GetOperatorNamespace()
 	if err != nil {
 		log.Error(err, "Failed to get operator namespace")
 		os.Exit(1)
 	}
 	newConfig := conf.GetControllerConfig()
 	newConfig.AddConfigItem(conf.IAMNamespaceName, iamNamespace)
-	newConfig.AddConfigItem(conf.DefaultInitImageName, initImage)
-	newConfig.AddConfigItem(conf.DefaultInitImageTagName, initImageTag)
-	newConfig.AddConfigItrm(conf.OperatorNS, operatorNS)
+	newConfig.AddConfigItem(conf.InitImageName, initImage)
+	newConfig.AddConfigItem(conf.InitImageTagName, initImageTag)
+	newConfig.AddConfigItem(conf.OperatorNS, operatorNS)
 	newConfig.AddConfigItem(conf.IAMServicePortName, iamServicePort)
 	// Get a config to talk to the apiserver
 	cfg, err := config.GetConfig()
