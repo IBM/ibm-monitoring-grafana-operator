@@ -109,8 +109,6 @@ spec:
                     default_theme:
                       type: string
                   type: object
-              required:
-              - security
               type: object
             configMaps:
               items:
@@ -1295,8 +1293,6 @@ spec:
                     service
                   type: string
               type: object
-          required:
-          - config
           type: object
         status:
           description: GrafanaStatus defines the observed state of Grafana

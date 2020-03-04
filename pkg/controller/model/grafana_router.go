@@ -1,10 +1,9 @@
 package model
 
 import (
+	"github.com/IBM/ibm-grafana-operator/pkg/controller/config"
 	corev1 "k8s.io/api/core/v1"
 )
-
-const checkUrl = "wget --spider --no-check-certificate -S 'https://platform-identity-provider" + IAMNamespace + ".svc." + ClusterDomain + ":4300/v1/info'"
 
 func getVolumeMountsForRouter() []corev1.VolumeMount {
 	return []corev1.VolumeMount{
@@ -53,7 +52,11 @@ func getGrafanaRouterSC() *core.SecurityContext {
 }
 
 func getRouterProbe(delay, period int) *corev1.Probe {
-
+	config := config.GetControllerConfig()
+	iamNamespace := config.GetConfigString(config.IAMNamespaceName)
+	iamServicePort := config.GetConfigString(config.IAMServicePortName)
+	wget := "wget --spider --no-check-certificate -S 'https://platform-identity-provider"
+	checkUrl := wget + iamNamespace + ".svc." + ClusterDomain + ":" + iamServicePort + "/v1/info"
 	checkCMD := []string{"sh", "-c", checkUrl}
 	return *corev1.Probe{
 		Handler: corev1.Handler{

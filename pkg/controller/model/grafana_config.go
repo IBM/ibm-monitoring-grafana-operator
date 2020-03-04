@@ -20,11 +20,11 @@ const (
 
 // grafanaConfig is a generaric type used to process grafana.ini and datasoure config.
 type grafanaConfig struct {
-	cfg v1alpha1.GrafanaConfig
+	cfg *v1alpha1.GrafanaConfig
 }
 
 // newgGafanaConfig create a new config file
-func newGrafanaConfig(cfg v1alpha1.GrafanaConfig) *grafanaConfig {
+func newGrafanaConfig(cfg *v1alpha1.GrafanaConfig) *grafanaConfig {
 	return &grafanaConfig{
 		cfg: cfg,
 	}
@@ -177,7 +177,7 @@ func ReconciledGrafanaConfigIni(cr *v1alpha1.Grafana, current *corev1.ConfigMap)
 
 	reconciled := current.DeepCopy()
 
-	newConfig := newGrafanaIni(cr.Spec.GrafanaConfig)
+	newConfig := newGrafanaConfig(cr.Spec.Config)
 	data, hash := newConfig.Write()
 
 	if reconciled.Annotations["lastConfig"] != hash {

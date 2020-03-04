@@ -31,22 +31,22 @@ type GrafanaSpec struct {
 
 // GrafanaConfig provides basic config for grafana.ini file.
 type GrafanaConfig struct {
-	Paths    *grafanaConfigPath      `json:"paths,omitempty" ini:"path,omitempty"`
-	Server   *grafanaConfigServer    `json:"server,omitempty" ini:"server,omitempty"`
-	Users    *grafanaConfigUser      `json:"users,omitempty" ini:"users,omitempty"`
-	Log      *grafanaConfigLog       `json:"log,omitempty" ini:"log,omitempty"`
-	Auth     *grafanaConfigAuth      `json:"auth,omitempty" ini:"auth,omitempty"`
-	Proxy    *grafanaConfigAuthProxy `json:"auth.proxy,omitempty" ini:"auth.proxy,omitempty"`
-	Security *grafanaConfigSecurity  `json:"security,omitempty" ini:"security,omitempty"`
+	Paths    *GrafanaConfigPath      `json:"paths,omitempty" ini:"path,omitempty"`
+	Server   *GrafanaConfigServer    `json:"server,omitempty" ini:"server,omitempty"`
+	Users    *GrafanaConfigUser      `json:"users,omitempty" ini:"users,omitempty"`
+	Log      *GrafanaConfigLog       `json:"log,omitempty" ini:"log,omitempty"`
+	Auth     *GrafanaConfigAuth      `json:"auth,omitempty" ini:"auth,omitempty"`
+	Proxy    *GrafanaConfigAuthProxy `json:"auth.proxy,omitempty" ini:"auth.proxy,omitempty"`
+	Security *GrafanaConfigSecurity  `json:"security,omitempty" ini:"security,omitempty"`
 }
 
-type grafanaConfigPath struct {
+type GrafanaConfigPath struct {
 	Data   string `json:"data,omitempty" ini:"data,omitempty"`
 	Log    string `json:"log,omitempty" ini:"log,omitempty"`
 	Plugin string `json:"plugin,omitempty" ini:"plugin,omitempty"`
 }
 
-type grafanaConfigServer struct {
+type GrafanaConfigServer struct {
 	Protocol string `json:"protocal,omitempty" ini:"protocal,omitempty"`
 	Domain   string `json:"domain,omitempty" ini:"domain,omitempty"`
 	HTTPPort string `json:"http_port,omitempty" ini:"http_port,omitempty"`
@@ -56,38 +56,38 @@ type grafanaConfigServer struct {
 }
 
 // grafanfaConfigUser sets basic them for grafan UI
-type grafanaConfigUser struct {
+type GrafanaConfigUser struct {
 	DefaultTheme string `json:"default_theme,omitempty" ini:"default_theme,omitempty"`
 }
 
-type grafanaConfigLog struct {
+type GrafanaConfigLog struct {
 	Mode    string `json:"mode,omitempty" ini:"mode,omitempty"`
 	Level   string `json:"level,omitempty" ini:"level,omitempty"`
 	Filters string `json:"filters,omitempty" ini:"filter,omitempty"`
 }
 
-type grafanaConfigAuth struct {
+type GrafanaConfigAuth struct {
 	DisableLoginForm   *bool `json:"disable_login_form,omitempty" ini:"disable_login_form,omitempty"`
 	DisableSignoutMenu *bool `json:"disable_singout_menu,omitempty" ini:"disable_singout_menu,omitempty"`
 }
 
-type grafanaConfigAuthProxy struct {
+type GrafanaConfigAuthProxy struct {
 	Enabled        *bool  `json:"enabled,omitempty" ini:"enabled,omitempty"`
 	HeaderName     string `json:"header_name,omitempty" ini:"header_name,omitempty"`
 	HeaderProperty string `json:"header_property,omitempty" ini:"header_property,omitempty"`
 	AutoSignUp     *bool  `json:"auto_sign_up,omitempty" ini:"auto_sign_up,omitempty"`
 }
 
-type grafanaConfigSecurity struct {
+type GrafanaConfigSecurity struct {
 	DisableInitialAdminCreation *bool  `json:"disabble_initial_admin_creation,omityempty" ini:"disable_initial_admin_creation,omitempty"`
 	AdminUser                   string `json:"admin_user" ini:"admin_user,omitempty"`
 	AdminPassword               string `json:"admin_password" ini:"admin_password,omitempty"`
 }
 
 type GrafanaResources struct {
-	Grafana   int `json:"grafanaResource,omitempty"`
-	Dashboard int `json:"dashboardResource,omitempty"`
-	Router    int `json:"routerResource,omitempty"`
+	Grafana   *int `json:"grafanaResource,omitempty"`
+	Dashboard *int `json:"dashboardResource,omitempty"`
+	Router    *int `json:"routerResource,omitempty"`
 }
 
 // GrafanaDatasource provides config for datasource.

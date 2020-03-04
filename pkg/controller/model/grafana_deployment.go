@@ -22,7 +22,7 @@ const (
 	CpuLimit      = "500m"
 )
 
-func getContainerResource(cr *v1alpha1.Grafana, name string) corev1.Resource {
+func getContainerResource(cr *v1alpha1.Grafana, name string) corev1.Resources {
 
 	var resources *v1alpha1.GrafanaResources
 	var times int
@@ -35,7 +35,7 @@ func getContainerResource(cr *v1alpha1.Grafana, name string) corev1.Resource {
 	if resources != nil {
 		r := reflect.ValueOf(resources)
 		value := reflect.Indirect(r).FieldByName(name)
-		times := int(value.Int())
+		times := int(value.int())
 	}
 
 	return getResources(times)

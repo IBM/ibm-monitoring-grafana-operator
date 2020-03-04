@@ -9,6 +9,8 @@ var (
 	InitContainerImageName    = "init-image"
 	InitContainerImageTagName = "init-image-tag"
 	IAMNamespaceName          = "iam-namespace"
+	IAMServicePortName        = "iam-service-port"
+	IAMServicePort            = "4300"
 	DefaultInitImage          = "hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com/ibmcom/icp-initcontainer"
 	DefaultInitImageTag       = "1.0.0-build.2"
 	DefaultIamNamespace       = "iam-namespace"

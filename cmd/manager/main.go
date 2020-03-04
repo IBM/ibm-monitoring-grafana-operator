@@ -33,6 +33,7 @@ import (
 )
 
 var iamNamespace string
+var iamServicePort int
 var initImage string
 var initImageTag string
 
@@ -63,6 +64,7 @@ func init() {
 	flag.StringVar(&iamNamespace, "iam-namespace", conf.DefaultIamNamespace, "Set iam namespace.")
 	flag.StringVar(&initImage, "init-container-image", conf.DefaultInitImage, "Set initial container image.")
 	flag.StringVar(&initImageTag, "init-container-image-tag", conf.DefaultInitImageTag, "Set initial container image tag.")
+	flag.StringVar(&iamServicePort, "iam-service-port", conf.IAMServicePort, "Set iam service port")
 	pflag.Parse()
 
 	// Use a zap logr.Logger implementation. If none of the zap
@@ -92,10 +94,11 @@ func main() {
 		os.Exit(1)
 	}
 	newConfig := conf.GetControllerConfig()
-	newCofig.AddConfigItem(conf.IAMNamespaceName, iamNamespace)
+	newConfig.AddConfigItem(conf.IAMNamespaceName, iamNamespace)
 	newConfig.AddConfigItem(conf.DefaultInitImageName, initImage)
 	newConfig.AddConfigItem(conf.DefaultInitImageTagName, initImageTag)
-	newConfig.AddConfigItrms(conf.OperatorNS, operatorNS)
+	newConfig.AddConfigItrm(conf.OperatorNS, operatorNS)
+	newConfig.AddConfigItem(conf.IAMServicePortName, iamServicePort)
 	// Get a config to talk to the apiserver
 	cfg, err := config.GetConfig()
 	if err != nil {

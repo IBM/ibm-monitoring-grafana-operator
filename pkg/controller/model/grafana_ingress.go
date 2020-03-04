@@ -68,7 +68,7 @@ func GetGrafanaPort(cr *v1alpha1.Grafana) int {
 	return port
 }
 
-func getTermination(cr *v1alpha1.Grafana) v1.TLSTerminationType {
+func getTermination(cr *v1alpha1.Grafana) v1beta1.TLSTerminationType {
 	if cr.Spec.Ingress == nil {
 		return v1.TLSTerminationEdge
 	}
