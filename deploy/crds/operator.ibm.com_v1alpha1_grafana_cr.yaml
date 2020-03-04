@@ -29,7 +29,7 @@ spec:
     isDefault: true
     editable: false
     access: proxy
-    url: https://prometheus:9090
+    url: https://monitoring-prometheus:9090
     jsonData:
       keepCookies: cfc-access-token-cookie
       tlsAuth: true
@@ -44,13 +44,11 @@ spec:
     enabled: true
     tlsEnabled: true
   resources:
-    requests:
-      memory: "512Mi"
-      cpu: "500m"
-    limits:
-      memory: "1024Mi"
-      cpu: "1000m"
-  baseImage: hyc-cloud-private-release-docker-local.artifactory.swg-devops.com/ibmcom-amd64/grafana:v6.5.2-build.1
+    grafana: 2
+    router: 1
+    dashboard: 1
+  baseImage: hyc-cloud-private-release-docker-local.artifactory.swg-devops.com/ibmcom-amd64/grafana
+  tag: v6.5.2-build.1
   containers:
   configmaps:
   secrets:

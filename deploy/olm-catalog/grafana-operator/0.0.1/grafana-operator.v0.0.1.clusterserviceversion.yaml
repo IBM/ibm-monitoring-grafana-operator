@@ -1,0 +1,216 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "operator.ibm.com/v1alpha1",
+          "kind": "Grafana",
+          "metadata": {
+            "name": "example-grafana"
+          },
+          "spec": {
+            "baseImage": "hyc-cloud-private-release-docker-local.artifactory.swg-devops.com/ibmcom-amd64/grafana",
+            "config": {
+              "auth": {
+                "disable_login_form": true,
+                "disable_singout_menu": true
+              },
+              "log": {
+                "level": "info",
+                "mode": "console"
+              },
+              "proxy": {
+                "auto_sign_up": false,
+                "enabled": true,
+                "header_name": "X-WEBAUTH-USER",
+                "header_property": "username"
+              },
+              "security": {
+                "disabble_initial_admin_creation": true,
+                "password": "admin",
+                "username": "admin"
+              },
+              "server": {
+                "http_port": 8443
+              },
+              "users": {
+                "default_theme": "light"
+              }
+            },
+            "configmaps": null,
+            "containers": null,
+            "datasource": {
+              "access": "proxy",
+              "editable": false,
+              "isDefault": true,
+              "jsonData": {
+                "keepCookies": "cfc-access-token-cookie",
+                "tlsAuth": true,
+                "tlsAuthWithCACert": true
+              },
+              "name": "prometheus",
+              "type": "prometheus",
+              "url": "https://monitoring-prometheus:9090"
+            },
+            "ingress": {
+              "enabled": true,
+              "path": "/grafana",
+              "tlsEnabled": true
+            },
+            "metaData": {
+              "replicas": 1
+            },
+            "resources": {
+              "dashboard": 1,
+              "grafana": 2,
+              "router": 1
+            },
+            "secrets": null,
+            "service": {
+              "ports": 3000,
+              "type": "NodePort"
+            },
+            "tag": "v6.5.2-build.1"
+          }
+        }
+      ]
+    capabilities: Basic Install
+  name: grafana-operator.v0.0.1
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: Grafana is the Schema for the grafanas API
+      kind: Grafana
+      name: grafanas.operator.ibm.com
+      version: v1alpha1
+  description: Placeholder description
+  displayName: Grafana Operator
+  install:
+    spec:
+      deployments:
+      - name: ibm-grafana-operator
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              name: ibm-grafana-operator
+          strategy: {}
+          template:
+            metadata:
+              labels:
+                name: ibm-grafana-operator
+            spec:
+              containers:
+              - command:
+                - ibm-grafana-operator
+                env:
+                - name: WATCH_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.annotations['olm.targetNamespaces']
+                - name: POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: OPERATOR_NAME
+                  value: ibm-grafana-operator
+                image: REPLACE_IMAGE
+                imagePullPolicy: Always
+                name: ibm-grafana-operator
+                resources: {}
+              serviceAccountName: ibm-grafana-operator
+      permissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          - services
+          - services/finalizers
+          - endpoints
+          - persistentvolumeclaims
+          - events
+          - configmaps
+          - secrets
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - apps
+          resources:
+          - deployments
+          - daemonsets
+          - replicasets
+          - statefulsets
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - monitoring.coreos.com
+          resources:
+          - servicemonitors
+          verbs:
+          - get
+          - create
+        - apiGroups:
+          - apps
+          resourceNames:
+          - ibm-grafana-operator
+          resources:
+          - deployments/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - replicasets
+          - deployments
+          verbs:
+          - get
+        - apiGroups:
+          - operator.ibm.com
+          resources:
+          - '*'
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        serviceAccountName: ibm-grafana-operator
+    strategy: deployment
+  installModes:
+  - supported: true
+    type: OwnNamespace
+  - supported: true
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  maturity: alpha
+  provider: {}
+  replaces: grafana-operator.v0.0.0
+  version: 0.0.1

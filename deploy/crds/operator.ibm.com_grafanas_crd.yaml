@@ -1293,6 +1293,8 @@ spec:
                     service
                   type: string
               type: object
+            tag:
+              type: string
           type: object
         status:
           description: GrafanaStatus defines the observed state of Grafana
