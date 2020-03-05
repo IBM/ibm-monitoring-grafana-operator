@@ -8,16 +8,17 @@ import (
 
 	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	tpls "github.com/IBM/ibm-grafana-operator/pkg/controller/artifacts"
-	config "github.com/IBM/ibm-grafana-operator/pkg/controller/config"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-const (
+// These vars are used to recontile all the configmaps.
+var (
 	clusterPort           int    = 8443
 	environment           string = "openshift"
 	prometheusServiceName string = "monitoring-prometheus"
-	grafanaServiceName    string = "monitoring-grafana"
+	IsConfigMapsDone      bool   = false
 )
 
 type fileKeys map[string]map[string]*template.Template
@@ -47,12 +48,22 @@ func createConfigmap(namespace, name string, data map[string]string) corev1.Conf
 }
 
 // CreateConfigmaps will create all the confimap for the grafana.
-func CreateConfigMaps(cr *v1alpha1.Grafana) []corev1.ConfigMap {
+func ReconcileConfigMaps(cr *v1alpha1.Grafana) ([]corev1.ConfigMap, error) {
 	configmaps := []corev1.ConfigMap{}
 	namespace := cr.Namespace
+
+	if cr.Spec.Config != nil && cr.Spec.Config.Server != nil {
+		if cr.Spec.Config.Server.HTTPPort != "" {
+			httpPort, err := strconv.Atoi(cr.Spec.Config.Server.HTTPPort)
+			if err != nil {
+				return nil, err
+			}
+			clusterPort = httpPort
+		}
+	}
 	prometheusFullName := prometheusServiceName + ":" + strconv.Itoa(PrometheusPort)
 	grafanaPort := GetGrafanaPort(cr)
-	grafanaFullName := grafanaServiceName + ":" + strconv.Itoa(grafanaPort)
+	grafanaFullName := GrafanaServiceName + ":" + strconv.Itoa(grafanaPort)
 	type Data struct {
 		Namespace          string
 		Environment        string
@@ -88,7 +99,7 @@ func CreateConfigMaps(cr *v1alpha1.Grafana) []corev1.ConfigMap {
 		configmaps = append(configmaps, createConfigmap(cr.Namespace, fileKey, configData))
 	}
 
-	return configmaps
+	return configmaps, nil
 }
 
 // CreateGrafanaSecret create a secret from the user/passwd from config file
@@ -109,14 +120,60 @@ func CreateGrafanaSecret(cr *v1alpha1.Grafana) *corev1.Secret {
 	}
 	encUser := b64.StdEncoding.EncodeToString([]byte(user))
 	encPass := b64.StdEncoding.EncodeToString([]byte(password))
-	data := map[string][]byte{"usernam": []byte(encUser), "password": []byte(encPass)}
+	data := map[string][]byte{"username": []byte(encUser), "password": []byte(encPass)}
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "grafana-secret",
+			Name:      grafanaSecretName,
 			Namespace: cr.Namespace,
 			Labels:    map[string]string{"app": "grafana"},
 		},
 		Type: "Opaque",
 		Data: data,
+	}
+}
+
+var grafanaSecretName = "grafana-secret"
+
+func ReconciledGrafanaSecret(cr *v1alpha1.Grafana, current *corev1.Secret) (*corev1.Secret, error) {
+	reconciled := current.DeepCopy()
+	encode := func(name string) []byte {
+		ret := b64.StdEncoding.EncodeToString([]byte(name))
+		return []byte(ret)
+	}
+	decode := func(name string) (string, error) {
+		res, err := b64.StdEncoding.DecodeString(name)
+		if err != nil {
+			return "", err
+		}
+		return string(res), nil
+	}
+	decUser, err := decode(string(reconciled.Data["username"]))
+	if err != nil {
+		return nil, err
+	}
+	decPass, err := decode(string(reconciled.Data["password"]))
+	if err != nil {
+		return nil, err
+	}
+	if cr.Spec.Config != nil && cr.Spec.Config.Security != nil {
+		if cr.Spec.Config.Security.AdminUser != "" {
+			if cr.Spec.Config.Security.AdminUser != decUser {
+				reconciled.Data["username"] = encode(cr.Spec.Config.Security.AdminUser)
+			}
+		}
+
+		if cr.Spec.Config.Security.AdminPassword != "" {
+			if cr.Spec.Config.Security.AdminPassword != decPass {
+				reconciled.Data["password"] = encode(cr.Spec.Config.Security.AdminPassword)
+			}
+		}
+	}
+	return reconciled, nil
+}
+
+func GrafanaSecretSelector(cr *v1alpha1.Grafana) client.ObjectKey {
+	return client.ObjectKey{
+		Namespace: cr.Namespace,
+		Name:      grafanaSecretName,
 	}
 }

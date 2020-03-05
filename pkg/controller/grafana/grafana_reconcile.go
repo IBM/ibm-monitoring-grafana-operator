@@ -13,18 +13,7 @@ import (
 
 func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
-	err := createAllVolumeSource(r, cr)
-	if err != nil {
-		return err
-	}
-
-	err = reconcileGrafanaService(r, cr)
-	if err != nil {
-		log.Error(err, "Fail to reconcile grafana service.")
-		return err
-	}
-
-	err = reconcileGrafanaServiceAccount(r, cr)
+	err := reconcileGrafanaServiceAccount(r, cr)
 	if err != nil {
 		log.Error(err, "Fail to recocile grafana serviec account.")
 		return err
@@ -53,29 +42,106 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 		return err
 	}
 
-	return nil
-}
-
-func createAllVolumeSource(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	secret := utils.CreateGrafanaSecret(cr)
-	configmaps := utils.CreateConfigMaps(cr)
-
-	err := r.client.Create(r.ctx, secret)
+	err = reconciledAllConfigMaps(r, cr)
 	if err != nil {
-		log.Error(err, "fail to create grafana secret.")
+		log.Error(err, "Fail to reconcile all the confimags.")
 		return err
 	}
 
-	for _, cm := range configmaps {
-		err = r.client.Create(r.ctx, &cm)
+	err = reconcileGrafanaService(r, cr)
+	if err != nil {
+		log.Error(err, "Fail to reconcile grafana service.")
+		return err
+	}
+
+	err = reconciledGrafanaSecret(r, cr)
+	if err != nil {
+		log.Error(err, "Fail to reconcile grafana admin sercret.")
+		return err
+	}
+
+	return nil
+}
+
+func createGrafanaSecret(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
+	secret := utils.CreateGrafanaSecret(cr)
+	err := controllerutil.SetControllerReference(cr, secret, r.scheme)
+	if err != nil {
+		return err
+	}
+	err = r.client.Create(r.ctx, secret)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func reconciledGrafanaSecret(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
+	selector := utils.GrafanaSecretSelector(cr)
+	secret := &corev1.Secret{}
+	err := r.client.Get(r.ctx, selector, secret)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			err = createGrafanaSecret(r, cr)
+			if err != nil {
+				return err
+			}
+		} else {
+			log.Error(err, "Fail to recocile grafana secret.")
+		}
+	}
+	toUpdate, err := utils.ReconciledGrafanaSecret(cr, secret)
+	if err != nil {
+		return err
+	}
+	err = r.client.Update(r.ctx, toUpdate)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func reconciledAllConfigMaps(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
+	configmaps, err := utils.ReconcileConfigMaps(cr)
+	if err != nil {
+		log.Error(err, "Fail to update configmaps.")
+		return err
+	}
+
+	create := func(configmaps []corev1.ConfigMap, r *ReconcileGrafana) error {
+		for _, cm := range configmaps {
+			err := r.client.Create(r.ctx, &cm)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+
+	update := func(configmaps []corev1.ConfigMap, r *ReconcileGrafana) error {
+		for _, cm := range configmaps {
+			err := r.client.Update(r.ctx, &cm)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+
+	if utils.IsConfigMapsDone {
+		err := update(configmaps, r)
 		if err != nil {
-			log.Error(err, "fail to create configmap volume.")
-			return nil
+			return err
+		}
+	} else {
+		err := create(configmaps, r)
+		if err != nil {
+			return err
 		}
 	}
 
 	return nil
-
 }
 
 func reconcileGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
