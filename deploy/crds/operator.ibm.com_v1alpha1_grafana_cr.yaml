@@ -5,7 +5,7 @@ metadata:
 spec:
   config:
     server:
-      http_port: 8443
+      http_port: "8443"
     users:
       default_theme: light
     log:
@@ -20,8 +20,8 @@ spec:
       disable_login_form: true
       disable_singout_menu: true
     security:
-      username: admin
-      password: admin
+      admin_user: admin
+      admin_password: admin
       disabble_initial_admin_creation: true
   datasource:
     name: prometheus
@@ -31,12 +31,16 @@ spec:
     access: proxy
     url: https://monitoring-prometheus:9090
     jsonData:
-      keepCookies: cfc-access-token-cookie
+      keepCookies:
+        - "cfc-access-token-cookie"
       tlsAuth: true
       tlsAuthWithCACert: true
   service:
     type: NodePort
-    ports: 3000
+    ports:
+      - name: grafana-service
+        protocol: TCP
+        port: 3000
   metaData:
     replicas: 1
   ingress:
@@ -49,6 +53,3 @@ spec:
     dashboard: 1
   baseImage: hyc-cloud-private-release-docker-local.artifactory.swg-devops.com/ibmcom-amd64/grafana
   tag: v6.5.2-build.1
-  containers:
-  configmaps:
-  secrets:
