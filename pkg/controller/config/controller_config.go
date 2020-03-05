@@ -14,7 +14,6 @@ var (
 	DefaultInitImage    = "hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com/ibmcom/icp-initcontainer"
 	DefaultInitImageTag = "1.0.0-build.2"
 	DefaultIamNamespace = "iam-namespace"
-	OperatorNS          = "openshift-monitoring"
 )
 
 type ControllerConfig struct {

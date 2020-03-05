@@ -33,11 +33,12 @@ func intiFileKeys() {
 	FileKeys["grafana-default-dashboards"] = map[string]*template.Template{"helm-release-dashboard.json": tpls.HelmReleaseDashboard, "kubenertes-pod-dashboard.json": tpls.KubernetesPodDashboard, "mcm-monitoring-dashboard.json": tpls.MCMMonitoringDashboard}
 }
 
-func createConfigmap(name string, data map[string]string) corev1.ConfigMap {
+func createConfigmap(namespace, name string, data map[string]string) corev1.ConfigMap {
 
 	configmap := corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: name,
+			Name:      name,
+			Namespace: namespace,
 		},
 		Data: data,
 	}
@@ -48,8 +49,7 @@ func createConfigmap(name string, data map[string]string) corev1.ConfigMap {
 // CreateConfigmaps will create all the confimap for the grafana.
 func CreateConfigMaps(cr *v1alpha1.Grafana) []corev1.ConfigMap {
 	configmaps := []corev1.ConfigMap{}
-	conf := config.GetControllerConfig()
-	namespace := conf.GetConfigString(config.OperatorNS, "")
+	namespace := cr.Namespace
 	prometheusFullName := prometheusServiceName + ":" + strconv.Itoa(PrometheusPort)
 	grafanaPort := GetGrafanaPort(cr)
 	grafanaFullName := grafanaServiceName + ":" + strconv.Itoa(grafanaPort)
@@ -85,7 +85,7 @@ func CreateConfigMaps(cr *v1alpha1.Grafana) []corev1.ConfigMap {
 			}
 			configData[name] = buff.String()
 		}
-		configmaps = append(configmaps, createConfigmap(fileKey, configData))
+		configmaps = append(configmaps, createConfigmap(cr.Namespace, fileKey, configData))
 	}
 
 	return configmaps
@@ -112,8 +112,9 @@ func CreateGrafanaSecret(cr *v1alpha1.Grafana) *corev1.Secret {
 	data := map[string][]byte{"usernam": []byte(encUser), "password": []byte(encPass)}
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   "grafana-secret",
-			Labels: map[string]string{"app": "grafana"},
+			Name:      "grafana-secret",
+			Namespace: cr.Namespace,
+			Labels:    map[string]string{"app": "grafana"},
 		},
 		Type: "Opaque",
 		Data: data,
