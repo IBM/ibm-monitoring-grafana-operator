@@ -135,6 +135,7 @@ func reconciledAllConfigMaps(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 			return err
 		}
 	} else {
+		utils.IsConfigMapsDone = true
 		err := create(configmaps, r)
 		if err != nil {
 			return err

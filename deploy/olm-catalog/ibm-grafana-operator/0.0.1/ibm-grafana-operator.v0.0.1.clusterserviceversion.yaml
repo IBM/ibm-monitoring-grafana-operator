@@ -11,7 +11,7 @@ metadata:
             "name": "example-grafana"
           },
           "spec": {
-            "baseImage": "ibmcom/grafana:v6.5.2-build.1",
+            "baseImage": "hyc-cloud-private-release-docker-local.artifactory.swg-devops.com/ibmcom-amd64/grafana",
             "config": {
               "auth": {
                 "disable_login_form": true,
@@ -28,34 +28,31 @@ metadata:
                 "header_property": "username"
               },
               "security": {
-                "disabble_initial_admin_creation": true,
-                "password": "admin",
-                "username": "admin"
+                "admin_password": "admin",
+                "admin_user": "admin",
+                "disabble_initial_admin_creation": true
               },
               "server": {
-                "domain": "mycluster.com",
-                "http_port": 3000,
-                "protocol": "https",
-                "root_url": "https://mycluster.com:3000/grafana"
+                "http_port": "8443"
               },
               "users": {
                 "default_theme": "light"
               }
             },
-            "configmaps": null,
-            "containers": null,
             "datasource": {
               "access": "proxy",
               "editable": false,
               "isDefault": true,
               "jsonData": {
-                "keepCookies": false,
+                "keepCookies": [
+                  "cfc-access-token-cookie"
+                ],
                 "tlsAuth": true,
                 "tlsAuthWithCACert": true
               },
               "name": "prometheus",
               "type": "prometheus",
-              "url": "https://mycluster.com/prometheus"
+              "url": "https://monitoring-prometheus:9090"
             },
             "ingress": {
               "enabled": true,
@@ -66,21 +63,21 @@ metadata:
               "replicas": 1
             },
             "resources": {
-              "limits": {
-                "cpu": "1000m",
-                "memory": "1024Mi"
-              },
-              "requests": {
-                "cpu": "500m",
-                "memory": "512Mi"
-              }
+              "dashboard": 1,
+              "grafana": 2,
+              "router": 1
             },
-            "routerImage": "ibmcom/icp-management-ingress:2.5.0",
-            "secrets": null,
             "service": {
-              "ports": 3000,
+              "ports": [
+                {
+                  "name": "grafana-service",
+                  "port": 3000,
+                  "protocol": "TCP"
+                }
+              ],
               "type": "NodePort"
-            }
+            },
+            "tag": "v6.5.2-build.1"
           }
         }
       ]
@@ -95,7 +92,7 @@ spec:
       kind: Grafana
       name: grafanas.operator.ibm.com
       version: v1alpha1
-  description: Placeholder description
+  description: Grafana Operator for IBM common service monitoring stack
   displayName: Ibm Grafana Operator
   install:
     spec:
@@ -126,10 +123,10 @@ spec:
                       fieldPath: metadata.name
                 - name: OPERATOR_NAME
                   value: ibm-grafana-operator
-                image: REPLACE_IMAGE
+                image: quay.io/dongwangdw/grafana-operator:v0.1
                 imagePullPolicy: Always
                 name: ibm-grafana-operator
-                resources: {}
+                resources: {grafana}
               serviceAccountName: ibm-grafana-operator
       permissions:
       - rules:
