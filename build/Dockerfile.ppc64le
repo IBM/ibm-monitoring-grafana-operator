@@ -1,5 +1,6 @@
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.1-398
+FROM alpine as builder
 
+RUN wget -O /qemu-ppc64le-static https://github.com/multiarch/qemu-user-static/releases/latest/download/qemu-ppc64le-static
 ARG IMAGE_NAME
 ARG IMAGE_DISPLAY_NAME
 ARG IMAGE_NAME_ARCH

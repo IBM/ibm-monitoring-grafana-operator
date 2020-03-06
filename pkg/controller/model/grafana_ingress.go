@@ -1,3 +1,18 @@
+//
+// Copyright 2020 IBM Corporation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
 package model
 
 import (
@@ -12,13 +27,14 @@ import (
 
 var GrafanaIngressName string = "grafana-ingress"
 
+/*
 func GetHost(cr *v1alpha1.Grafana) string {
 	if cr.Spec.Ingress == nil {
 		return ""
 	}
 	return cr.Spec.Ingress.Hostname
 }
-
+*/
 func GetPath(cr *v1alpha1.Grafana) string {
 	if cr.Spec.Ingress == nil {
 		return "/grafana"
@@ -92,7 +108,6 @@ func getIngressSpec(cr *v1alpha1.Grafana) v1beta1.IngressSpec {
 		TLS: getIngressTLS(cr),
 		Rules: []v1beta1.IngressRule{
 			{
-				Host: GetHost(cr),
 				IngressRuleValue: v1beta1.IngressRuleValue{
 					HTTP: &v1beta1.HTTPIngressRuleValue{
 						Paths: []v1beta1.HTTPIngressPath{
