@@ -21,7 +21,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// Status discribe status message of grafana
+// Status describe status message of grafana
 type Status string
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
@@ -63,7 +63,7 @@ type GrafanaConfigPath struct {
 }
 
 type GrafanaConfigServer struct {
-	Protocol string `json:"protocal,omitempty" ini:"protocal,omitempty"`
+	Protocol string `json:"protocol,omitempty" ini:"protocol,omitempty"`
 	Domain   string `json:"domain,omitempty" ini:"domain,omitempty"`
 	HTTPPort string `json:"http_port,omitempty" ini:"http_port,omitempty"`
 	Rooturl  string `json:"root_url,omitempty" ini:"root_url,omitempty"`
@@ -95,7 +95,7 @@ type GrafanaConfigAuthProxy struct {
 }
 
 type GrafanaConfigSecurity struct {
-	DisableInitialAdminCreation *bool  `json:"disabble_initial_admin_creation,omityempty" ini:"disable_initial_admin_creation,omitempty"`
+	DisableInitialAdminCreation *bool  `json:"disabble_initial_admin_creation,omitempty" ini:"disable_initial_admin_creation,omitempty"`
 	AdminUser                   string `json:"admin_user" ini:"admin_user,omitempty"`
 	AdminPassword               string `json:"admin_password" ini:"admin_password,omitempty"`
 }
@@ -121,7 +121,7 @@ type GrafanaDatasource struct {
 type TLSAuth struct {
 	KeepCookies       []string `json:"keepCookies,omitempty"`
 	TLSAuth           *bool    `json:"tlsAuth,omitempty"`
-	TLSAuthWithCACert *bool    `json:"tlsAuthWithCACert,omiempty"`
+	TLSAuthWithCACert *bool    `json:"tlsAuthWithCACert,omitempty"`
 }
 
 type TLSConfig struct {

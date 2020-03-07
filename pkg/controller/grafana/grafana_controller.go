@@ -146,7 +146,7 @@ func (r *ReconcileGrafana) Reconcile(request reconcile.Request) (reconcile.Resul
 	//reconcile all the resources
 	cr := instance.DeepCopy()
 
-	log.Info("Start to reconcile grafana resouce.")
+	log.Info("Start to reconcile grafana resource.")
 	err = reconcileGrafana(r, cr)
 
 	if err != nil {

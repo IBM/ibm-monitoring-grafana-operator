@@ -16,7 +16,7 @@
 package artifacts
 
 // With parameter clusterPort
-var grafana_lua_script string = `
+var grafanaLuaScript string = `
 local cjson = require "cjson"
     local util = require "monitoring-util"
     local http = require "lib.resty.http"

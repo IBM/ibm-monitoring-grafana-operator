@@ -52,7 +52,7 @@ func getServicePorts(cr *v1alpha1.Grafana, currentState *corev1.Service) []corev
 
 	defaultPorts := []corev1.ServicePort{
 		{
-			Name:       GrafanaHttpPortName,
+			Name:       GrafanaHTTPPortName,
 			Protocol:   "TCP",
 			Port:       intPort,
 			TargetPort: intstr.FromString("grafana-https"),
@@ -68,7 +68,7 @@ func getServicePorts(cr *v1alpha1.Grafana, currentState *corev1.Service) []corev
 		currentState != nil &&
 		cr.Spec.Service.Type == corev1.ServiceTypeNodePort {
 		for _, port := range currentState.Spec.Ports {
-			if port.Name == GrafanaHttpPortName {
+			if port.Name == GrafanaHTTPPortName {
 				defaultPorts[0].NodePort = port.NodePort
 			}
 		}
@@ -81,7 +81,7 @@ func getServicePorts(cr *v1alpha1.Grafana, currentState *corev1.Service) []corev
 	// Don't allow overriding the default port but allow adding
 	// additional ports
 	for _, port := range cr.Spec.Service.Ports {
-		if port.Name == GrafanaHttpPortName || port.Port == intPort {
+		if port.Name == GrafanaHTTPPortName || port.Port == intPort {
 			continue
 		}
 		defaultPorts = append(defaultPorts, port)

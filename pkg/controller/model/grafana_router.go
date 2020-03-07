@@ -83,7 +83,7 @@ func getRouterProbe(delay, period int) *corev1.Probe {
 	return &corev1.Probe{
 		Handler:             handler,
 		InitialDelaySeconds: int32(delay),
-		TimeoutSeconds:      int32(delay),
+		TimeoutSeconds:      int32(period),
 	}
 }
 
@@ -139,25 +139,25 @@ func createRouterContainer(cr *v1alpha1.Grafana) corev1.Container {
 	}
 }
 
-func createVolumeFromSource(Name, tp string) corev1.Volume {
+func createVolumeFromSource(name, tp string) corev1.Volume {
 
 	if tp == "confimap" {
 		return corev1.Volume{
-			Name: Name,
+			Name: name,
 			VolumeSource: corev1.VolumeSource{
 				ConfigMap: &corev1.ConfigMapVolumeSource{
 					LocalObjectReference: corev1.LocalObjectReference{
-						Name: Name,
+						Name: name,
 					},
 				},
 			},
 		}
 	}
 	return corev1.Volume{
-		Name: Name,
+		Name: name,
 		VolumeSource: corev1.VolumeSource{
 			Secret: &corev1.SecretVolumeSource{
-				SecretName: Name,
+				SecretName: name,
 			},
 		},
 	}

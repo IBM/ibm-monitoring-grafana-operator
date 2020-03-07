@@ -32,9 +32,9 @@ import (
 
 // Baisc resource unit
 var MemoryRequest int = 256
-var CpuRequest int = 200
+var CPURequest int = 200
 var MemoryLimit int = 512
-var CpuLimit int = 500
+var CPULimit int = 500
 
 func getContainerResource(cr *v1alpha1.Grafana, name string) corev1.ResourceRequirements {
 
@@ -58,9 +58,9 @@ func getContainerResource(cr *v1alpha1.Grafana, name string) corev1.ResourceRequ
 func getResource(times int) corev1.ResourceRequirements {
 
 	MR := strconv.Itoa(MemoryRequest*times) + "Mi"
-	CR := strconv.Itoa(CpuRequest*times) + "m"
+	CR := strconv.Itoa(CPURequest*times) + "m"
 	ML := strconv.Itoa(MemoryLimit*times) + "Mi"
-	CL := strconv.Itoa(CpuLimit*times) + "m"
+	CL := strconv.Itoa(CPULimit*times) + "m"
 	return corev1.ResourceRequirements{
 		Requests: corev1.ResourceList{
 			corev1.ResourceMemory: resource.MustParse(MR),
@@ -322,11 +322,11 @@ func getPodAnnotations(cr *v1alpha1.Grafana) map[string]string {
 func getGrafanaSC() *corev1.SecurityContext {
 	sc := &corev1.SecurityContext{}
 
-	cap := &corev1.Capabilities{}
+	capa := &corev1.Capabilities{}
 	True := true
-	sc.Capabilities = cap
-	cap.Add = []corev1.Capability{"ALL"}
-	cap.Drop = []corev1.Capability{"CHOWN", "NET_ADMIN", "NET_RAW", "LEASE", "SETGID", "SETUID"}
+	sc.Capabilities = capa
+	capa.Add = []corev1.Capability{"ALL"}
+	capa.Drop = []corev1.Capability{"CHOWN", "NET_ADMIN", "NET_RAW", "LEASE", "SETGID", "SETUID"}
 	sc.Privileged = &True
 	sc.AllowPrivilegeEscalation = &True
 

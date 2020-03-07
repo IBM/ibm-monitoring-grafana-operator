@@ -85,7 +85,10 @@ func GrafanaDatasourceConfig(cr *v1alpha1.Grafana) *corev1.ConfigMap {
 		Namespace: cr.Namespace,
 	}
 	hash := md5.New()
-	io.WriteString(hash, string(bytesData))
+	_, err = io.WriteString(hash, string(bytesData))
+	if err != nil {
+		log.Error(err, "Fail to write string")
+	}
 	hashMark := fmt.Sprintf("%x", hash.Sum(nil))
 
 	configMap.Annotations = map[string]string{

@@ -165,14 +165,15 @@ func reconcileGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) error
 	selector := utils.GrafanaDeploymentSelector(cr)
 	deployment := &appv1.Deployment{}
 	err := r.client.Get(r.ctx, selector, deployment)
-	if err != nil && errors.IsNotFound(err) {
-		err = createGrafanaDeployment(r, cr)
-		if err != nil {
-			log.Error(err, "Fail to create grafana deployment.")
-			return err
+	if err != nil {
+		if errors.IsNotFound(err) {
+			err = createGrafanaDeployment(r, cr)
+			if err != nil {
+				log.Error(err, "Fail to create grafana deployment.")
+				return err
+			}
+			return nil
 		}
-		return nil
-	} else {
 		log.Error(err, "Fail to get grafana deployment.")
 		return err
 	}
@@ -216,9 +217,8 @@ func reconcileGrafanaService(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 				return err
 			}
 			return nil
-		} else {
-			return err
 		}
+		return err
 	}
 
 	toUpdate := utils.ReconciledGrafanaService(cr, svc)
@@ -259,10 +259,8 @@ func reconcileGrafanaServiceAccount(r *ReconcileGrafana, cr *v1alpha1.Grafana) e
 				return err
 			}
 			return nil
-		} else {
-			return err
 		}
-
+		return err
 	}
 
 	toUpdate := utils.ReconciledGrafanaServiceAccount(cr, sa)

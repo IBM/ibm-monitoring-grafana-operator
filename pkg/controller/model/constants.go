@@ -41,7 +41,7 @@ const (
 	GrafanaServiceAccountName  = "grafana-serviceaccount"
 	GrafanaDeploymentName      = "grafana-deployment"
 	GrafanaServiceName         = "grafana-service"
-	GrafanaHttpPortName        = "grafana"
+	GrafanaHTTPPortName        = "grafana"
 	RequeueDelay               = time.Second * 10
 	DefaultGrafanaPort         = 3000
 	GrafanaRouteName           = "grafana-route"

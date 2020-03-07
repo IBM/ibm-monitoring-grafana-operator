@@ -41,7 +41,7 @@ type fileKeys map[string]map[string]*template.Template
 // configmap name and file key
 var FileKeys fileKeys
 
-func intiFileKeys() {
+func init() {
 	FileKeys["grafana-lua-script-config"] = map[string]*template.Template{"grafana.lua": tpls.GrafanaLuaScript}
 	FileKeys["util-lua-script-config"] = map[string]*template.Template{"monitoring-util.lua": tpls.UtilLuaScript}
 	FileKeys["router-config"] = map[string]*template.Template{"nginx.conf": tpls.RouterConfig}
@@ -103,7 +103,7 @@ func ReconcileConfigMaps(cr *v1alpha1.Grafana) ([]corev1.ConfigMap, error) {
 
 	for fileKey, dValue := range FileKeys {
 		var buff bytes.Buffer
-		var configData map[string]string
+		configData := make(map[string]string)
 		for name, tpl := range dValue {
 			err := tpl.Execute(&buff, tplData)
 			if err != nil {

@@ -60,9 +60,7 @@ func (c *ControllerConfig) AddConfigItem(key string, value interface{}) {
 func (c *ControllerConfig) RemoveConfigItem(key string) {
 	c.Lock()
 	defer c.Unlock()
-	if _, ok := c.Values[key]; ok {
-		delete(c.Values, key)
-	}
+	delete(c.Values, key)
 }
 
 func (c *ControllerConfig) GetConfigItem(key string, defaultValue interface{}) interface{} {

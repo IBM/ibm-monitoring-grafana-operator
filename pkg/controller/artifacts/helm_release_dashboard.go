@@ -15,7 +15,7 @@
 //
 package artifacts
 
-var helm_release_dashboard string = `
+var helmReleaseDashboard string = `
 {
     "__inputs": [
     {

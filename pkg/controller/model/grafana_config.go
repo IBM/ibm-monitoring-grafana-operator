@@ -157,8 +157,10 @@ func (i *grafanaConfig) Write() (string, string) {
 	}
 
 	hash := md5.New()
-	io.WriteString(hash, sb.String())
-
+	_, err := io.WriteString(hash, sb.String())
+	if err != nil {
+		log.Error(err, "Fail to write string to hash")
+	}
 	return sb.String(), fmt.Sprintf("%x", hash.Sum(nil))
 }
 

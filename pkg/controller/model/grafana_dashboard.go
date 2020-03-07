@@ -29,19 +29,13 @@ func setVolumeMountsForDashboard() []corev1.VolumeMount {
 	mounts = append(mounts, corev1.VolumeMount{
 		Name:      "grafana-crd-entry",
 		MountPath: "/grafana/entry",
-	})
-
-	mounts = append(mounts, corev1.VolumeMount{
+	}, corev1.VolumeMount{
 		Name:      "monitoring-client-cert",
 		MountPath: "/opt/ibm/monitoring/certs",
-	})
-
-	mounts = append(mounts, corev1.VolumeMount{
+	}, corev1.VolumeMount{
 		Name:      "monitoring-ca-certs",
 		MountPath: "/opt/ibm/monitoring/ca-certs",
-	})
-
-	mounts = append(mounts, corev1.VolumeMount{
+	}, corev1.VolumeMount{
 		Name:      "default-dashboards-config",
 		MountPath: "/opt/dashboards",
 	})
@@ -58,17 +52,13 @@ func setupEnvForDashboard(cr *v1alpha1.Grafana) []corev1.EnvVar {
 	envs = append(envs, corev1.EnvVar{
 		Name:  "PROMETHEUS_HOST",
 		Value: "monitoring.prometheus",
-	})
-	envs = append(envs, corev1.EnvVar{
+	}, corev1.EnvVar{
 		Name:  "PROMETHEUS_PORT",
 		Value: string(PrometheusPort),
-	})
-
-	envs = append(envs, corev1.EnvVar{
+	}, corev1.EnvVar{
 		Name:  "PORT",
 		Value: string(port),
-	})
-	envs = append(envs, corev1.EnvVar{
+	}, corev1.EnvVar{
 		Name:  "IS_HUB_CLUSTER",
 		Value: strconv.FormatBool(false),
 	})
