@@ -16,24 +16,35 @@
 package model
 
 import (
-	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 )
 
 func getServiceAccountLabels(cr *v1alpha1.Grafana) map[string]string {
-	if cr.Spec.MetaData == nil {
-		return nil
+	labels := map[string]string{
+		"app":       "grafana",
+		"component": "grafana",
 	}
-	return cr.Spec.MetaData.Labels
+	if cr.Spec.ServiceAccount != nil && cr.Spec.ServiceAccount.Labels != nil {
+		if cr.Spec.ServiceAccount.Labels != nil {
+			mergeMaps(labels, cr.Spec.ServiceAccount.Labels)
+		}
+	}
+	return labels
 }
 
 func getServiceAccountAnnotations(cr *v1alpha1.Grafana) map[string]string {
-	if cr.Spec.MetaData == nil {
-		return nil
+	annotations := map[string]string{
+		"app":       "grafana",
+		"component": "grafana",
 	}
-	return cr.Spec.MetaData.Annotations
+	if cr.Spec.ServiceAccount != nil && cr.Spec.ServiceAccount.Annotations != nil {
+		mergeMaps(annotations, cr.Spec.ServiceAccount.Annotations)
+	}
+	return annotations
 }
 
 func GrafanaServiceAccount(cr *v1alpha1.Grafana) *corev1.ServiceAccount {

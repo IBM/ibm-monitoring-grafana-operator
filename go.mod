@@ -37,6 +37,8 @@ replace github.com/docker/docker => github.com/moby/moby v0.7.3-0.20190826074503
 replace github.com/openshift/api => github.com/openshift/api v0.0.0-20190924102528-32369d4db2ad // Required until https://github.com/operator-framework/operator-lifecycle-manager/pull/1241 is resolved
 
 require (
+	github.com/cloudflare/cfssl v0.0.0-20180726162950-56268a613adf
+	github.com/coreos/etcd v3.3.15+incompatible
 	github.com/openshift/api v3.9.1-0.20190924102528-32369d4db2ad+incompatible
 	github.com/spf13/pflag v1.0.5
 	k8s.io/api v0.0.0

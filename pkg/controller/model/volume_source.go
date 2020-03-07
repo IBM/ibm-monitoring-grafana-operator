@@ -18,14 +18,16 @@ package model
 import (
 	"bytes"
 	b64 "encoding/base64"
+	"encoding/json"
 	"strconv"
 	"text/template"
 
-	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
-	tpls "github.com/IBM/ibm-grafana-operator/pkg/controller/artifacts"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
+	tpls "github.com/IBM/ibm-grafana-operator/pkg/controller/artifacts"
 )
 
 // These vars are used to recontile all the configmaps.
@@ -38,7 +40,19 @@ var (
 
 type fileKeys map[string]map[string]*template.Template
 
-// configmap name and file key
+// To store all the tempate data.
+type templateData struct {
+	Namespace          string
+	Environment        string
+	ClusterDomain      string
+	GrafanaFullName    string
+	PrometheusFullName string
+	ClusterPort        int
+	PrometheusPort     int
+	GrafanaPort        int
+}
+
+// FileKeys stores the configmap name and file key
 var FileKeys fileKeys
 
 func init() {
@@ -62,37 +76,34 @@ func createConfigmap(namespace, name string, data map[string]string) corev1.Conf
 	return configmap
 }
 
-// CreateConfigmaps will create all the confimap for the grafana.
-func ReconcileConfigMaps(cr *v1alpha1.Grafana) ([]corev1.ConfigMap, error) {
+// ReconcileConfigMaps will reconcile all the confimaps for the grafana.
+// There is not selector to retrieve all the configmaps. Just update them
+// with a switch of IsConfigMapsDone variable.
+func ReconcileConfigMaps(cr *v1alpha1.Grafana) []corev1.ConfigMap {
 	configmaps := []corev1.ConfigMap{}
 	namespace := cr.Namespace
+	var httpPort int
+	var err error
 
 	if cr.Spec.Config != nil && cr.Spec.Config.Server != nil {
 		if cr.Spec.Config.Server.HTTPPort != "" {
-			httpPort, err := strconv.Atoi(cr.Spec.Config.Server.HTTPPort)
+			httpPort, err = strconv.Atoi(cr.Spec.Config.Server.HTTPPort)
 			if err != nil {
-				return nil, err
+				log.Error(err, "Fail to get http port from spec, using default.")
+				httpPort = clusterPort
 			}
-			clusterPort = httpPort
 		}
+		log.Info("Use the default cluster port.")
+		httpPort = clusterPort
 	}
+
 	prometheusFullName := prometheusServiceName + ":" + strconv.Itoa(PrometheusPort)
 	grafanaPort := GetGrafanaPort(cr)
 	grafanaFullName := GrafanaServiceName + ":" + strconv.Itoa(grafanaPort)
-	type Data struct {
-		Namespace          string
-		Environment        string
-		ClusterDomain      string
-		GrafanaFullName    string
-		PrometheusFullName string
-		ClusterPort        int
-		PrometheusPort     int
-		GrafanaPort        int
-	}
 
-	tplData := Data{
+	tplData := templateData{
 		Namespace:          namespace,
-		ClusterPort:        clusterPort,
+		ClusterPort:        httpPort,
 		Environment:        environment,
 		ClusterDomain:      ClusterDomain,
 		PrometheusFullName: prometheusFullName,
@@ -114,8 +125,12 @@ func ReconcileConfigMaps(cr *v1alpha1.Grafana) ([]corev1.ConfigMap, error) {
 		configmaps = append(configmaps, createConfigmap(cr.Namespace, fileKey, configData))
 	}
 
-	return configmaps, nil
+	configmaps = append(configmaps, createDBConfig(cr.Namespace))
+
+	return configmaps
 }
+
+var grafanaSecretName = "grafana-secret"
 
 // CreateGrafanaSecret create a secret from the user/passwd from config file
 func CreateGrafanaSecret(cr *v1alpha1.Grafana) *corev1.Secret {
@@ -136,21 +151,22 @@ func CreateGrafanaSecret(cr *v1alpha1.Grafana) *corev1.Secret {
 	encUser := b64.StdEncoding.EncodeToString([]byte(user))
 	encPass := b64.StdEncoding.EncodeToString([]byte(password))
 	data := map[string][]byte{"username": []byte(encUser), "password": []byte(encPass)}
+
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      grafanaSecretName,
 			Namespace: cr.Namespace,
-			Labels:    map[string]string{"app": "grafana"},
+			Labels:    map[string]string{"app": "grafana", "component": "grafana"},
 		},
 		Type: "Opaque",
 		Data: data,
 	}
 }
 
-var grafanaSecretName = "grafana-secret"
-
+// ReconciledGrafanaSecret update the secret
 func ReconciledGrafanaSecret(cr *v1alpha1.Grafana, current *corev1.Secret) (*corev1.Secret, error) {
 	reconciled := current.DeepCopy()
+
 	encode := func(name string) []byte {
 		ret := b64.StdEncoding.EncodeToString([]byte(name))
 		return []byte(ret)
@@ -158,16 +174,19 @@ func ReconciledGrafanaSecret(cr *v1alpha1.Grafana, current *corev1.Secret) (*cor
 	decode := func(name string) (string, error) {
 		res, err := b64.StdEncoding.DecodeString(name)
 		if err != nil {
+			log.Error(err, "Fail to reconcile the grafan secret.")
 			return "", err
 		}
 		return string(res), nil
 	}
 	decUser, err := decode(string(reconciled.Data["username"]))
 	if err != nil {
+		log.Error(err, "Fail to reconcile the grafan secret.")
 		return nil, err
 	}
 	decPass, err := decode(string(reconciled.Data["password"]))
 	if err != nil {
+		log.Error(err, "Fail to reconcile the grafan secret.")
 		return nil, err
 	}
 	if cr.Spec.Config != nil && cr.Spec.Config.Security != nil {
@@ -191,4 +210,29 @@ func GrafanaSecretSelector(cr *v1alpha1.Grafana) client.ObjectKey {
 		Namespace: cr.Namespace,
 		Name:      grafanaSecretName,
 	}
+}
+
+// hardcode all the config here
+func createDBConfig(namespace string) corev1.ConfigMap {
+	dbConfigFileName := "dashbords.yaml"
+
+	dbConfig := v1alpha1.DashboardConfig{}
+	dbConfig.APIversion = 1
+	dbProvider := v1alpha1.DashboardProvider{
+		Name:                  "default",
+		OrgID:                 1,
+		Folder:                "",
+		FolderUID:             "",
+		Type:                  "file",
+		DisableDeletion:       false,
+		UpdateIntervalSeconds: 30,
+		Options:               map[string]string{"path": "/var/lib/grafana/dashboards"},
+	}
+
+	dbConfig.Providers = []v1alpha1.DashboardProvider{dbProvider}
+	bytes, _ := json.Marshal(dbConfig)
+	data := map[string]string{dbConfigFileName: string(bytes)}
+
+	return createConfigmap(namespace, "grafana-dashboard-config", data)
+
 }

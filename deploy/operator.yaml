@@ -16,10 +16,10 @@ spec:
       containers:
         - name: ibm-grafana-operator
           # Replace this with the built image name
-          image: quay.io/opencloudio/grafana-operator-amd64:v0.0.1
+          image: quay.io/dongwangdw/grafana-operator:v0.1
           command:
           - ibm-grafana-operator
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           env:
             - name: WATCH_NAMESPACE
               valueFrom:

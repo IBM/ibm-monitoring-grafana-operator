@@ -28,13 +28,13 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
-	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
+	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 )
 
 var log = logf.Log.WithName("data-source")
 
 const (
-	GrafanaDatasourceFile = "datasource.yaml"
+	grafanaDatasourceFile = "datasource.yaml"
 	certBasePath          = "/opt/ibm/monitoring/certs/"
 	caBasePath            = "/opt/ibm/monitoring/caCerts/"
 	certFile              = "tls.crt"
@@ -46,23 +46,22 @@ type grafanaDatasource struct {
 	Datasource v1alpha1.GrafanaDatasource `json:"datasources,omitempty"`
 }
 
-func GrafanaDatasourceConfig(cr *v1alpha1.Grafana) *corev1.ConfigMap {
+// GrafanaDatasourceConfig create configmap for datasource
+func GrafanaDatasourceConfig(cr *v1alpha1.Grafana) (*corev1.ConfigMap, error) {
 
 	caCert, err := ioutil.ReadFile(path.Join(caBasePath, certFile))
 	if err != nil {
-		log.Error(err, "Failed to read ca-cert file.")
-		return nil
+		return nil, err
 	}
 
 	clientCert, err := ioutil.ReadFile(path.Join(certBasePath, certFile))
 	if err != nil {
-		log.Error(err, "Failed to read cert file.")
-		return nil
+		return nil, err
 	}
+
 	clientKey, err := ioutil.ReadFile(path.Join(certBasePath, keyFile))
 	if err != nil {
-		log.Error(err, "Failed to read key file.")
-		return nil
+		return nil, err
 	}
 
 	cfg := cr.Spec.Datasource
@@ -76,42 +75,46 @@ func GrafanaDatasourceConfig(cr *v1alpha1.Grafana) *corev1.ConfigMap {
 	}
 	bytesData, err := json.Marshal(dataSource)
 	if err != nil {
-		log.Error(err, "Fail to mashal the data source struct.")
+		return nil, err
 	}
 
 	configMap := corev1.ConfigMap{}
 	configMap.ObjectMeta = metav1.ObjectMeta{
 		Name:      "grafana-datasource",
 		Namespace: cr.Namespace,
+		Labels:    map[string]string{"app": "grafana", "component": "grafana"},
 	}
 	hash := md5.New()
 	_, err = io.WriteString(hash, string(bytesData))
 	if err != nil {
-		log.Error(err, "Fail to write string")
+		return nil, err
 	}
 	hashMark := fmt.Sprintf("%x", hash.Sum(nil))
 
 	configMap.Annotations = map[string]string{
 		"lastConfig": hashMark,
 	}
-	configMap.Data[GrafanaDatasourceFile] = string(bytesData)
+	configMap.Data[grafanaDatasourceFile] = string(bytesData)
 
-	return &configMap
+	return &configMap, nil
 }
 
-func ReconciledGrafanaDatasource(cr *v1alpha1.Grafana, current *corev1.ConfigMap) *corev1.ConfigMap {
+func ReconciledGrafanaDatasource(cr *v1alpha1.Grafana, current *corev1.ConfigMap) (*corev1.ConfigMap, error) {
 
 	reconciled := current.DeepCopy()
-	newConfig := GrafanaDatasourceConfig(cr)
-
-	newHash := newConfig.Annotations["lastConfig"]
-	newData := newConfig.Data[GrafanaDatasourceFile]
-	if reconciled.Annotations["lastConfig"] != "" {
-		reconciled.Annotations["lastConfig"] = newHash
-		reconciled.Data[GrafanaDatasourceFile] = newData
+	newConfig, err := GrafanaDatasourceConfig(cr)
+	if err != nil {
+		return nil, err
 	}
 
-	return reconciled
+	newHash := newConfig.Annotations["lastConfig"]
+	newData := newConfig.Data[grafanaDatasourceFile]
+	if reconciled.Annotations["lastConfig"] != newHash {
+		reconciled.Annotations["lastConfig"] = newHash
+		reconciled.Data[grafanaDatasourceFile] = newData
+	}
+
+	return reconciled, nil
 
 }
 

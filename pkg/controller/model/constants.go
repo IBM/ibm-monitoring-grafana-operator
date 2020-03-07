@@ -18,10 +18,10 @@ package model
 import "time"
 
 const (
-	GrafanaConfigName          = "grafana-config"
+	GrafanaConfigName          = "config-volume"
 	GrafanaLogVolumes          = "grafana-log"
-	GrafanaDataVolumes         = "grafana-data"
-	GrafanaDatasourceName      = "gafana-datasource"
+	GrafanaDataVolumes         = "grafana-storage"
+	GrafanaDatasourceName      = "datasource-config"
 	GrafanaHealthEndpoint      = "/api/health"
 	DefaultGrafanaImage        = "hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com/ibmcom/grafana"
 	DefaultGrafanaImageTag     = "v6.5.2-build.1"

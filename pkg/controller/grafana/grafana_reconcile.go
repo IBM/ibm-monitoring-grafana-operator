@@ -16,14 +16,15 @@
 package grafana
 
 import (
-	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
-	utils "github.com/IBM/ibm-grafana-operator/pkg/controller/model"
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	v1beta1 "k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+
+	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
+	utils "github.com/IBM/ibm-grafana-operator/pkg/controller/model"
 )
 
 func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
@@ -118,11 +119,7 @@ func reconciledGrafanaSecret(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 }
 
 func reconciledAllConfigMaps(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	configmaps, err := utils.ReconcileConfigMaps(cr)
-	if err != nil {
-		log.Error(err, "Fail to update configmaps.")
-		return err
-	}
+	configmaps := utils.ReconcileConfigMaps(cr)
 
 	create := func(configmaps []corev1.ConfigMap, r *ReconcileGrafana) error {
 		for _, cm := range configmaps {
@@ -162,12 +159,17 @@ func reconciledAllConfigMaps(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
 func reconcileGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
+	configHash, dsHash, err := getHashes(cr)
+	if err != nil {
+		return err
+	}
+
 	selector := utils.GrafanaDeploymentSelector(cr)
 	deployment := &appv1.Deployment{}
-	err := r.client.Get(r.ctx, selector, deployment)
+	err = r.client.Get(r.ctx, selector, deployment)
 	if err != nil {
 		if errors.IsNotFound(err) {
-			err = createGrafanaDeployment(r, cr)
+			err = createGrafanaDeployment(r, cr, configHash, dsHash)
 			if err != nil {
 				log.Error(err, "Fail to create grafana deployment.")
 				return err
@@ -178,7 +180,7 @@ func reconcileGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) error
 		return err
 	}
 
-	toUpdate := utils.ReconciledGrafanaDeployment(cr, deployment)
+	toUpdate := utils.ReconciledGrafanaDeployment(cr, deployment, configHash, dsHash)
 	err = r.client.Update(r.ctx, toUpdate)
 	if err != nil {
 		log.Error(err, "Fail to update grafana deployment.")
@@ -188,9 +190,9 @@ func reconcileGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) error
 	return nil
 }
 
-func createGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
+func createGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana, configHash, dsHash string) error {
 
-	dep := utils.GrafanaDeployment(cr)
+	dep := utils.GrafanaDeployment(cr, configHash, dsHash)
 	err := controllerutil.SetControllerReference(cr, dep, r.scheme)
 	if err != nil {
 		return err
@@ -202,7 +204,24 @@ func createGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	}
 
 	return nil
+}
 
+func getHashes(cr *v1alpha1.Grafana) (string, string, error) {
+
+	var grafanaConfig, datasourceConfig *corev1.ConfigMap
+	var err error
+	grafanaConfig, err = utils.GrafanaConfigIni(cr)
+	if err != nil {
+		return "", "", err
+	}
+	configHash := grafanaConfig.Annotations["lastConfig"]
+
+	datasourceConfig, err = utils.GrafanaDatasourceConfig(cr)
+	if err != nil {
+		return "", "", err
+	}
+	dsHash := datasourceConfig.Annotations["lastConfig"]
+	return configHash, dsHash, nil
 }
 
 func reconcileGrafanaService(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
@@ -328,8 +347,12 @@ func createGrafanaIngress(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 }
 
 func createGrafanaConfig(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	config, _ := utils.GrafanaConfigIni(cr)
-	err := controllerutil.SetControllerReference(cr, config, r.scheme)
+	config, err := utils.GrafanaConfigIni(cr)
+	if err != nil {
+		log.Error(err, "Fail to get grafana config file.")
+		return err
+	}
+	err = controllerutil.SetControllerReference(cr, config, r.scheme)
 	if err != nil {
 		return err
 	}
@@ -365,8 +388,11 @@ func reconcileGrafanaConfig(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 }
 
 func createGrafanaDatasource(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	datasource := utils.GrafanaDatasourceConfig(cr)
-	err := controllerutil.SetControllerReference(cr, datasource, r.scheme)
+	datasource, err := utils.GrafanaDatasourceConfig(cr)
+	if err != nil {
+		return err
+	}
+	err = controllerutil.SetControllerReference(cr, datasource, r.scheme)
 	if err != nil {
 		return err
 	}
@@ -391,7 +417,11 @@ func reconcileGrafanaDatasource(r *ReconcileGrafana, cr *v1alpha1.Grafana) error
 		}
 		return err
 	}
-	toUpdate := utils.ReconciledGrafanaDatasource(cr, datasource)
+	toUpdate, err := utils.ReconciledGrafanaDatasource(cr, datasource)
+	if err != nil {
+		return err
+	}
+
 	err = r.client.Update(r.ctx, toUpdate)
 	if err != nil {
 		return nil

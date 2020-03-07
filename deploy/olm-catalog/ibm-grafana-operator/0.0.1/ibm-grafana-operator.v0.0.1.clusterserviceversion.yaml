@@ -56,9 +56,10 @@ metadata:
             },
             "ingress": {
               "enabled": true,
-              "path": "/grafana",
-              "tlsEnabled": true
+              "path": "/grafana"
             },
+            "ipVersion": "4",
+            "isHub": false,
             "metaData": {
               "replicas": 1
             },
@@ -124,7 +125,7 @@ spec:
                 - name: OPERATOR_NAME
                   value: ibm-grafana-operator
                 image: quay.io/dongwangdw/grafana-operator:v0.1
-                imagePullPolicy: Always
+                imagePullPolicy: IfNotPresent
                 name: ibm-grafana-operator
                 resources: {}
               serviceAccountName: ibm-grafana-operator

@@ -69,7 +69,7 @@ local cjson = require "cjson"
             local host_header = ngx.req.get_headers()["host"]
             --- if request host is "monitoring-prometheus:9090" or "monitoring-grafana:3000" skip the rbac check
             ngx.log(ngx.DEBUG, "host header is ",host_header)
-            if host_header == "{{ .prometheusFullname }}:{{ .prometheusPort }}" or host_header == "{{ .grafanaFullname }}:{{ .grafanaPort }}" then
+            if host_header == "{{ .prometheusFullname }}:{{ .prometheusPort }}" or host_header == "{{ .GrafanaFullname }}:{{ .GrafanaPort }}" then
                 ngx.log(ngx.NOTICE, "skip rbac check for request from kube-system")
             else
                 ngx.log(ngx.ERR, "No auth token in request.")
@@ -84,7 +84,7 @@ local cjson = require "cjson"
         local user_id = ""
         local httpc = http.new()
         ngx.req.set_header('Authorization', 'Bearer '.. token)
-        local res, err = httpc:request_uri("https://platform-identity-provider.kube-system.svc.{{ .clusterDomain }}:4300/v1/auth/userInfo", {
+        local res, err = httpc:request_uri("https://platform-identity-provider.kube-system.svc.{{ .ClusterDomain }}:4300/v1/auth/userInfo", {
             method = "POST",
             body = "access_token=" .. token,
             headers = {
@@ -109,14 +109,14 @@ local cjson = require "cjson"
 
     local function get_user_role(token, uid)
         local httpc = http.new()
-        local res, err = httpc:request_uri("https://platform-identity-management.kube-system.svc.{{ .clusterDomain }}:4500/identity/api/v1/users/" .. uid .. "/getHighestRoleForCRN", {
+        local res, err = httpc:request_uri("https://platform-identity-management.kube-system.svc.{{ .ClusterDomain }}:4500/identity/api/v1/users/" .. uid .. "/getHighestRoleForCRN", {
             method = "GET",
             headers = {
               ["Content-Type"] = "application/json",
               ["Authorization"] = "Bearer ".. token
             },
             query = {
-                ["crn"] = "crn:v1:icp:private:k8:{{ .clusterName }}:n/{{ .Namespace }}:::"
+                ["crn"] = "crn:v1:icp:private:k8:{{ .ClusterName }}:n/{{ .Namespace }}:::"
             },
             ssl_verify = false
         })
@@ -135,7 +135,7 @@ local cjson = require "cjson"
 
     local function get_user_namespaces(token, uid)
         local httpc = http.new()
-        res, err = httpc:request_uri("https://platform-identity-management.kube-system.svc.{{ .clusterDomain }}:4500/identity/api/v1/users/" .. uid .. "/getTeamResources", {
+        res, err = httpc:request_uri("https://platform-identity-management.kube-system.svc.{{ .ClusterDomain }}:4500/identity/api/v1/users/" .. uid .. "/getTeamResources", {
             method = "GET",
             headers = {
               ["Content-Type"] = "application/json",
@@ -201,7 +201,7 @@ local cjson = require "cjson"
 
     local function get_all_users(token)
         local httpc = http.new()
-        res, err = httpc:request_uri("https://platform-identity-management.kube-system.svc.{{ .clusterDomain }}:4500/identity/api/v1/users", {
+        res, err = httpc:request_uri("https://platform-identity-management.kube-system.svc.{{ .ClusterDomain }}:4500/identity/api/v1/users", {
             method = "GET",
             headers = {
               ["Accept"] = "application/json",

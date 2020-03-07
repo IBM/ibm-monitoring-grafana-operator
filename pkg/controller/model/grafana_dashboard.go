@@ -19,8 +19,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
+
+	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 )
 
 func setVolumeMountsForDashboard() []corev1.VolumeMount {
@@ -43,11 +44,23 @@ func setVolumeMountsForDashboard() []corev1.VolumeMount {
 
 }
 
-func setupEnvForDashboard(cr *v1alpha1.Grafana) []corev1.EnvVar {
+func setupDashboardEnv(cr *v1alpha1.Grafana) []corev1.EnvVar {
+
+	var isHub bool
+	var loopback string
 
 	port := GetGrafanaPort(cr)
 	envs := []corev1.EnvVar{}
-	envs = append(envs, setupEnv("USER", "PASSWORD")...)
+	envs = append(envs, setupAdminEnv("USER", "PASSWORD")...)
+	if cr.Spec.IsHub {
+		isHub = true
+	}
+	isHub = false
+
+	if cr.Spec.IPVersion != "" {
+		loopback = cr.Spec.IPVersion
+	}
+	loopback = "127.0.0.1"
 
 	envs = append(envs, corev1.EnvVar{
 		Name:  "PROMETHEUS_HOST",
@@ -60,23 +73,27 @@ func setupEnvForDashboard(cr *v1alpha1.Grafana) []corev1.EnvVar {
 		Value: string(port),
 	}, corev1.EnvVar{
 		Name:  "IS_HUB_CLUSTER",
-		Value: strconv.FormatBool(false),
+		Value: strconv.FormatBool(isHub),
+	}, corev1.EnvVar{
+		Name:  "LOOPBACK",
+		Value: loopback,
 	})
 
 	return envs
 }
 
 func getDashboardSC() *corev1.SecurityContext {
-	sc := &corev1.SecurityContext{}
-
 	False := false
-	sc.Capabilities = &corev1.Capabilities{}
-	sc.Capabilities.Add = []corev1.Capability{"ALL"}
-	sc.Capabilities.Drop = []corev1.Capability{"CHOWN", "NET_ADMIN", "NET_RAW", "LEASE", "SETGID", "SETUID"}
-	sc.Privileged = &False
-	sc.AllowPrivilegeEscalation = &False
-
-	return sc
+	return &corev1.SecurityContext{
+		Capabilities: &corev1.Capabilities{
+			Add: []corev1.Capability{"ALL"},
+			Drop: []corev1.Capability{"CHOWN", "NET_ADMIN",
+				"NET_RAW", "LEASE",
+				"SETGID", "SETUID"},
+		},
+		Privileged:               &False,
+		AllowPrivilegeEscalation: &False,
+	}
 }
 
 func createDashboardContainer(cr *v1alpha1.Grafana) corev1.Container {
@@ -87,7 +104,8 @@ func createDashboardContainer(cr *v1alpha1.Grafana) corev1.Container {
 		ImagePullPolicy:          "IfNotPresent",
 		Resources:                getContainerResource(cr, "Dashboard"),
 		SecurityContext:          getDashboardSC(),
-		Env:                      setupEnvForDashboard(cr),
+		Command:                  []string{"/grafana/entry/run.sh"},
+		Env:                      setupDashboardEnv(cr),
 		VolumeMounts:             setVolumeMountsForDashboard(),
 		TerminationMessagePath:   "/dev/termination-log",
 		TerminationMessagePolicy: "File",

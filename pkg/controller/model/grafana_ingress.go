@@ -16,25 +16,15 @@
 package model
 
 import (
-	"strconv"
-
-	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	"k8s.io/api/extensions/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 )
 
 var GrafanaIngressName string = "grafana-ingress"
 
-/*
-func GetHost(cr *v1alpha1.Grafana) string {
-	if cr.Spec.Ingress == nil {
-		return ""
-	}
-	return cr.Spec.Ingress.Hostname
-}
-*/
 func GetPath(cr *v1alpha1.Grafana) string {
 	if cr.Spec.Ingress == nil {
 		return "/grafana"
@@ -43,69 +33,33 @@ func GetPath(cr *v1alpha1.Grafana) string {
 }
 
 func GetIngressLabels(cr *v1alpha1.Grafana) map[string]string {
-	if cr.Spec.Ingress == nil {
-		return nil
+
+	labels := map[string]string{
+		"app":       "grafana",
+		"component": "grafana",
 	}
-	return cr.Spec.Ingress.Labels
+	if cr.Spec.Ingress != nil && cr.Spec.Ingress.Labels != nil {
+		mergeMaps(labels, cr.Spec.Ingress.Labels)
+	}
+	return labels
 }
 
 func GetIngressAnnotations(cr *v1alpha1.Grafana) map[string]string {
-	if cr.Spec.Ingress == nil {
-		return nil
+	annotations := map[string]string{
+		"kubernetes.io/ingress.class":                    "ibm-icp-management",
+		"icp.management.ibm.com/authz-type":              "rbac",
+		"icp.management.ibm.com/secure-backends":         "true",
+		"icp.management.ibm.com/secure-client-ca-secret": "monitoring-client-certs",
+		"icp.management.ibm.com/rewrite-target":          "/",
 	}
-	return cr.Spec.Ingress.Annotations
-}
-
-func GetIngressTargetPort(cr *v1alpha1.Grafana) intstr.IntOrString {
-	defaultPort := intstr.FromInt(GetGrafanaPort(cr))
-
-	if cr.Spec.Ingress == nil {
-		return defaultPort
+	if cr.Spec.Ingress != nil && cr.Spec.Ingress.Annotations != nil {
+		mergeMaps(annotations, cr.Spec.Ingress.Annotations)
 	}
-
-	if cr.Spec.Ingress.TargetPort == "" {
-		return defaultPort
-	}
-
-	return intstr.FromString(cr.Spec.Ingress.TargetPort)
-}
-
-func GetGrafanaPort(cr *v1alpha1.Grafana) int {
-	if cr.Spec.Config.Server == nil {
-		return DefaultGrafanaPort
-	}
-
-	if cr.Spec.Config.Server.HTTPPort == "" {
-		return DefaultGrafanaPort
-	}
-
-	port, err := strconv.Atoi(cr.Spec.Config.Server.HTTPPort)
-	if err != nil {
-		return DefaultGrafanaPort
-	}
-
-	return port
-}
-
-func getIngressTLS(cr *v1alpha1.Grafana) []v1beta1.IngressTLS {
-	if cr.Spec.Ingress == nil {
-		return nil
-	}
-
-	if cr.Spec.Ingress.TLSEnabled {
-		return []v1beta1.IngressTLS{
-			{
-				Hosts:      []string{cr.Spec.Ingress.Hostname},
-				SecretName: cr.Spec.Ingress.TLSSecretName,
-			},
-		}
-	}
-	return nil
+	return annotations
 }
 
 func getIngressSpec(cr *v1alpha1.Grafana) v1beta1.IngressSpec {
 	return v1beta1.IngressSpec{
-		TLS: getIngressTLS(cr),
 		Rules: []v1beta1.IngressRule{
 			{
 				IngressRuleValue: v1beta1.IngressRuleValue{

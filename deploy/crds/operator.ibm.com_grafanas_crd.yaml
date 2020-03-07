@@ -1183,6 +1183,10 @@ spec:
                 url:
                   type: string
               type: object
+            imagePullSecrets:
+              items:
+                type: string
+              type: array
             ingress:
               description: GrafanaIngress set the config for ingress.
               properties:
@@ -1202,15 +1206,11 @@ spec:
                   type: string
                 targetPort:
                   type: string
-                termination:
-                  description: 'TLSTerminationType dictates where the secure communication
-                    will stop TODO: Reconsider this type in v2'
-                  type: string
-                tlsEnabled:
-                  type: boolean
-                tlsSecretName:
-                  type: string
               type: object
+            ipVersion:
+              type: string
+            isHub:
+              type: boolean
             metaData:
               description: MetaData set the metadata for the pod, servieaccount.
               properties:
@@ -1222,9 +1222,14 @@ spec:
                   additionalProperties:
                     type: string
                   type: object
-                replicas:
-                  format: int32
-                  type: integer
+              type: object
+            persistentVolume:
+              description: GrafanaPersistentVolume setup persistent volumes.
+              properties:
+                claimName:
+                  type: string
+                enabled:
+                  type: boolean
               type: object
             resources:
               properties:
@@ -1296,6 +1301,10 @@ spec:
                     - port
                     type: object
                   type: array
+                selector:
+                  additionalProperties:
+                    type: string
+                  type: object
                 type:
                   description: Service Type string describes ingress methods for a
                     service

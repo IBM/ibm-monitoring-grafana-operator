@@ -22,10 +22,11 @@ import (
 	"sort"
 	"strings"
 
-	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 )
 
 // grafanaConfig is a generaric type used to process grafana.ini and datasoure config.
@@ -40,9 +41,10 @@ func newGrafanaConfig(cfg *v1alpha1.GrafanaConfig) *grafanaConfig {
 	}
 }
 
-func (i *grafanaConfig) Write() (string, string) {
+func (i *grafanaConfig) Write() (string, string, error) {
 
-	//hartcode protocol and domain
+	// hartcode protocol and domain
+	// Do not support IPv6
 	protocol := "https"
 	domain := "127.0.0.1"
 	config := map[string][]string{}
@@ -62,7 +64,7 @@ func (i *grafanaConfig) Write() (string, string) {
 	}
 
 	config["paths"] = []string{
-		fmt.Sprintf("data = %v", "/etc/lib/grafana"),
+		fmt.Sprintf("data = %v", "/var/lib/grafana"),
 		fmt.Sprintf("logs = %v", "/var/log/grafana"),
 		fmt.Sprintf("plugins = %v", "/var/lib/grafana/plugins"),
 		fmt.Sprintf("provisioning = %v", "/etc/grafana/provisioning"),
@@ -159,19 +161,25 @@ func (i *grafanaConfig) Write() (string, string) {
 	hash := md5.New()
 	_, err := io.WriteString(hash, sb.String())
 	if err != nil {
-		log.Error(err, "Fail to write string to hash")
+		log.Error(err, "Fail to write string to hash.")
+		return "", "", err
 	}
-	return sb.String(), fmt.Sprintf("%x", hash.Sum(nil))
+	return sb.String(), fmt.Sprintf("%x", hash.Sum(nil)), nil
 }
 
+// GrafanaConfigIni build grafana config configmap
 func GrafanaConfigIni(cr *v1alpha1.Grafana) (*corev1.ConfigMap, error) {
 	ini := newGrafanaConfig(cr.Spec.Config)
-	config, hash := ini.Write()
+	config, hash, err := ini.Write()
+	if err != nil {
+		return nil, err
+	}
 
 	configMap := &corev1.ConfigMap{}
 	configMap.ObjectMeta = metav1.ObjectMeta{
 		Name:      GrafanaConfigName,
 		Namespace: cr.Namespace,
+		Labels:    map[string]string{"app": "grafana", "component": "grafana"},
 	}
 
 	// Store the hash of the current configuration for later
@@ -180,17 +188,20 @@ func GrafanaConfigIni(cr *v1alpha1.Grafana) (*corev1.ConfigMap, error) {
 		"lastConfig": hash,
 	}
 
-	configMap.Data = map[string]string{}
 	configMap.Data["grafana.ini"] = config
 	return configMap, nil
 }
 
+// ReconciledGrafanaConfigIni reconciles the grafana config configap
 func ReconciledGrafanaConfigIni(cr *v1alpha1.Grafana, current *corev1.ConfigMap) (*corev1.ConfigMap, error) {
 
 	reconciled := current.DeepCopy()
 
 	newConfig := newGrafanaConfig(cr.Spec.Config)
-	data, hash := newConfig.Write()
+	data, hash, err := newConfig.Write()
+	if err != nil {
+		return nil, err
+	}
 
 	if reconciled.Annotations["lastConfig"] != hash {
 		reconciled.Data["grafana.ini"] = data
@@ -200,6 +211,7 @@ func ReconciledGrafanaConfigIni(cr *v1alpha1.Grafana, current *corev1.ConfigMap)
 	return reconciled, nil
 }
 
+// GrafanaConfigSelector builds selector to retrieve this configmap
 func GrafanaConfigSelector(cr *v1alpha1.Grafana) client.ObjectKey {
 
 	return client.ObjectKey{

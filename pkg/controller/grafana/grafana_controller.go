@@ -18,9 +18,6 @@ package grafana
 import (
 	"context"
 
-	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
-	"github.com/IBM/ibm-grafana-operator/pkg/controller/config"
-	utils "github.com/IBM/ibm-grafana-operator/pkg/controller/model"
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -32,6 +29,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+
+	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
+	"github.com/IBM/ibm-grafana-operator/pkg/controller/config"
+	utils "github.com/IBM/ibm-grafana-operator/pkg/controller/model"
 )
 
 var log = logf.Log.WithName("controller_grafana")

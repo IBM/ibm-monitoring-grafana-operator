@@ -16,7 +16,6 @@
 package v1alpha1
 
 import (
-	routev1 "github.com/openshift/api/route/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -32,17 +31,21 @@ type GrafanaSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html
-	Config     *GrafanaConfig     `json:"config,omitempty"`
-	Datasource *GrafanaDatasource `json:"datasource,omitempty"`
-	Containers []corev1.Container `json:"containers,omitempty"`
-	Service    *GrafanaService    `json:"service,omitempty"`
-	MetaData   *MetaData          `json:"metaData,omitempty"`
-	ConfigMaps []string           `json:"configMaps,omitempty"`
-	Secrets    []string           `json:"secrets,omitempty"`
-	BaseImage  string             `json:"baseImage,omitempty"`
-	Tag        string             `json:"tag,omitempty"`
-	Ingress    *GrafanaIngress    `json:"ingress,omitempty"`
-	Resources  *GrafanaResources  `json:"resources,omitempty"`
+	Config           *GrafanaConfig           `json:"config,omitempty"`
+	Datasource       *GrafanaDatasource       `json:"datasource,omitempty"`
+	Containers       []corev1.Container       `json:"containers,omitempty"`
+	Service          *GrafanaService          `json:"service,omitempty"`
+	ServiceAccount   *GrafanaServiceAccount   `json:"metaData,omitempty"`
+	ConfigMaps       []string                 `json:"configMaps,omitempty"`
+	Secrets          []string                 `json:"secrets,omitempty"`
+	BaseImage        string                   `json:"baseImage,omitempty"`
+	Tag              string                   `json:"tag,omitempty"`
+	Ingress          *GrafanaIngress          `json:"ingress,omitempty"`
+	Resources        *GrafanaResources        `json:"resources,omitempty"`
+	PersistentVolume *GrafanaPersistentVolume `json:"persistentVolume,omitempty"`
+	IsHub            bool                     `json:"isHub,omitempty"`
+	IPVersion        string                   `json:"ipVersion,omitempty"`
+	ImagePullSecrets []string                 `json:"imagePullSecrets,omitempty"`
 }
 
 // GrafanaConfig provides basic config for grafana.ini file.
@@ -133,29 +136,52 @@ type TLSConfig struct {
 // GrafanaService provides a means to configure the service
 type GrafanaService struct {
 	Annotations map[string]string    `json:"annotations,omitempty"`
+	Selector    map[string]string    `json:"selector,omitempty"`
 	Labels      map[string]string    `json:"labels,omitempty"`
 	Type        corev1.ServiceType   `json:"type,omitempty"`
 	Ports       []corev1.ServicePort `json:"ports,omitempty"`
 }
 
 // MetaData set the metadata for the pod, servieaccount.
-type MetaData struct {
+type GrafanaServiceAccount struct {
 	Annotations map[string]string `json:"annotations,omitempty"`
 	Labels      map[string]string `json:"labels,omitempty"`
-	Replicas    int32             `json:"replicas,omitempty"`
 }
 
 // GrafanaIngress set the config for ingress.
 type GrafanaIngress struct {
-	Annotations   map[string]string          `json:"annotations,omitempty"`
-	Hostname      string                     `json:"hostname,omitempty"`
-	Labels        map[string]string          `json:"labels,omitempty"`
-	Path          string                     `json:"path,omitempty"`
-	Enabled       bool                       `json:"enabled,omitempty"`
-	TLSEnabled    bool                       `json:"tlsEnabled,omitempty"`
-	TLSSecretName string                     `json:"tlsSecretName,omitempty"`
-	TargetPort    string                     `json:"targetPort,omitempty"`
-	Termination   routev1.TLSTerminationType `json:"termination,omitempty"`
+	Annotations map[string]string `json:"annotations,omitempty"`
+	Hostname    string            `json:"hostname,omitempty"`
+	Labels      map[string]string `json:"labels,omitempty"`
+	Path        string            `json:"path,omitempty"`
+	Enabled     bool              `json:"enabled,omitempty"`
+	TargetPort  string            `json:"targetPort,omitempty"`
+}
+
+// GrafanaPersistentVolume setup persistent volumes.
+type GrafanaPersistentVolume struct {
+	Enabbled  bool   `json:"enabled,omitempty"`
+	ClaimName string `json:"claimName,omitempty"`
+}
+
+// DashboardConfig config the datasource
+type DashboardConfig struct {
+	APIversion int                 `json:"apiVerion,omitempty"`
+	Providers  []DashboardProvider `json:"providers,omitempty"`
+}
+
+// DashboardProvider provides datasource config info
+type DashboardProvider struct {
+	Name                  string            `json:"name,omitempty"`
+	OrgID                 int               `json:"orgId,omitempty"`
+	Folder                string            `json:"folder,omitempty"`
+	FolderUID             string            `json:"folderUid,omitempty"`
+	Type                  string            `json:"type,omitempty"`
+	DisableDeletion       bool              `json:"disableDeletion",omitempty`
+	Editable              bool              `json:"editable,omitempty"`
+	UpdateIntervalSeconds int               `json:"updateIntervalSeconds,omitempty"`
+	AllowIUpdates         bool              `json:"allowUiUpdates,omitempty"`
+	Options               map[string]string `json:"options,omitempty"`
 }
 
 // GrafanaStatus defines the observed state of Grafana

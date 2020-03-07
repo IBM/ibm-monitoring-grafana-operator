@@ -18,9 +18,10 @@ package model
 import (
 	"fmt"
 
-	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	conf "github.com/IBM/ibm-grafana-operator/pkg/controller/config"
 	corev1 "k8s.io/api/core/v1"
+
+	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 )
 
 func getVolumeMountsForRouter() []corev1.VolumeMount {
@@ -32,6 +33,11 @@ func getVolumeMountsForRouter() []corev1.VolumeMount {
 		corev1.VolumeMount{
 			Name:      "router-entry",
 			MountPath: "/opt/ibm/router/entry",
+		},
+		corev1.VolumeMount{
+			Name:      "grafana-storage",
+			MountPath: "/test",
+			ReadOnly:  true,
 		},
 		corev1.VolumeMount{
 			Name:      "monitoring-ca-certs",
@@ -55,18 +61,21 @@ func getVolumeMountsForRouter() []corev1.VolumeMount {
 
 // hardcode the setting
 func getGrafanaRouterSC() *corev1.SecurityContext {
-	sc := &corev1.SecurityContext{}
 
 	True := true
 	False := false
-	sc.Capabilities = &corev1.Capabilities{}
-	sc.Capabilities.Add = []corev1.Capability{"ALL"}
-	sc.Capabilities.Drop = []corev1.Capability{"CHOWN", "NET_ADMIN", "NET_RAW", "LEASE", "SETGID", "SETUID"}
-	sc.Privileged = &True
-	sc.AllowPrivilegeEscalation = &False
-	sc.ReadOnlyRootFilesystem = &True
+	return &corev1.SecurityContext{
+		Capabilities: &corev1.Capabilities{
+			Add: []corev1.Capability{"ALL"},
+			Drop: []corev1.Capability{"CHOWN", "NET_ADMIN",
+				"NET_RAW", "LEASE",
+				"SETGID", "SETUID"},
+		},
+		Privileged:               &True,
+		AllowPrivilegeEscalation: &False,
+		ReadOnlyRootFilesystem:   &True,
+	}
 
-	return sc
 }
 
 func getRouterProbe(delay, period int) *corev1.Probe {
@@ -81,45 +90,22 @@ func getRouterProbe(delay, period int) *corev1.Probe {
 	handler.Exec = &corev1.ExecAction{}
 	handler.Exec.Command = checkCMD
 	return &corev1.Probe{
-		Handler:             handler,
+		Handler: corev1.Handler{
+			Exec: &corev1.ExecAction{
+				Command: checkCMD,
+			},
+		},
 		InitialDelaySeconds: int32(delay),
-		TimeoutSeconds:      int32(period),
-	}
-}
-
-func setupEnv(username, password string) []corev1.EnvVar {
-	return []corev1.EnvVar{
-		{
-			Name: username,
-			ValueFrom: &corev1.EnvVarSource{
-				SecretKeyRef: &corev1.SecretKeySelector{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: GrafanaAdminSecretName,
-					},
-					Key: GrafanaAdminUserEnvVar,
-				},
-			},
-		},
-		{
-			Name: password,
-			ValueFrom: &corev1.EnvVarSource{
-				SecretKeyRef: &corev1.SecretKeySelector{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: GrafanaAdminSecretName,
-					},
-					Key: GrafanaAdminPasswordEnvVar,
-				},
-			},
-		},
+		PeriodSeconds:       int32(period),
 	}
 }
 
 func createRouterContainer(cr *v1alpha1.Grafana) corev1.Container {
 
 	return corev1.Container{
-		Name:  "router",
-		Image: fmt.Sprintf("%s:%s", RouterImage, RouterImageTag),
-		Args:  []string{},
+		Name:    "router",
+		Image:   fmt.Sprintf("%s:%s", RouterImage, RouterImageTag),
+		Command: []string{"/opt/ibm/router/entry/entrypoint.sh"},
 		Ports: []corev1.ContainerPort{
 			{
 				Name:          "router",
@@ -132,33 +118,9 @@ func createRouterContainer(cr *v1alpha1.Grafana) corev1.Container {
 		ReadinessProbe:           getRouterProbe(32, 10),
 		SecurityContext:          getGrafanaRouterSC(),
 		VolumeMounts:             getVolumeMountsForRouter(),
-		Env:                      setupEnv("GF_SECURITY_ADMIN_USER", "GF_SECURITY_ADMIN_PASSWORD"),
+		Env:                      setupAdminEnv("GF_SECURITY_ADMIN_USER", "GF_SECURITY_ADMIN_PASSWORD"),
 		TerminationMessagePath:   "/dev/termination-log",
 		TerminationMessagePolicy: "File",
 		ImagePullPolicy:          "IfNotPresent",
-	}
-}
-
-func createVolumeFromSource(name, tp string) corev1.Volume {
-
-	if tp == "confimap" {
-		return corev1.Volume{
-			Name: name,
-			VolumeSource: corev1.VolumeSource{
-				ConfigMap: &corev1.ConfigMapVolumeSource{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: name,
-					},
-				},
-			},
-		}
-	}
-	return corev1.Volume{
-		Name: name,
-		VolumeSource: corev1.VolumeSource{
-			Secret: &corev1.SecretVolumeSource{
-				SecretName: name,
-			},
-		},
 	}
 }
