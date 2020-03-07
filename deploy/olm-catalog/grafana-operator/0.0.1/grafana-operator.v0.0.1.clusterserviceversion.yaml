@@ -82,7 +82,7 @@ metadata:
         }
       ]
     capabilities: Basic Install
-  name: ibm-grafana-operator.v0.0.1
+  name: grafana-operator.v0.0.1
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -92,8 +92,8 @@ spec:
       kind: Grafana
       name: grafanas.operator.ibm.com
       version: v1alpha1
-  description: Grafana Operator for IBM common service monitoring stack
-  displayName: Ibm Grafana Operator
+  description: Placeholder description
+  displayName: Grafana Operator
   install:
     spec:
       deployments:
@@ -217,5 +217,5 @@ spec:
     type: AllNamespaces
   maturity: alpha
   provider: {}
-  replaces: ibm-grafana-operator.v0.0.0
+  replaces: grafana-operator.v0.0.0
   version: 0.0.1

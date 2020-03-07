@@ -1,6 +1,6 @@
 FROM alpine as builder
 
-RUN wget -O /qemu-ppc64le-static https://github.com/multiarch/qemu-user-static/releases/latest/download/qemu-s390-static
+RUN wget -O /qemu-ppc64le-static https://github.com/multiarch/qemu-user-static/releases/latest/download/qemu-s390x-static
 
 ARG IMAGE_NAME
 ARG IMAGE_DISPLAY_NAME

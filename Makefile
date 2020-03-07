@@ -226,6 +226,8 @@ code-tidy: ## Run go mod tidy to update dependencies
 code-gen: ## Run the operator-sdk commands to generated code (k8s and openapi and csv)
 	@echo Updating the deep copy files with the changes in the API
 	operator-sdk generate k8s
+	@echo Updating the CRDs
+	operator-sdk generate crds
 	@echo Updating the CRD files with the OpenAPI validations
 	operator-sdk generate openapi
 	@echo Updating the CSV files with the changes in the CRD
