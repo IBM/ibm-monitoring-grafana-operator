@@ -48,8 +48,9 @@ func setupDashboardEnv(cr *v1alpha1.Grafana) []corev1.EnvVar {
 
 	var isHub bool
 	var loopback string
+	var version string
 
-	port := GetGrafanaPort(cr)
+	clusterPort := "8443"
 	envs := []corev1.EnvVar{}
 	envs = append(envs, setupAdminEnv("USER", "PASSWORD")...)
 	if cr.Spec.IsHub {
@@ -58,9 +59,16 @@ func setupDashboardEnv(cr *v1alpha1.Grafana) []corev1.EnvVar {
 	isHub = false
 
 	if cr.Spec.IPVersion != "" {
-		loopback = cr.Spec.IPVersion
+		version = cr.Spec.IPVersion
+	} else {
+		version = "IPv4"
 	}
-	loopback = "127.0.0.1"
+
+	if version == "IPv6" {
+		loopback = "[::1]"
+	} else {
+		loopback = "127.0.0.1"
+	}
 
 	envs = append(envs, corev1.EnvVar{
 		Name:  "PROMETHEUS_HOST",
@@ -70,7 +78,7 @@ func setupDashboardEnv(cr *v1alpha1.Grafana) []corev1.EnvVar {
 		Value: string(PrometheusPort),
 	}, corev1.EnvVar{
 		Name:  "PORT",
-		Value: string(port),
+		Value: clusterPort,
 	}, corev1.EnvVar{
 		Name:  "IS_HUB_CLUSTER",
 		Value: strconv.FormatBool(isHub),

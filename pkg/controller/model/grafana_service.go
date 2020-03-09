@@ -21,7 +21,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
+	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 )
 
 func getServiceLabels(cr *v1alpha1.Grafana) map[string]string {
@@ -29,9 +29,11 @@ func getServiceLabels(cr *v1alpha1.Grafana) map[string]string {
 		"app":       "grafana",
 		"component": "grafana",
 	}
+
 	if cr.Spec.Service != nil && cr.Spec.Service.Labels != nil {
 		mergeMaps(labels, cr.Spec.Service.Labels)
 	}
+
 	return labels
 }
 
@@ -39,6 +41,7 @@ func getServiceAnnotations(cr *v1alpha1.Grafana) map[string]string {
 	if cr.Spec.Service == nil {
 		return nil
 	}
+
 	return cr.Spec.Service.Annotations
 }
 
@@ -53,7 +56,7 @@ func getServiceType(cr *v1alpha1.Grafana) corev1.ServiceType {
 }
 
 func getServicePorts(cr *v1alpha1.Grafana, currentState *corev1.Service) []corev1.ServicePort {
-	intPort := int32(GetGrafanaPort(cr))
+	intPort := int32(DefaultGrafanaPort)
 
 	defaultPorts := []corev1.ServicePort{
 		{

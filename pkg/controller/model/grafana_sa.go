@@ -20,7 +20,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	v1alpha1 "github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
+	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 )
 
 func getServiceAccountLabels(cr *v1alpha1.Grafana) map[string]string {
@@ -28,21 +28,16 @@ func getServiceAccountLabels(cr *v1alpha1.Grafana) map[string]string {
 		"app":       "grafana",
 		"component": "grafana",
 	}
-	if cr.Spec.ServiceAccount != nil && cr.Spec.ServiceAccount.Labels != nil {
-		if cr.Spec.ServiceAccount.Labels != nil {
-			mergeMaps(labels, cr.Spec.ServiceAccount.Labels)
-		}
+	if cr.Spec.Service != nil && cr.Spec.Service.Labels != nil {
+		mergeMaps(labels, cr.Spec.Service.Labels)
 	}
 	return labels
 }
 
-func getServiceAccountAnnotations(cr *v1alpha1.Grafana) map[string]string {
+func getServiceAccountAnnotations() map[string]string {
 	annotations := map[string]string{
 		"app":       "grafana",
 		"component": "grafana",
-	}
-	if cr.Spec.ServiceAccount != nil && cr.Spec.ServiceAccount.Annotations != nil {
-		mergeMaps(annotations, cr.Spec.ServiceAccount.Annotations)
 	}
 	return annotations
 }
@@ -53,7 +48,7 @@ func GrafanaServiceAccount(cr *v1alpha1.Grafana) *corev1.ServiceAccount {
 			Name:        GrafanaServiceAccountName,
 			Namespace:   cr.Namespace,
 			Labels:      getServiceAccountLabels(cr),
-			Annotations: getServiceAccountAnnotations(cr),
+			Annotations: getServiceAccountAnnotations(),
 		},
 	}
 }
@@ -63,11 +58,4 @@ func GrafanaServiceAccountSelector(cr *v1alpha1.Grafana) client.ObjectKey {
 		Namespace: cr.Namespace,
 		Name:      GrafanaServiceAccountName,
 	}
-}
-
-func ReconciledGrafanaServiceAccount(cr *v1alpha1.Grafana, currentState *corev1.ServiceAccount) *corev1.ServiceAccount {
-	reconciled := currentState.DeepCopy()
-	reconciled.Labels = getServiceAccountLabels(cr)
-	reconciled.Annotations = getServiceAccountAnnotations(cr)
-	return reconciled
 }

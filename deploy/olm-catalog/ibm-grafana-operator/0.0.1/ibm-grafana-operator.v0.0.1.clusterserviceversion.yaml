@@ -125,7 +125,7 @@ spec:
                 - name: OPERATOR_NAME
                   value: ibm-grafana-operator
                 image: quay.io/dongwangdw/grafana-operator:v0.1
-                imagePullPolicy: IfNotPresent
+                imagePullPolicy: Always
                 name: ibm-grafana-operator
                 resources: {}
               serviceAccountName: ibm-grafana-operator

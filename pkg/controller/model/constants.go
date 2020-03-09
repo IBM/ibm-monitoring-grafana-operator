@@ -18,7 +18,7 @@ package model
 import "time"
 
 const (
-	GrafanaConfigName          = "config-volume"
+	GrafanaConfigName          = "grafana-config"
 	GrafanaLogVolumes          = "grafana-log"
 	GrafanaDataVolumes         = "grafana-storage"
 	GrafanaDatasourceName      = "datasource-config"

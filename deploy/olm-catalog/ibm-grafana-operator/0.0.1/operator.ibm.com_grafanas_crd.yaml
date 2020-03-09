@@ -33,87 +33,15 @@ spec:
           properties:
             baseImage:
               type: string
-            config:
-              description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-                Important: Run "operator-sdk generate k8s" to regenerate code after
-                modifying this file Add custom validation using kubebuilder tags:
-                https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html'
-              properties:
-                auth:
-                  properties:
-                    disable_login_form:
-                      type: boolean
-                    disable_singout_menu:
-                      type: boolean
-                  type: object
-                auth.proxy:
-                  properties:
-                    auto_sign_up:
-                      type: boolean
-                    enabled:
-                      type: boolean
-                    header_name:
-                      type: string
-                    header_property:
-                      type: string
-                  type: object
-                log:
-                  properties:
-                    filters:
-                      type: string
-                    level:
-                      type: string
-                    mode:
-                      type: string
-                  type: object
-                paths:
-                  properties:
-                    data:
-                      type: string
-                    log:
-                      type: string
-                    plugin:
-                      type: string
-                  type: object
-                security:
-                  properties:
-                    admin_password:
-                      type: string
-                    admin_user:
-                      type: string
-                    disabble_initial_admin_creation:
-                      type: boolean
-                  required:
-                  - admin_password
-                  - admin_user
-                  type: object
-                server:
-                  properties:
-                    cert_file:
-                      type: string
-                    domain:
-                      type: string
-                    http_port:
-                      type: string
-                    key_file:
-                      type: string
-                    protocol:
-                      type: string
-                    root_url:
-                      type: string
-                  type: object
-                users:
-                  description: grafanfaConfigUser sets basic them for grafan UI
-                  properties:
-                    default_theme:
-                      type: string
-                  type: object
-              type: object
             configMaps:
               items:
                 type: string
               type: array
             containers:
+              description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+                Important: Run "operator-sdk generate k8s" to regenerate code after
+                modifying this file Add custom validation using kubebuilder tags:
+                https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html'
               items:
                 description: A single application container that you want to run within
                   a pod.
@@ -1147,82 +1075,16 @@ spec:
                 - name
                 type: object
               type: array
-            datasource:
-              description: GrafanaDatasource provides config for datasource.
-              properties:
-                access:
-                  type: string
-                editable:
-                  type: boolean
-                isDefault:
-                  type: boolean
-                jsonData:
-                  properties:
-                    keepCookies:
-                      items:
-                        type: string
-                      type: array
-                    tlsAuth:
-                      type: boolean
-                    tlsAuthWithCACert:
-                      type: boolean
-                  type: object
-                name:
-                  type: string
-                secureJsonData:
-                  properties:
-                    tlsCACert:
-                      type: string
-                    tlsClientCert:
-                      type: string
-                    tlsClientKey:
-                      type: string
-                  type: object
-                type:
-                  type: string
-                url:
-                  type: string
-              type: object
             imagePullSecrets:
               items:
                 type: string
               type: array
-            ingress:
-              description: GrafanaIngress set the config for ingress.
-              properties:
-                annotations:
-                  additionalProperties:
-                    type: string
-                  type: object
-                enabled:
-                  type: boolean
-                hostname:
-                  type: string
-                labels:
-                  additionalProperties:
-                    type: string
-                  type: object
-                path:
-                  type: string
-                targetPort:
-                  type: string
-              type: object
             ipVersion:
               type: string
             isHub:
               type: boolean
             metaData:
-              description: MetaData set the metadata for the pod, servieaccount.
-              properties:
-                annotations:
-                  additionalProperties:
-                    type: string
-                  type: object
-                labels:
-                  additionalProperties:
-                    type: string
-                  type: object
-              type: object
+              type: string
             persistentVolume:
               description: GrafanaPersistentVolume setup persistent volumes.
               properties:

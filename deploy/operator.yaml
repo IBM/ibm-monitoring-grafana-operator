@@ -19,7 +19,7 @@ spec:
           image: quay.io/dongwangdw/grafana-operator:v0.1
           command:
           - ibm-grafana-operator
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           env:
             - name: WATCH_NAMESPACE
               valueFrom:

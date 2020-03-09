@@ -22,7 +22,6 @@ import (
 	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
-	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 var memoryRequest int = 256
@@ -30,43 +29,10 @@ var cpuRequest int = 200
 var memoryLimit int = 512
 var cpuLimit int = 500
 
-// mergeMaps merges two string maps, both of them non-nil
 func mergeMaps(to, from map[string]string) {
-	for k, v := range from {
-		to[k] = v
+	for key, val := range from {
+		to[key] = val
 	}
-}
-
-func GetGrafanaPort(cr *v1alpha1.Grafana) int {
-	if cr.Spec.Config.Server == nil {
-		return DefaultGrafanaPort
-	}
-
-	if cr.Spec.Config.Server.HTTPPort == "" {
-		return DefaultGrafanaPort
-	}
-
-	port, err := strconv.Atoi(cr.Spec.Config.Server.HTTPPort)
-	if err != nil {
-		log.Error(err, "Fail to get grafana ingress port.")
-		return DefaultGrafanaPort
-	}
-
-	return port
-}
-
-func GetIngressTargetPort(cr *v1alpha1.Grafana) intstr.IntOrString {
-	defaultPort := intstr.FromInt(GetGrafanaPort(cr))
-
-	if cr.Spec.Ingress == nil {
-		return defaultPort
-	}
-
-	if cr.Spec.Ingress.TargetPort == "" {
-		return defaultPort
-	}
-
-	return intstr.FromString(cr.Spec.Ingress.TargetPort)
 }
 
 func getContainerResource(cr *v1alpha1.Grafana, name string) corev1.ResourceRequirements {
@@ -109,6 +75,19 @@ func getResource(times int) corev1.ResourceRequirements {
 
 func createVolumeFromSource(name, tp string) corev1.Volume {
 
+	var stringMode string
+
+	stringMode = "0664"
+	if name == "grafana-crd-entry" {
+		stringMode = "0777"
+	}
+	if name == "grafana-ds-entry-config" || name == "router-entry" {
+		stringMode = "0774"
+	}
+
+	mode, _ := strconv.ParseInt(stringMode, 8, 32)
+	defaultMode := int32(mode)
+
 	if tp == "confimap" {
 		return corev1.Volume{
 			Name: name,
@@ -117,10 +96,12 @@ func createVolumeFromSource(name, tp string) corev1.Volume {
 					LocalObjectReference: corev1.LocalObjectReference{
 						Name: name,
 					},
+					DefaultMode: &defaultMode,
 				},
 			},
 		}
 	}
+
 	return corev1.Volume{
 		Name: name,
 		VolumeSource: corev1.VolumeSource{

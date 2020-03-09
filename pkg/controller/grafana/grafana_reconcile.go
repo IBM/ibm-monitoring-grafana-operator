@@ -18,7 +18,7 @@ package grafana
 import (
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	v1beta1 "k8s.io/api/extensions/v1beta1"
+	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
@@ -29,36 +29,13 @@ import (
 
 func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
-	err := reconcileGrafanaServiceAccount(r, cr)
-	if err != nil {
-		log.Error(err, "Fail to recocile grafana serviec account.")
-		return err
-	}
-
-	err = reconcileGrafanaIngress(r, cr)
-	if err != nil {
-		log.Error(err, "Fail to reconcile grafana route.")
-		return err
-	}
-
-	err = reconcileGrafanaConfig(r, cr)
-	if err != nil {
-		log.Error(err, "Fail to reconcile grafana initial config.")
-		log.Error(err, "Grafana will stop work.")
-	}
-
-	err = reconcileGrafanaDatasource(r, cr)
-	if err != nil {
-		log.Error(err, "Fail to reconcile grafana datasource.")
-	}
-
-	err = reconcileGrafanaDeployment(r, cr)
+	err := reconcileGrafanaDeployment(r, cr)
 	if err != nil {
 		log.Error(err, "Fail to reconcile grafana deployment.")
 		return err
 	}
 
-	err = reconciledAllConfigMaps(r, cr)
+	err = reconcileAllConfigMaps(r, cr)
 	if err != nil {
 		log.Error(err, "Fail to reconcile all the confimags.")
 		return err
@@ -70,55 +47,21 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 		return err
 	}
 
-	err = reconciledGrafanaSecret(r, cr)
+	err = reconcileGrafanaServiceAccount(r, cr)
 	if err != nil {
-		log.Error(err, "Fail to reconcile grafana admin sercret.")
+		log.Error(err, "Fail to reconcile grafana service account.")
 		return err
+	}
+
+	err = reconcileGrafanaIngress(r, cr)
+	if err != nil {
+		log.Error(err, "Fail to reconcile grafana ingress.")
 	}
 
 	return nil
 }
 
-func createGrafanaSecret(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	secret := utils.CreateGrafanaSecret(cr)
-	err := controllerutil.SetControllerReference(cr, secret, r.scheme)
-	if err != nil {
-		return err
-	}
-	err = r.client.Create(r.ctx, secret)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func reconciledGrafanaSecret(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	selector := utils.GrafanaSecretSelector(cr)
-	secret := &corev1.Secret{}
-	err := r.client.Get(r.ctx, selector, secret)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			err = createGrafanaSecret(r, cr)
-			if err != nil {
-				return err
-			}
-		} else {
-			log.Error(err, "Fail to recocile grafana secret.")
-		}
-	}
-	toUpdate, err := utils.ReconciledGrafanaSecret(cr, secret)
-	if err != nil {
-		return err
-	}
-	err = r.client.Update(r.ctx, toUpdate)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func reconciledAllConfigMaps(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
+func reconcileAllConfigMaps(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	configmaps := utils.ReconcileConfigMaps(cr)
 
 	create := func(configmaps []corev1.ConfigMap, r *ReconcileGrafana) error {
@@ -157,30 +100,50 @@ func reconciledAllConfigMaps(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	return nil
 }
 
-func reconcileGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
+func reconcileGrafanaSecret(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
-	configHash, dsHash, err := getHashes(cr)
+	selector := utils.GrafanaSecretSelector(cr)
+	secret := utils.CreateGrafanaSecret(cr)
+	err := controllerutil.SetControllerReference(cr, secret, r.scheme)
 	if err != nil {
 		return err
 	}
-
-	selector := utils.GrafanaDeploymentSelector(cr)
-	deployment := &appv1.Deployment{}
-	err = r.client.Get(r.ctx, selector, deployment)
+	err = r.client.Get(r.ctx, selector, secret)
 	if err != nil {
 		if errors.IsNotFound(err) {
-			err = createGrafanaDeployment(r, cr, configHash, dsHash)
+			err = r.client.Create(r.ctx, secret)
 			if err != nil {
-				log.Error(err, "Fail to create grafana deployment.")
 				return err
 			}
 			return nil
 		}
+		return err
+	}
+	err = r.client.Update(r.ctx, secret)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func reconcileGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
+
+	selector := utils.GrafanaDeploymentSelector(cr)
+	deployment := &appv1.Deployment{}
+	err := r.client.Get(r.ctx, selector, deployment)
+	if err != nil && errors.IsNotFound(err) {
+		err = createGrafanaDeployment(r, cr)
+		if err != nil {
+			log.Error(err, "Fail to create grafana deployment.")
+			return err
+		}
+		return nil
+	} else {
 		log.Error(err, "Fail to get grafana deployment.")
 		return err
 	}
 
-	toUpdate := utils.ReconciledGrafanaDeployment(cr, deployment, configHash, dsHash)
+	toUpdate := utils.ReconciledGrafanaDeployment(cr, deployment)
 	err = r.client.Update(r.ctx, toUpdate)
 	if err != nil {
 		log.Error(err, "Fail to update grafana deployment.")
@@ -190,9 +153,9 @@ func reconcileGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) error
 	return nil
 }
 
-func createGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana, configHash, dsHash string) error {
+func createGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
-	dep := utils.GrafanaDeployment(cr, configHash, dsHash)
+	dep := utils.GrafanaDeployment(cr)
 	err := controllerutil.SetControllerReference(cr, dep, r.scheme)
 	if err != nil {
 		return err
@@ -204,24 +167,6 @@ func createGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana, configHa
 	}
 
 	return nil
-}
-
-func getHashes(cr *v1alpha1.Grafana) (string, string, error) {
-
-	var grafanaConfig, datasourceConfig *corev1.ConfigMap
-	var err error
-	grafanaConfig, err = utils.GrafanaConfigIni(cr)
-	if err != nil {
-		return "", "", err
-	}
-	configHash := grafanaConfig.Annotations["lastConfig"]
-
-	datasourceConfig, err = utils.GrafanaDatasourceConfig(cr)
-	if err != nil {
-		return "", "", err
-	}
-	dsHash := datasourceConfig.Annotations["lastConfig"]
-	return configHash, dsHash, nil
 }
 
 func reconcileGrafanaService(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
@@ -266,14 +211,18 @@ func createGrafanaService(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 }
 
 func reconcileGrafanaServiceAccount(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
+	sa := utils.GrafanaServiceAccount(cr)
+	err := controllerutil.SetControllerReference(cr, sa, r.scheme)
+	if err != nil {
+		return err
+	}
 
-	sa := &corev1.ServiceAccount{}
 	selector := utils.GrafanaServiceAccountSelector(cr)
-	err := r.client.Get(r.ctx, selector, sa)
 
+	err = r.client.Get(r.ctx, selector, sa)
 	if err != nil {
 		if errors.IsNotFound(err) {
-			err = createGrafanaServiceAccount(r, cr)
+			err = r.client.Create(r.ctx, sa)
 			if err != nil {
 				return err
 			}
@@ -281,30 +230,10 @@ func reconcileGrafanaServiceAccount(r *ReconcileGrafana, cr *v1alpha1.Grafana) e
 		}
 		return err
 	}
-
-	toUpdate := utils.ReconciledGrafanaServiceAccount(cr, sa)
-	err = r.client.Update(r.ctx, toUpdate)
+	err = r.client.Update(r.ctx, sa)
 	if err != nil {
 		return err
 	}
-
-	return nil
-
-}
-
-func createGrafanaServiceAccount(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-
-	sa := utils.GrafanaServiceAccount(cr)
-	err := controllerutil.SetControllerReference(cr, sa, r.scheme)
-	if err != nil {
-		return err
-	}
-
-	err = r.client.Create(r.ctx, sa)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -342,89 +271,6 @@ func createGrafanaIngress(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	err = r.client.Create(r.ctx, route)
 	if err != nil {
 		return err
-	}
-	return nil
-}
-
-func createGrafanaConfig(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	config, err := utils.GrafanaConfigIni(cr)
-	if err != nil {
-		log.Error(err, "Fail to get grafana config file.")
-		return err
-	}
-	err = controllerutil.SetControllerReference(cr, config, r.scheme)
-	if err != nil {
-		return err
-	}
-
-	err = r.client.Create(r.ctx, config)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func reconcileGrafanaConfig(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	selector := utils.GrafanaConfigSelector(cr)
-	config := &corev1.ConfigMap{}
-	err := r.client.Get(r.ctx, selector, config)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			err = createGrafanaConfig(r, cr)
-			if err != nil {
-				return err
-			}
-			return nil
-		}
-		return err
-	}
-
-	toUpdate, _ := utils.ReconciledGrafanaConfigIni(cr, config)
-	err = r.client.Update(r.ctx, toUpdate)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func createGrafanaDatasource(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	datasource, err := utils.GrafanaDatasourceConfig(cr)
-	if err != nil {
-		return err
-	}
-	err = controllerutil.SetControllerReference(cr, datasource, r.scheme)
-	if err != nil {
-		return err
-	}
-	err = r.client.Create(r.ctx, datasource)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func reconcileGrafanaDatasource(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	selector := utils.GrafanaDatasourceSelector(cr)
-	datasource := &corev1.ConfigMap{}
-	err := r.client.Get(r.ctx, selector, datasource)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			err = createGrafanaDatasource(r, cr)
-			if err != nil {
-				return err
-			}
-			return nil
-		}
-		return err
-	}
-	toUpdate, err := utils.ReconciledGrafanaDatasource(cr, datasource)
-	if err != nil {
-		return err
-	}
-
-	err = r.client.Update(r.ctx, toUpdate)
-	if err != nil {
-		return nil
 	}
 	return nil
 }

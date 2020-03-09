@@ -43,6 +43,10 @@ var RouterEntry *template.Template
 // UtilLuaScript export util lua script for grafana
 var UtilLuaScript *template.Template
 
+var Entrypoint *template.Template
+
+var GrafanaConfig *template.Template
+
 func init() {
 
 	HelmReleaseDashboard = template.Must(template.New("HRD").Parse(helmReleaseDashboard))
@@ -53,5 +57,6 @@ func init() {
 	RouterEntry = template.Must(template.New("REN").Parse(routerEntry))
 	UtilLuaScript = template.Must(template.New("US").Parse(utilLuaScript))
 	GrafanaLuaScript = template.Must(template.New("GLS").Parse(grafanaLuaScript))
-
+	Entrypoint = template.Must(template.New("ENT").Parse(entrypoint))
+	GrafanaConfig = template.Must(template.New("CONFIG").Parse(grafanaConfig))
 }

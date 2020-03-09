@@ -52,6 +52,13 @@ func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 		},
 	})
 
+	volumes = append(volumes, corev1.Volume{
+		Name: GrafanaDatasourceName,
+		VolumeSource: corev1.VolumeSource{
+			EmptyDir: &corev1.EmptyDirVolumeSource{},
+		},
+	})
+
 	// Data volume
 	volumes = append(volumes, corev1.Volume{
 		Name: GrafanaDataVolumes,
@@ -86,14 +93,19 @@ func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 	})
 
 	volumes = append(volumes, createVolumeFromSource(GrafanaConfigName, "configmap"))
+	volumes = append(volumes, createVolumeFromSource("grafana-ds-entry-config", "configmap"))
+
 	volumes = append(volumes, createVolumeFromSource("grafana-dashboard-config", "configmap"))
-	volumes = append(volumes, createVolumeFromSource(GrafanaDatasourceName, "configmap"))
+
 	volumes = append(volumes, createVolumeFromSource("grafana-default-dashboards", "configmap"))
 	volumes = append(volumes, createVolumeFromSource("grafana-crd-entry", "configmap"))
+
 	volumes = append(volumes, createVolumeFromSource("router-config", "configmap"))
 	volumes = append(volumes, createVolumeFromSource("router-entry", "configmap"))
+
 	volumes = append(volumes, createVolumeFromSource("grafana-lua-script-config", "configmap"))
 	volumes = append(volumes, createVolumeFromSource("util-lua-script-config", "configmap"))
+
 	volumes = append(volumes, createVolumeFromSource("monitoring-ca-certs", "sercret"))
 	volumes = append(volumes, createVolumeFromSource("monitoirng-certs", "secret"))
 	volumes = append(volumes, createVolumeFromSource("monitoring-client-certs", "secret"))
@@ -131,11 +143,6 @@ func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 
 func getVolumeMounts(cr *v1alpha1.Grafana) []corev1.VolumeMount {
 	var mounts []corev1.VolumeMount
-
-	mounts = append(mounts, corev1.VolumeMount{
-		Name:      GrafanaConfigName,
-		MountPath: "/etc/grafana/",
-	})
 
 	mounts = append(mounts, corev1.VolumeMount{
 		Name:      GrafanaConfigName,
@@ -195,7 +202,7 @@ func getVolumeMounts(cr *v1alpha1.Grafana) []corev1.VolumeMount {
 
 func getProbe(cr *v1alpha1.Grafana, exec []string, delay, timeout, failure int32) *corev1.Probe {
 
-	port := GetGrafanaPort(cr)
+	var port int = 8443
 	return &corev1.Probe{
 		Handler: corev1.Handler{
 			HTTPGet: &corev1.HTTPGetAction{
@@ -212,7 +219,7 @@ func getProbe(cr *v1alpha1.Grafana, exec []string, delay, timeout, failure int32
 	}
 }
 
-func getContainers(cr *v1alpha1.Grafana, configHash, dsHash string) []corev1.Container {
+func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 
 	var image, tag string
 	containers := []corev1.Container{}
@@ -228,28 +235,16 @@ func getContainers(cr *v1alpha1.Grafana, configHash, dsHash string) []corev1.Con
 		tag = DefaultGrafanaImageTag
 	}
 
-	env := []corev1.EnvVar{
-		corev1.EnvVar{
-			Name:  "CONFIG_HASH",
-			Value: configHash,
-		},
-		corev1.EnvVar{
-			Name:  "DS_HASH",
-			Value: dsHash,
-		},
-	}
-
 	containers = append(containers, corev1.Container{
 		Name:  "grafana",
 		Image: fmt.Sprintf("%s:%s", image, tag),
 		Ports: []corev1.ContainerPort{
 			{
-				Name:          "grafana-https",
-				ContainerPort: int32(GetGrafanaPort(cr)),
+				Name:          "web",
+				ContainerPort: int32(DefaultGrafanaPort),
 				Protocol:      "TCP",
 			},
 		},
-		Env:                      env,
 		SecurityContext:          getGrafanaSC(),
 		Resources:                getContainerResource(cr, "Grafana"),
 		VolumeMounts:             getVolumeMounts(cr),
@@ -322,8 +317,7 @@ func getPodAnnotations(cr *v1alpha1.Grafana) map[string]string {
 
 	annotations := map[string]string{
 		"scheduler.alpha.kubernetes.io/critical-pod": "",
-		"productID":                          "TBD",
-		"clusterhealth.ibm.com/dependencies": "ibm-common-services.grafana",
+		"clusterhealth.ibm.com/dependencies":         "ibm-common-services.grafana",
 	}
 	if cr.Spec.Service != nil && cr.Spec.Service.Annotations != nil {
 		mergeMaps(annotations, cr.Spec.Service.Annotations)
@@ -374,7 +368,11 @@ func getInitContainers() []corev1.Container {
 			MountPath: "/var/lib/grafana",
 		},
 		corev1.VolumeMount{
-			Name:      "datasource-config",
+			Name:      "grafana-ds-entry-config",
+			MountPath: "/opt/entry",
+		},
+		corev1.VolumeMount{
+			Name:      "grafana-ds-config",
 			MountPath: "/etc/grafana/provisioning/datasources",
 		},
 		corev1.VolumeMount{
@@ -390,7 +388,7 @@ func getInitContainers() []corev1.Container {
 	SC := corev1.SecurityContext{
 		Capabilities: &corev1.Capabilities{
 			Drop: []corev1.Capability{
-				"all",
+				"ALL",
 			},
 		},
 		AllowPrivilegeEscalation: &False,
@@ -412,7 +410,7 @@ func getInitContainers() []corev1.Container {
 	}
 }
 
-func getDeploymentSpec(cr *v1alpha1.Grafana, configHash, dsHash string) appv1.DeploymentSpec {
+func getDeploymentSpec(cr *v1alpha1.Grafana) appv1.DeploymentSpec {
 
 	selectors := metav1.LabelSelector{
 		MatchLabels: map[string]string{
@@ -420,6 +418,14 @@ func getDeploymentSpec(cr *v1alpha1.Grafana, configHash, dsHash string) appv1.De
 			"component": "grafana",
 		},
 	}
+
+	var serviceAccount string
+	if cr.Spec.ServiceAccount != "" {
+		serviceAccount = cr.Spec.ServiceAccount
+	} else {
+		serviceAccount = GrafanaServiceAccountName
+	}
+
 	// Do not support multiple instance now for 1st release.
 	var replicas int32 = 1
 	return appv1.DeploymentSpec{
@@ -439,20 +445,20 @@ func getDeploymentSpec(cr *v1alpha1.Grafana, configHash, dsHash string) appv1.De
 				HostIPC:            false,
 				HostNetwork:        false,
 				Volumes:            getVolumes(cr),
-				Containers:         getContainers(cr, configHash, dsHash),
-				ServiceAccountName: GrafanaServiceAccountName,
+				Containers:         getContainers(cr),
+				ServiceAccountName: serviceAccount,
 			},
 		},
 	}
 }
 
-func GrafanaDeployment(cr *v1alpha1.Grafana, configHash, dsHash string) *appv1.Deployment {
+func GrafanaDeployment(cr *v1alpha1.Grafana) *appv1.Deployment {
 	return &appv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      GrafanaDeploymentName,
 			Namespace: cr.Namespace,
 		},
-		Spec: getDeploymentSpec(cr, configHash, dsHash),
+		Spec: getDeploymentSpec(cr),
 	}
 }
 
@@ -464,13 +470,9 @@ func GrafanaDeploymentSelector(cr *v1alpha1.Grafana) client.ObjectKey {
 	}
 }
 
-func ReconciledGrafanaDeployment(
-	cr *v1alpha1.Grafana,
-	current *appv1.Deployment,
-	configHash, dsHash string,
-) *appv1.Deployment {
+func ReconciledGrafanaDeployment(cr *v1alpha1.Grafana, current *appv1.Deployment) *appv1.Deployment {
 	reconciled := current.DeepCopy()
-	spec := getDeploymentSpec(cr, configHash, dsHash)
+	spec := getDeploymentSpec(cr)
 	reconciled.Spec = spec
 
 	return reconciled
