@@ -22,15 +22,13 @@ grafana.ini: |-
     logs = /var/log/grafana
     plugins = /var/lib/grafana/plugins
 
-    {{- if .Values.tls.enabled }}
     [server]
     protocol = https
-    domain = {{ .Values.clusterAddress }}
-    http_port = {{ .Values.clusterPort }}
+    domain = 127.0.0.1
+    http_port = {{ .ClusterPort }}
     root_url = %(protocol)s://%(domain)s:%(http_port)s/grafana
-    cert_file = /opt/ibm/monitoring/certs/{{ .Values.tls.server.certFieldName }}
-    cert_key = /opt/ibm/monitoring/certs/{{ .Values.tls.server.keyFieldName }}
-    {{- end }}
+    cert_file = /opt/ibm/monitoring/certs/tls.cert
+    cert_key = /opt/ibm/monitoring/certs/tls.key
 
     [users]
     default_theme = light

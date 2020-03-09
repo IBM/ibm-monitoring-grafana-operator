@@ -29,13 +29,7 @@ import (
 
 func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
-	err := reconcileGrafanaDeployment(r, cr)
-	if err != nil {
-		log.Error(err, "Fail to reconcile grafana deployment.")
-		return err
-	}
-
-	err = reconcileAllConfigMaps(r, cr)
+	err := reconcileAllConfigMaps(r, cr)
 	if err != nil {
 		log.Error(err, "Fail to reconcile all the confimags.")
 		return err
@@ -56,6 +50,12 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	err = reconcileGrafanaIngress(r, cr)
 	if err != nil {
 		log.Error(err, "Fail to reconcile grafana ingress.")
+	}
+
+	err = reconcileGrafanaDeployment(r, cr)
+	if err != nil {
+		log.Error(err, "Fail to reconcile grafana deployment.")
+		return err
 	}
 
 	return nil

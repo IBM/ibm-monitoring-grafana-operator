@@ -40,11 +40,11 @@ func getVolumeMountsForRouter() []corev1.VolumeMount {
 			ReadOnly:  true,
 		},
 		corev1.VolumeMount{
-			Name:      "monitoring-ca-certs",
+			Name:      "ibm-monitoring-ca-certs",
 			MountPath: "/opt/ibm/router/ca-certs",
 		},
 		corev1.VolumeMount{
-			Name:      "monitoring-certs",
+			Name:      "ibm-monitoring-certs",
 			MountPath: "/opt/ibm/router/certs",
 		},
 		corev1.VolumeMount{
@@ -71,7 +71,7 @@ func getGrafanaRouterSC() *corev1.SecurityContext {
 				"NET_RAW", "LEASE",
 				"SETGID", "SETUID"},
 		},
-		Privileged:               &True,
+		Privileged:               &False,
 		AllowPrivilegeEscalation: &False,
 		ReadOnlyRootFilesystem:   &True,
 	}

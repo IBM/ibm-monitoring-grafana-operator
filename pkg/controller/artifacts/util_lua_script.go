@@ -69,7 +69,7 @@ local cjson = require "cjson"
             local host_header = ngx.req.get_headers()["host"]
             --- if request host is "monitoring-prometheus:9090" or "monitoring-grafana:3000" skip the rbac check
             ngx.log(ngx.DEBUG, "host header is ",host_header)
-            if host_header == "{{ .prometheusFullname }}:{{ .prometheusPort }}" or host_header == "{{ .GrafanaFullname }}:{{ .GrafanaPort }}" then
+            if host_header == "{{ .PrometheusFullName }}:{{ .PrometheusPort }}" or host_header == "{{ .GrafanaFullName }}:{{ .GrafanaPort }}" then
                 ngx.log(ngx.NOTICE, "skip rbac check for request from kube-system")
             else
                 ngx.log(ngx.ERR, "No auth token in request.")
@@ -116,7 +116,7 @@ local cjson = require "cjson"
               ["Authorization"] = "Bearer ".. token
             },
             query = {
-                ["crn"] = "crn:v1:icp:private:k8:{{ .ClusterName }}:n/{{ .Namespace }}:::"
+                ["crn"] = "crn:v1:icp:private:k8:127.0.0.1:n/{{ .Namespace }}:::"
             },
             ssl_verify = false
         })

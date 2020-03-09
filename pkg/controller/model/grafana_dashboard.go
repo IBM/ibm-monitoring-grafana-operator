@@ -31,13 +31,13 @@ func setVolumeMountsForDashboard() []corev1.VolumeMount {
 		Name:      "grafana-crd-entry",
 		MountPath: "/grafana/entry",
 	}, corev1.VolumeMount{
-		Name:      "monitoring-client-cert",
+		Name:      "ibm-monitoring-client-certs",
 		MountPath: "/opt/ibm/monitoring/certs",
 	}, corev1.VolumeMount{
-		Name:      "monitoring-ca-certs",
+		Name:      "ibm-monitoring-ca-certs",
 		MountPath: "/opt/ibm/monitoring/ca-certs",
 	}, corev1.VolumeMount{
-		Name:      "default-dashboards-config",
+		Name:      "grafana-default-dashboards",
 		MountPath: "/opt/dashboards",
 	})
 	return mounts

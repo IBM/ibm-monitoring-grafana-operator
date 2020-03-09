@@ -88,7 +88,7 @@ func createVolumeFromSource(name, tp string) corev1.Volume {
 	mode, _ := strconv.ParseInt(stringMode, 8, 32)
 	defaultMode := int32(mode)
 
-	if tp == "confimap" {
+	if tp == "configmap" {
 		return corev1.Volume{
 			Name: name,
 			VolumeSource: corev1.VolumeSource{

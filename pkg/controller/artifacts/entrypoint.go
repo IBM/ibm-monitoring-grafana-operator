@@ -19,9 +19,9 @@ var entrypoint string = `
 #!/bin/sh
     chown -R 472:472 /var/lib/grafana
 
-    export CA=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' /opt/ibm/monitoring/ca-certs/{{ .Values.tls.ca.certFieldName }})
-    export CERT=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' /opt/ibm/monitoring/certs/{{ .Values.tls.client.certFieldName }})
-    export KEY=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' /opt/ibm/monitoring/certs/{{ .Values.tls.client.keyFieldName }})
+    export CA=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' /opt/ibm/monitoring/ca-certs/ca.cert
+    export CERT=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' /opt/ibm/monitoring/certs/tls.cert
+    export KEY=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' /opt/ibm/monitoring/certs/tls.key
 
     cat >> /etc/grafana/provisioning/datasources/datasource.yaml <<EOF
     apiVersion: 1
@@ -29,7 +29,7 @@ var entrypoint string = `
     - name: prometheus
       type: prometheus
       access: proxy
-      url: https://{{ .PrometheusFullname }}:{{ .PrometheusPort }}
+      url: https://{{ .PrometheusFullName }}:{{ .PrometheusPort }}
       isDefault: true
       jsonData:
 	 keepCookies:

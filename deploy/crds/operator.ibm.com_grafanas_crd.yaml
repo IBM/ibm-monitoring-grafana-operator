@@ -1095,11 +1095,11 @@ spec:
               type: object
             resources:
               properties:
-                dashboardResource:
+                dashboard:
                   type: integer
-                grafanaResource:
+                grafana:
                   type: integer
-                routerResource:
+                router:
                   type: integer
               type: object
             secrets:

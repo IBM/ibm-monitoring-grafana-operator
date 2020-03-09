@@ -59,14 +59,6 @@ func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 		},
 	})
 
-	// Data volume
-	volumes = append(volumes, corev1.Volume{
-		Name: GrafanaDataVolumes,
-		VolumeSource: corev1.VolumeSource{
-			EmptyDir: &corev1.EmptyDirVolumeSource{},
-		},
-	})
-
 	volumes = append(volumes, corev1.Volume{
 		Name: GrafanaPlugins,
 		VolumeSource: corev1.VolumeSource{
@@ -81,7 +73,7 @@ func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 		},
 	})
 
-	if cr.Spec.PersistentVolume != nil && cr.Spec.PersistentVolume.Enabbled {
+	if cr.Spec.PersistentVolume != nil && cr.Spec.PersistentVolume.Enabled {
 		storageVol := getPersistentVolume(cr, "grafana-storage")
 		volumes = append(volumes, storageVol)
 	}
@@ -106,9 +98,9 @@ func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 	volumes = append(volumes, createVolumeFromSource("grafana-lua-script-config", "configmap"))
 	volumes = append(volumes, createVolumeFromSource("util-lua-script-config", "configmap"))
 
-	volumes = append(volumes, createVolumeFromSource("monitoring-ca-certs", "sercret"))
-	volumes = append(volumes, createVolumeFromSource("monitoirng-certs", "secret"))
-	volumes = append(volumes, createVolumeFromSource("monitoring-client-certs", "secret"))
+	volumes = append(volumes, createVolumeFromSource("ibm-monitoring-ca-certs", "sercret"))
+	volumes = append(volumes, createVolumeFromSource("ibm-monitoring-certs", "secret"))
+	volumes = append(volumes, createVolumeFromSource("ibm-monitoring-client-certs", "secret"))
 
 	// Extra volumes for secrets
 	for _, secret := range cr.Spec.Secrets {
@@ -171,13 +163,7 @@ func getVolumeMounts(cr *v1alpha1.Grafana) []corev1.VolumeMount {
 	})
 
 	mounts = append(mounts, corev1.VolumeMount{
-		Name:      GrafanaPlugins,
-		MountPath: "/var/lib/grafana/plugins",
-		SubPath:   "plugins",
-	})
-
-	mounts = append(mounts, corev1.VolumeMount{
-		Name:      "monitoring-certs",
+		Name:      "ibm-monitoring-certs",
 		MountPath: "/opt/ibm/monitoring/certs",
 	})
 
@@ -371,11 +357,11 @@ func getInitContainers() []corev1.Container {
 			MountPath: "/opt/entry",
 		},
 		corev1.VolumeMount{
-			Name:      "grafana-ds-config",
+			Name:      "grafana-ds-entry-config",
 			MountPath: "/etc/grafana/provisioning/datasources",
 		},
 		corev1.VolumeMount{
-			Name:      "monitoring-client-certs",
+			Name:      "ibm-monitoring-client-certs",
 			MountPath: "/opt/ibm/monitoring/ca-certs",
 		},
 		corev1.VolumeMount{
@@ -454,7 +440,7 @@ func getDeploymentSpec(cr *v1alpha1.Grafana) appv1.DeploymentSpec {
 func GrafanaDeployment(cr *v1alpha1.Grafana) *appv1.Deployment {
 	return &appv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      GrafanaDeploymentName,
+			Name:      "ibm-grafana",
 			Namespace: cr.Namespace,
 		},
 		Spec: getDeploymentSpec(cr),

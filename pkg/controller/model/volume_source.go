@@ -59,7 +59,7 @@ func init() {
 	FileKeys = make(fileKeys)
 	FileKeys["grafana-lua-script-config"] = map[string]*template.Template{"grafana.lua": tpls.GrafanaLuaScript}
 	FileKeys["util-lua-script-config"] = map[string]*template.Template{"monitoring-util.lua": tpls.UtilLuaScript}
-	FileKeys["router-config"] = map[string]*template.Template{"nginx.conf": tpls.RouterConfig}
+	FileKeys["router-entry"] = map[string]*template.Template{"nginx.conf": tpls.RouterConfig}
 	FileKeys["grafana-crd-entry"] = map[string]*template.Template{"run.sh": tpls.RouterEntry}
 	FileKeys["grafana-default-dashboards"] = map[string]*template.Template{
 		"helm-release-dashboard.json":   tpls.HelmReleaseDashboard,

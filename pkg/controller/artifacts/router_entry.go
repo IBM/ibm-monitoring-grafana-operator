@@ -18,7 +18,7 @@ package artifacts
 var routerEntry string = `
 #!/bin/sh
     if [ -e /opt/ibm/router/certs/tls.crt ]; then
-      cp -f /opt/ibm/router/certs/tls.crt }} /opt/ibm/router/nginx/conf/server.crt
+      cp -f /opt/ibm/router/certs/tls.crt /opt/ibm/router/nginx/conf/server.crt
       cp -f /opt/ibm/router/certs/tls.key /opt/ibm/router/nginx/conf/server.key
     fi
 

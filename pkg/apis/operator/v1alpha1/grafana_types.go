@@ -46,9 +46,9 @@ type GrafanaSpec struct {
 }
 
 type GrafanaResources struct {
-	Grafana   int `json:"grafanaResource,omitempty"`
-	Dashboard int `json:"dashboardResource,omitempty"`
-	Router    int `json:"routerResource,omitempty"`
+	Grafana   int `json:"grafana,omitempty"`
+	Dashboard int `json:"dashboard,omitempty"`
+	Router    int `json:"router,omitempty"`
 }
 
 // GrafanaService provides a means to configure the service
@@ -62,7 +62,7 @@ type GrafanaService struct {
 
 // GrafanaPersistentVolume setup persistent volumes.
 type GrafanaPersistentVolume struct {
-	Enabbled  bool   `json:"enabled,omitempty"`
+	Enabled   bool   `json:"enabled,omitempty"`
 	ClaimName string `json:"claimName,omitempty"`
 }
 
@@ -79,7 +79,7 @@ type DashboardProvider struct {
 	Folder                string            `json:"folder,omitempty"`
 	FolderUID             string            `json:"folderUid,omitempty"`
 	Type                  string            `json:"type,omitempty"`
-	DisableDeletion       bool              `json:"disableDeletion",omitempty`
+	DisableDeletion       bool              `json:"disableDeletion,omitempty"`
 	Editable              bool              `json:"editable,omitempty"`
 	UpdateIntervalSeconds int               `json:"updateIntervalSeconds,omitempty"`
 	AllowIUpdates         bool              `json:"allowUiUpdates,omitempty"`
