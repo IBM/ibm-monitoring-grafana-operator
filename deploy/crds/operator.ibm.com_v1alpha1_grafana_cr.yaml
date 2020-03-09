@@ -3,49 +3,12 @@ kind: Grafana
 metadata:
   name: example-grafana
 spec:
-  config:
-    server:
-      http_port: "8443"
-    users:
-      default_theme: light
-    log:
-      mode: console
-      level: info
-    proxy:
-      enabled: true
-      header_name: X-WEBAUTH-USER
-      header_property: username
-      auto_sign_up: false
-    auth:
-      disable_login_form: true
-      disable_singout_menu: true
-    security:
-      admin_user: admin
-      admin_password: admin
-      disabble_initial_admin_creation: true
-  datasource:
-    name: prometheus
-    type: prometheus
-    isDefault: true
-    editable: false
-    access: proxy
-    url: https://monitoring-prometheus:9090
-    jsonData:
-      keepCookies:
-        - "cfc-access-token-cookie"
-      tlsAuth: true
-      tlsAuthWithCACert: true
   service:
     type: NodePort
     ports:
       - name: grafana-service
         protocol: TCP
         port: 3000
-  metaData:
-    replicas: 1
-  ingress:
-    path: /grafana
-    enabled: true
   resources:
     grafana: 2
     router: 1

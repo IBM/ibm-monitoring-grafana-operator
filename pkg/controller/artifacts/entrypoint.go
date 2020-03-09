@@ -29,7 +29,7 @@ var entrypoint string = `
     - name: prometheus
       type: prometheus
       access: proxy
-      url: https://{{ .PrometheusFullname" . }}:{{ .PrometheusPort }}
+      url: https://{{ .PrometheusFullname }}:{{ .PrometheusPort }}
       isDefault: true
       jsonData:
 	 keepCookies:

@@ -12,57 +12,8 @@ metadata:
           },
           "spec": {
             "baseImage": "hyc-cloud-private-release-docker-local.artifactory.swg-devops.com/ibmcom-amd64/grafana",
-            "config": {
-              "auth": {
-                "disable_login_form": true,
-                "disable_singout_menu": true
-              },
-              "log": {
-                "level": "info",
-                "mode": "console"
-              },
-              "proxy": {
-                "auto_sign_up": false,
-                "enabled": true,
-                "header_name": "X-WEBAUTH-USER",
-                "header_property": "username"
-              },
-              "security": {
-                "admin_password": "admin",
-                "admin_user": "admin",
-                "disabble_initial_admin_creation": true
-              },
-              "server": {
-                "http_port": "8443"
-              },
-              "users": {
-                "default_theme": "light"
-              }
-            },
-            "datasource": {
-              "access": "proxy",
-              "editable": false,
-              "isDefault": true,
-              "jsonData": {
-                "keepCookies": [
-                  "cfc-access-token-cookie"
-                ],
-                "tlsAuth": true,
-                "tlsAuthWithCACert": true
-              },
-              "name": "prometheus",
-              "type": "prometheus",
-              "url": "https://monitoring-prometheus:9090"
-            },
-            "ingress": {
-              "enabled": true,
-              "path": "/grafana"
-            },
             "ipVersion": "4",
             "isHub": false,
-            "metaData": {
-              "replicas": 1
-            },
             "resources": {
               "dashboard": 1,
               "grafana": 2,

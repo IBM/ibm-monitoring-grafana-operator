@@ -200,17 +200,16 @@ func getVolumeMounts(cr *v1alpha1.Grafana) []corev1.VolumeMount {
 	return mounts
 }
 
-func getProbe(cr *v1alpha1.Grafana, exec []string, delay, timeout, failure int32) *corev1.Probe {
+func getProbe(delay, timeout, failure int32) *corev1.Probe {
 
 	var port int = 8443
+	var scheme corev1.URIScheme = "HTTPS"
 	return &corev1.Probe{
 		Handler: corev1.Handler{
 			HTTPGet: &corev1.HTTPGetAction{
-				Path: GrafanaHealthEndpoint,
-				Port: intstr.FromInt(port),
-			},
-			Exec: &corev1.ExecAction{
-				Command: exec,
+				Path:   GrafanaHealthEndpoint,
+				Port:   intstr.FromInt(port),
+				Scheme: scheme,
 			},
 		},
 		InitialDelaySeconds: delay,
@@ -248,8 +247,8 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 		SecurityContext:          getGrafanaSC(),
 		Resources:                getContainerResource(cr, "Grafana"),
 		VolumeMounts:             getVolumeMounts(cr),
-		LivenessProbe:            getProbe(cr, []string{}, 30, 30, 10),
-		ReadinessProbe:           getProbe(cr, []string{}, 30, 30, 10),
+		LivenessProbe:            getProbe(30, 30, 10),
+		ReadinessProbe:           getProbe(30, 30, 10),
 		TerminationMessagePath:   "/dev/termination-log",
 		TerminationMessagePolicy: "File",
 		ImagePullPolicy:          "IfNotPresent",

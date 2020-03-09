@@ -46,9 +46,9 @@ type GrafanaSpec struct {
 }
 
 type GrafanaResources struct {
-	Grafana   *int `json:"grafanaResource,omitempty"`
-	Dashboard *int `json:"dashboardResource,omitempty"`
-	Router    *int `json:"routerResource,omitempty"`
+	Grafana   int `json:"grafanaResource,omitempty"`
+	Dashboard int `json:"dashboardResource,omitempty"`
+	Router    int `json:"routerResource,omitempty"`
 }
 
 // GrafanaService provides a means to configure the service
