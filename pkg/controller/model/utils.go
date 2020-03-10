@@ -73,7 +73,7 @@ func getResource(times int) corev1.ResourceRequirements {
 
 }
 
-func createVolumeFromSource(name, tp string) corev1.Volume {
+func createVolumeFromCM(name string) corev1.Volume {
 
 	var stringMode string
 
@@ -88,25 +88,25 @@ func createVolumeFromSource(name, tp string) corev1.Volume {
 	mode, _ := strconv.ParseInt(stringMode, 8, 32)
 	defaultMode := int32(mode)
 
-	if tp == "configmap" {
-		return corev1.Volume{
-			Name: name,
-			VolumeSource: corev1.VolumeSource{
-				ConfigMap: &corev1.ConfigMapVolumeSource{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: name,
-					},
-					DefaultMode: &defaultMode,
-				},
-			},
-		}
-	}
-
 	return corev1.Volume{
 		Name: name,
 		VolumeSource: corev1.VolumeSource{
+			ConfigMap: &corev1.ConfigMapVolumeSource{
+				LocalObjectReference: corev1.LocalObjectReference{
+					Name: name,
+				},
+				DefaultMode: &defaultMode,
+			},
+		},
+	}
+}
+
+func createVolumeFromSecret(secretName, volumeName string) corev1.Volume {
+	return corev1.Volume{
+		Name: volumeName,
+		VolumeSource: corev1.VolumeSource{
 			Secret: &corev1.SecretVolumeSource{
-				SecretName: name,
+				SecretName: secretName,
 			},
 		},
 	}

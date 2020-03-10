@@ -26,7 +26,7 @@ var (
 	IAMNamespaceName    = "iam-namespace"
 	IAMServicePortName  = "iam-service-port"
 	IAMServicePort      = "4300"
-	DefaultInitImage    = "hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com/ibmcom/icp-initcontainer"
+	DefaultInitImage    = "hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com/ibmcom-amd64/icp-initcontainer"
 	DefaultInitImageTag = "1.0.0-build.2"
 	DefaultIamNamespace = "iam-namespace"
 )

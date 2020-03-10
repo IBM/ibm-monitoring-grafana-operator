@@ -18,8 +18,7 @@ package model
 import (
 	"bytes"
 	b64 "encoding/base64"
-	"encoding/json"
-	"strconv"
+	"fmt"
 	"text/template"
 
 	corev1 "k8s.io/api/core/v1"
@@ -35,7 +34,18 @@ var (
 	clusterPort           int    = 8443
 	environment           string = "openshift"
 	prometheusServiceName string = "monitoring-prometheus"
-	IsConfigMapsDone      bool   = false
+	IsConfigMapsCreated   bool   = false
+
+	//configmap names
+	grafanaLua              string = "grafana-lua-script-config"
+	utilLua                 string = "grafana-util-lua-script-config"
+	grafanaDBConfig         string = "grafana-dashboard-config"
+	routerConfig            string = "grafana-router-config"
+	routerEntry             string = "grafana-router-entry"
+	grafanaDefaultDashboard string = "grafana-default-dashboards"
+	grafanaCRD              string = "grafana-crd-entry"
+	dsConfig                string = "grafana-ds-entry-config"
+	grafanaConfig           string = "grafana-config"
 )
 
 type fileKeys map[string]map[string]*template.Template
@@ -57,20 +67,22 @@ var FileKeys fileKeys
 
 func init() {
 	FileKeys = make(fileKeys)
-	FileKeys["grafana-lua-script-config"] = map[string]*template.Template{"grafana.lua": tpls.GrafanaLuaScript}
-	FileKeys["util-lua-script-config"] = map[string]*template.Template{"monitoring-util.lua": tpls.UtilLuaScript}
-	FileKeys["router-entry"] = map[string]*template.Template{"nginx.conf": tpls.RouterConfig}
-	FileKeys["grafana-crd-entry"] = map[string]*template.Template{"run.sh": tpls.RouterEntry}
-	FileKeys["grafana-default-dashboards"] = map[string]*template.Template{
+	FileKeys[grafanaLua] = map[string]*template.Template{"grafana.lua": tpls.GrafanaLuaScript}
+	FileKeys[utilLua] = map[string]*template.Template{"monitoring-util.lua": tpls.UtilLuaScript}
+	FileKeys[routerConfig] = map[string]*template.Template{"nginx.conf": tpls.RouterConfig}
+	FileKeys[routerEntry] = map[string]*template.Template{"entrypoint.sh": tpls.RouterEntry}
+	FileKeys[grafanaCRD] = map[string]*template.Template{"run.sh": tpls.GrafanaCRDEntry}
+	FileKeys[grafanaDefaultDashboard] = map[string]*template.Template{
 		"helm-release-dashboard.json":   tpls.HelmReleaseDashboard,
 		"kubenertes-pod-dashboard.json": tpls.KubernetesPodDashboard,
 		"mcm-monitoring-dashboard.json": tpls.MCMMonitoringDashboard,
 	}
-	FileKeys["grafana-ds-entry-config"] = map[string]*template.Template{"entrypoint.sh": tpls.Entrypoint}
-	FileKeys["grafana-config"] = map[string]*template.Template{"grafana.ini": tpls.GrafanaConfig}
+	FileKeys[dsConfig] = map[string]*template.Template{"entrypoint.sh": tpls.Entrypoint}
+	FileKeys[grafanaConfig] = map[string]*template.Template{"grafana.ini": tpls.GrafanaConfig}
+	FileKeys[grafanaDBConfig] = map[string]*template.Template{"dashboards.yaml": tpls.GrafanaDBConfig}
 }
 
-func createConfigmap(namespace, name string, data map[string]string) corev1.ConfigMap {
+func createConfigmap(namespace, name string, data map[string]string) *corev1.ConfigMap {
 
 	configmap := corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
@@ -80,22 +92,22 @@ func createConfigmap(namespace, name string, data map[string]string) corev1.Conf
 		},
 		Data: data,
 	}
-	return configmap
+	return &configmap
 }
 
 // ReconcileConfigMaps will reconcile all the confimaps for the grafana.
 // There is not selector to retrieve all the configmaps. Just update them
 // with a switch of IsConfigMapsDone variable.
-func ReconcileConfigMaps(cr *v1alpha1.Grafana) []corev1.ConfigMap {
-	configmaps := []corev1.ConfigMap{}
+func ReconcileConfigMaps(cr *v1alpha1.Grafana) []*corev1.ConfigMap {
+	configmaps := []*corev1.ConfigMap{}
 	namespace := cr.Namespace
 	var httpPort int
 
 	httpPort = clusterPort
 
-	prometheusFullName := prometheusServiceName + ":" + strconv.Itoa(PrometheusPort)
+	prometheusFullName := prometheusServiceName
 	grafanaPort := DefaultGrafanaPort
-	grafanaFullName := GrafanaServiceName + ":" + strconv.Itoa(grafanaPort)
+	grafanaFullName := GrafanaServiceName
 
 	tplData := templateData{
 		Namespace:          namespace,
@@ -108,20 +120,20 @@ func ReconcileConfigMaps(cr *v1alpha1.Grafana) []corev1.ConfigMap {
 		GrafanaPort:        grafanaPort,
 	}
 
-	for fileKey, dValue := range FileKeys {
+	for file, dValue := range FileKeys {
+		data := map[string]string{}
 		var buff bytes.Buffer
-		configData := make(map[string]string)
 		for name, tpl := range dValue {
 			err := tpl.Execute(&buff, tplData)
 			if err != nil {
 				panic(err)
 			}
-			configData[name] = buff.String()
+			data[name] = buff.String()
+			log.Info(fmt.Sprintf("configmap data is %s", buff.String()))
 		}
-		configmaps = append(configmaps, createConfigmap(cr.Namespace, fileKey, configData))
+		configmaps = append(configmaps, createConfigmap(cr.Namespace, file, data))
 	}
 
-	configmaps = append(configmaps, createDBConfig(cr.Namespace))
 	return configmaps
 }
 
@@ -145,34 +157,11 @@ func CreateGrafanaSecret(cr *v1alpha1.Grafana) *corev1.Secret {
 		Data: data,
 	}
 }
+
+// GrafanaSecretSelector to retrieve the secret
 func GrafanaSecretSelector(cr *v1alpha1.Grafana) client.ObjectKey {
 	return client.ObjectKey{
 		Name:      grafanaSecretName,
 		Namespace: cr.Namespace,
 	}
-}
-
-// hardcode all the config here
-func createDBConfig(namespace string) corev1.ConfigMap {
-	dbConfigFileName := "dashbords.yaml"
-
-	dbConfig := v1alpha1.DashboardConfig{}
-	dbConfig.APIversion = 1
-	dbProvider := v1alpha1.DashboardProvider{
-		Name:                  "default",
-		OrgID:                 1,
-		Folder:                "",
-		FolderUID:             "",
-		Type:                  "file",
-		DisableDeletion:       false,
-		UpdateIntervalSeconds: 30,
-		Options:               map[string]string{"path": "/var/lib/grafana/dashboards"},
-	}
-
-	dbConfig.Providers = []v1alpha1.DashboardProvider{dbProvider}
-	bytes, _ := json.Marshal(dbConfig)
-	data := map[string]string{dbConfigFileName: string(bytes)}
-
-	return createConfigmap(namespace, "grafana-dashboard-config", data)
-
 }

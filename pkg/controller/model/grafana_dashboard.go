@@ -28,7 +28,7 @@ func setVolumeMountsForDashboard() []corev1.VolumeMount {
 	var mounts []corev1.VolumeMount
 
 	mounts = append(mounts, corev1.VolumeMount{
-		Name:      "grafana-crd-entry",
+		Name:      grafanaCRD,
 		MountPath: "/grafana/entry",
 	}, corev1.VolumeMount{
 		Name:      "ibm-monitoring-client-certs",
@@ -37,7 +37,7 @@ func setVolumeMountsForDashboard() []corev1.VolumeMount {
 		Name:      "ibm-monitoring-ca-certs",
 		MountPath: "/opt/ibm/monitoring/ca-certs",
 	}, corev1.VolumeMount{
-		Name:      "grafana-default-dashboards",
+		Name:      grafanaDefaultDashboard,
 		MountPath: "/opt/dashboards",
 	})
 	return mounts
@@ -94,8 +94,8 @@ func getDashboardSC() *corev1.SecurityContext {
 	False := false
 	return &corev1.SecurityContext{
 		Capabilities: &corev1.Capabilities{
-			Add: []corev1.Capability{"ALL"},
-			Drop: []corev1.Capability{"CHOWN", "NET_ADMIN",
+			Drop: []corev1.Capability{"ALL"},
+			Add: []corev1.Capability{"CHOWN", "NET_ADMIN",
 				"NET_RAW", "LEASE",
 				"SETGID", "SETUID"},
 		},

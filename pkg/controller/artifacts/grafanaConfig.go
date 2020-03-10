@@ -15,8 +15,7 @@
 //
 package artifacts
 
-var grafanaConfig string = `
-grafana.ini: |-
+const grafanaConfig = `
     [paths]
     data = /var/lib/grafana
     logs = /var/log/grafana

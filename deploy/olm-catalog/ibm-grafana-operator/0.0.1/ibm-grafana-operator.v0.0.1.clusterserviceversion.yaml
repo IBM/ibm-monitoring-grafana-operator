@@ -12,6 +12,9 @@ metadata:
           },
           "spec": {
             "baseImage": "hyc-cloud-private-release-docker-local.artifactory.swg-devops.com/ibmcom-amd64/grafana",
+            "imagePullSecrets": [
+              "monitor"
+            ],
             "ipVersion": "4",
             "isHub": false,
             "resources": {

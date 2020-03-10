@@ -23,10 +23,13 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	"github.com/IBM/ibm-grafana-operator/pkg/controller/config"
 )
+
+var log = logf.Log.WithName("model")
 
 func getPersistentVolume(cr *v1alpha1.Grafana, name string) corev1.Volume {
 	return corev1.Volume{
@@ -84,23 +87,23 @@ func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 		},
 	})
 
-	volumes = append(volumes, createVolumeFromSource(GrafanaConfigName, "configmap"))
-	volumes = append(volumes, createVolumeFromSource("grafana-ds-entry-config", "configmap"))
+	// configmap name also the volume name
+	volumes = append(volumes, createVolumeFromCM(GrafanaConfigName))
+	volumes = append(volumes, createVolumeFromCM(dsConfig))
+	volumes = append(volumes, createVolumeFromCM(grafanaDBConfig))
 
-	volumes = append(volumes, createVolumeFromSource("grafana-dashboard-config", "configmap"))
+	volumes = append(volumes, createVolumeFromCM(grafanaDefaultDashboard))
+	volumes = append(volumes, createVolumeFromCM(grafanaCRD))
 
-	volumes = append(volumes, createVolumeFromSource("grafana-default-dashboards", "configmap"))
-	volumes = append(volumes, createVolumeFromSource("grafana-crd-entry", "configmap"))
+	volumes = append(volumes, createVolumeFromCM(routerConfig))
+	volumes = append(volumes, createVolumeFromCM(routerEntry))
 
-	volumes = append(volumes, createVolumeFromSource("router-config", "configmap"))
-	volumes = append(volumes, createVolumeFromSource("router-entry", "configmap"))
+	volumes = append(volumes, createVolumeFromCM(grafanaLua))
+	volumes = append(volumes, createVolumeFromCM(utilLua))
 
-	volumes = append(volumes, createVolumeFromSource("grafana-lua-script-config", "configmap"))
-	volumes = append(volumes, createVolumeFromSource("util-lua-script-config", "configmap"))
-
-	volumes = append(volumes, createVolumeFromSource("ibm-monitoring-ca-certs", "sercret"))
-	volumes = append(volumes, createVolumeFromSource("ibm-monitoring-certs", "secret"))
-	volumes = append(volumes, createVolumeFromSource("ibm-monitoring-client-certs", "secret"))
+	volumes = append(volumes, createVolumeFromSecret("ibm-monitoring-certs", "ibm-monitoring-ca-certs"))
+	volumes = append(volumes, createVolumeFromSecret("ibm-monitoring-certs", "ibm-monitoring-certs"))
+	volumes = append(volumes, createVolumeFromSecret("ibm-monitoring-client-certs", "ibm-monitoring-client-certs"))
 
 	// Extra volumes for secrets
 	for _, secret := range cr.Spec.Secrets {
@@ -145,6 +148,11 @@ func getVolumeMounts(cr *v1alpha1.Grafana) []corev1.VolumeMount {
 	mounts = append(mounts, corev1.VolumeMount{
 		Name:      "dashboard-volume",
 		MountPath: "/etc/grafana/dashboards/grafana",
+	})
+
+	mounts = append(mounts, corev1.VolumeMount{
+		Name:      grafanaDBConfig,
+		MountPath: "/etc/grafana/provisioning/dashboards",
 	})
 
 	mounts = append(mounts, corev1.VolumeMount{
@@ -316,8 +324,8 @@ func getGrafanaSC() *corev1.SecurityContext {
 	True := true
 	return &corev1.SecurityContext{
 		Capabilities: &corev1.Capabilities{
-			Add: []corev1.Capability{"ALL"},
-			Drop: []corev1.Capability{"CHOWN", "NET_ADMIN",
+			Drop: []corev1.Capability{"ALL"},
+			Add: []corev1.Capability{"CHOWN", "NET_ADMIN",
 				"NET_RAW", "LEASE",
 				"SETGID", "SETUID"},
 		},
@@ -353,16 +361,20 @@ func getInitContainers() []corev1.Container {
 			MountPath: "/var/lib/grafana",
 		},
 		corev1.VolumeMount{
-			Name:      "grafana-ds-entry-config",
+			Name:      dsConfig,
 			MountPath: "/opt/entry",
 		},
 		corev1.VolumeMount{
-			Name:      "grafana-ds-entry-config",
+			Name:      GrafanaDatasourceName,
 			MountPath: "/etc/grafana/provisioning/datasources",
 		},
 		corev1.VolumeMount{
-			Name:      "ibm-monitoring-client-certs",
+			Name:      "ibm-monitoring-ca-certs",
 			MountPath: "/opt/ibm/monitoring/ca-certs",
+		},
+		corev1.VolumeMount{
+			Name:      "ibm-monitoring-client-certs",
+			MountPath: "/opt/ibm/monitoring/certs",
 		},
 		corev1.VolumeMount{
 			Name:      GrafanaPlugins,
@@ -382,15 +394,13 @@ func getInitContainers() []corev1.Container {
 
 	return []corev1.Container{
 		{
-			Name:                     InitContainerName,
-			Image:                    fmt.Sprintf("%s:%s", image, tag),
-			Command:                  []string{""},
-			Resources:                corev1.ResourceRequirements{},
-			SecurityContext:          &SC,
-			VolumeMounts:             volumeMounts,
-			TerminationMessagePath:   "/dev/termination-log",
-			TerminationMessagePolicy: "File",
-			ImagePullPolicy:          "IfNotPresent",
+			Name:            InitContainerName,
+			Image:           fmt.Sprintf("%s:%s", image, tag),
+			Command:         []string{"/opt/entry/entrypoint.sh"},
+			Resources:       corev1.ResourceRequirements{},
+			SecurityContext: &SC,
+			VolumeMounts:    volumeMounts,
+			ImagePullPolicy: "IfNotPresent",
 		},
 	}
 }
@@ -424,7 +434,7 @@ func getDeploymentSpec(cr *v1alpha1.Grafana) appv1.DeploymentSpec {
 			},
 			Spec: corev1.PodSpec{
 				PriorityClassName:  "system-cluster-critical",
-				ImagePullSecrets:   []corev1.LocalObjectReference{},
+				ImagePullSecrets:   getImagePullSecrets(cr),
 				InitContainers:     getInitContainers(),
 				HostPID:            false,
 				HostIPC:            false,

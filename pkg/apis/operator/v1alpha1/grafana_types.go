@@ -66,26 +66,6 @@ type GrafanaPersistentVolume struct {
 	ClaimName string `json:"claimName,omitempty"`
 }
 
-// DashboardConfig config the datasource
-type DashboardConfig struct {
-	APIversion int                 `json:"apiVerion,omitempty"`
-	Providers  []DashboardProvider `json:"providers,omitempty"`
-}
-
-// DashboardProvider provides datasource config info
-type DashboardProvider struct {
-	Name                  string            `json:"name,omitempty"`
-	OrgID                 int               `json:"orgId,omitempty"`
-	Folder                string            `json:"folder,omitempty"`
-	FolderUID             string            `json:"folderUid,omitempty"`
-	Type                  string            `json:"type,omitempty"`
-	DisableDeletion       bool              `json:"disableDeletion,omitempty"`
-	Editable              bool              `json:"editable,omitempty"`
-	UpdateIntervalSeconds int               `json:"updateIntervalSeconds,omitempty"`
-	AllowIUpdates         bool              `json:"allowUiUpdates,omitempty"`
-	Options               map[string]string `json:"options,omitempty"`
-}
-
 // GrafanaStatus defines the observed state of Grafana
 type GrafanaStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster

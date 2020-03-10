@@ -15,8 +15,8 @@
 //
 package artifacts
 
-var entrypoint string = `
-#!/bin/sh
+const entrypoint = `
+    #!/bin/sh
     chown -R 472:472 /var/lib/grafana
 
     export CA=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' /opt/ibm/monitoring/ca-certs/ca.cert
@@ -32,12 +32,13 @@ var entrypoint string = `
       url: https://{{ .PrometheusFullName }}:{{ .PrometheusPort }}
       isDefault: true
       jsonData:
-	 keepCookies:
-	   - cfc-access-token-cookie
-	 tlsAuth: true
-	 tlsAuthWithCACert: true
-      secureJsonData:
-	tlsCACert: "$CA"
-	tlsClientCert: "$CERT"
-	tlsClientKey: "$KEY"
+        keepCookies:
+          - cfc-access-token-cookie
+        tlsAuth: true
+        tlsAuthWithCACert: true
+          secureJsonData:
+      tlsCACert: "$CA"
+      tlsClientCert: "$CERT"
+      tlsClientKey: "$KEY"
+    EOF
 `

@@ -15,17 +15,15 @@
 //
 package artifacts
 
-// With parameter clusterPort
-const crdEntry = `
-    #!/bin/bash
-    FLAG=false
-    while [[ $FLAG == false ]]; do
-      curl -k --connect-timeout 10 https://127.0.0.1:{{ .ClusterPort }}/api
-      if [[ $? == 0 ]]; then
-      FLAG=true
-      echo "Grafana process started"
-      fi
-    done
+const grafanaDBConfig = `
 
-    /grafana-dashboard-crd
-`
+  apiVersion: 1
+  providers:
+  - name: 'default'
+    orgId: 1
+    folder: ''
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30 #how often Grafana will scan for changed dashboards
+    options:
+      path: /etc/grafana/dashboards/`

@@ -17,3 +17,5 @@ spec:
   tag: v6.5.2-build.1
   ipVersion: "4"
   isHub: false
+  imagePullSecrets:
+    - monitor

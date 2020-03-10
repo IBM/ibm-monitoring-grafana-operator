@@ -16,6 +16,8 @@
 package grafana
 
 import (
+	"fmt"
+
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
@@ -52,6 +54,11 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 		log.Error(err, "Fail to reconcile grafana ingress.")
 	}
 
+	err = reconcileGrafanaSecret(r, cr)
+	if err != nil {
+		log.Error(err, "Fail to reconcile grafana secret.")
+	}
+
 	err = reconcileGrafanaDeployment(r, cr)
 	if err != nil {
 		log.Error(err, "Fail to reconcile grafana deployment.")
@@ -64,35 +71,46 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 func reconcileAllConfigMaps(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	configmaps := utils.ReconcileConfigMaps(cr)
 
-	create := func(configmaps []corev1.ConfigMap, r *ReconcileGrafana) error {
+	create := func(configmaps []*corev1.ConfigMap, r *ReconcileGrafana) error {
 		for _, cm := range configmaps {
-			err := r.client.Create(r.ctx, &cm)
+			err := controllerutil.SetControllerReference(cr, cm, r.scheme)
 			if err != nil {
 				return err
 			}
+			err = r.client.Create(r.ctx, cm)
+			if err != nil {
+				if errors.IsAlreadyExists(err) {
+					continue
+				}
+				return err
+			}
+			log.Info(fmt.Sprintf("configmap %s is created.", cm.ObjectMeta.Name))
 		}
 		return nil
 	}
 
-	update := func(configmaps []corev1.ConfigMap, r *ReconcileGrafana) error {
+	update := func(configmaps []*corev1.ConfigMap, r *ReconcileGrafana) error {
 		for _, cm := range configmaps {
-			err := r.client.Update(r.ctx, &cm)
+			err := r.client.Update(r.ctx, cm)
 			if err != nil {
 				return err
 			}
+			log.Info(fmt.Sprintf("configmap %s is updated.", cm.ObjectMeta.Name))
 		}
 		return nil
 	}
 
-	if utils.IsConfigMapsDone {
+	if utils.IsConfigMapsCreated {
 		err := update(configmaps, r)
 		if err != nil {
 			return err
 		}
+
 	} else {
-		utils.IsConfigMapsDone = true
+		utils.IsConfigMapsCreated = true
 		err := create(configmaps, r)
 		if err != nil {
+			log.Error(err, "Fail to create configmap.")
 			return err
 		}
 	}

@@ -43,9 +43,14 @@ var RouterEntry *template.Template
 // UtilLuaScript export util lua script for grafana
 var UtilLuaScript *template.Template
 
+// Entrypoint for datasource config entrypoint
 var Entrypoint *template.Template
 
+// GrafanaConfig for grafana initial config file
 var GrafanaConfig *template.Template
+
+// GrafanaDBConfig setup dashboard config
+var GrafanaDBConfig *template.Template
 
 func init() {
 
@@ -59,4 +64,5 @@ func init() {
 	GrafanaLuaScript = template.Must(template.New("GLS").Parse(grafanaLuaScript))
 	Entrypoint = template.Must(template.New("ENT").Parse(entrypoint))
 	GrafanaConfig = template.Must(template.New("CONFIG").Parse(grafanaConfig))
+	GrafanaDBConfig = template.Must(template.New("DBC").Parse(grafanaDBConfig))
 }

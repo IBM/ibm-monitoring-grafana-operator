@@ -17,8 +17,8 @@ package artifacts
 
 // With parameters: clusterDomain, Namespace, prometheusFullname, prometheusPort,
 // grafanaFullname, grafanaPort, clusterName
-var utilLuaScript string = `
-local cjson = require "cjson"
+const utilLuaScript = `
+    local cjson = require "cjson"
     local cookiejar = require "resty.cookie"
     local http = require "lib.resty.http"
 

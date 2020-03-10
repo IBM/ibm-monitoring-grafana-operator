@@ -27,11 +27,11 @@ import (
 func getVolumeMountsForRouter() []corev1.VolumeMount {
 	return []corev1.VolumeMount{
 		corev1.VolumeMount{
-			Name:      "router-config",
+			Name:      routerConfig,
 			MountPath: "/opt/ibm/router/conf",
 		},
 		corev1.VolumeMount{
-			Name:      "router-entry",
+			Name:      routerEntry,
 			MountPath: "/opt/ibm/router/entry",
 		},
 		corev1.VolumeMount{
@@ -48,11 +48,11 @@ func getVolumeMountsForRouter() []corev1.VolumeMount {
 			MountPath: "/opt/ibm/router/certs",
 		},
 		corev1.VolumeMount{
-			Name:      "grafana-lua-script-config",
+			Name:      grafanaLua,
 			MountPath: "/opt/lua-scripts",
 		},
 		corev1.VolumeMount{
-			Name:      "util-lua-script-config",
+			Name:      utilLua,
 			MountPath: "/opt/ibm/router/nginx/conf/monitoring-util.lua",
 			SubPath:   "monitoring-util.lua",
 		},
@@ -62,18 +62,17 @@ func getVolumeMountsForRouter() []corev1.VolumeMount {
 // hardcode the setting
 func getGrafanaRouterSC() *corev1.SecurityContext {
 
-	True := true
 	False := false
 	return &corev1.SecurityContext{
 		Capabilities: &corev1.Capabilities{
-			Add: []corev1.Capability{"ALL"},
-			Drop: []corev1.Capability{"CHOWN", "NET_ADMIN",
+			Drop: []corev1.Capability{"ALL"},
+			Add: []corev1.Capability{"CHOWN", "NET_ADMIN",
 				"NET_RAW", "LEASE",
 				"SETGID", "SETUID"},
 		},
 		Privileged:               &False,
 		AllowPrivilegeEscalation: &False,
-		ReadOnlyRootFilesystem:   &True,
+		ReadOnlyRootFilesystem:   &False,
 	}
 
 }

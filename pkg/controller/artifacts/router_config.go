@@ -16,8 +16,8 @@
 package artifacts
 
 // With parameters: ClusterPort and Environment
-var routerConfig string = `
-error_log stderr notice;
+const routerConfig = `
+    error_log stderr notice;
 
     events {
         worker_connections 1024;
@@ -108,5 +108,5 @@ error_log stderr notice;
               return 404;
             }
         }
-	}
+	  }
 `
