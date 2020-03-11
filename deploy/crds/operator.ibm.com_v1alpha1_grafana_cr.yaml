@@ -13,9 +13,9 @@ spec:
     grafana: 2
     router: 1
     dashboard: 1
-  baseImage: hyc-cloud-private-release-docker-local.artifactory.swg-devops.com/ibmcom-amd64/grafana
+  baseImage: hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com/ibmcom-amd64/grafana
   tag: v6.5.2-build.1
   ipVersion: "4"
   isHub: false
   imagePullSecrets:
-    - monitor
+    - infra-registry-key

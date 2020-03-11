@@ -42,13 +42,6 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 		log.Error(err, "Fail to reconcile grafana service.")
 		return err
 	}
-
-	err = reconcileGrafanaServiceAccount(r, cr)
-	if err != nil {
-		log.Error(err, "Fail to reconcile grafana service account.")
-		return err
-	}
-
 	err = reconcileGrafanaIngress(r, cr)
 	if err != nil {
 		log.Error(err, "Fail to reconcile grafana ingress.")
@@ -91,7 +84,11 @@ func reconcileAllConfigMaps(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
 	update := func(configmaps []*corev1.ConfigMap, r *ReconcileGrafana) error {
 		for _, cm := range configmaps {
-			err := r.client.Update(r.ctx, cm)
+			err := controllerutil.SetControllerReference(cr, cm, r.scheme)
+			if err != nil {
+				return err
+			}
+			err = r.client.Update(r.ctx, cm)
 			if err != nil {
 				return err
 			}
@@ -155,8 +152,10 @@ func reconcileGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) error
 			log.Error(err, "Fail to create grafana deployment.")
 			return err
 		}
+		log.Info("Grafana deployment created")
 		return nil
-	} else {
+	}
+	if err != nil {
 		log.Error(err, "Fail to get grafana deployment.")
 		return err
 	}
@@ -167,6 +166,7 @@ func reconcileGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) error
 		log.Error(err, "Fail to update grafana deployment.")
 		return err
 	}
+	log.Info("Grafana deployment updated")
 
 	return nil
 }
@@ -226,33 +226,6 @@ func createGrafanaService(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
 	return nil
 
-}
-
-func reconcileGrafanaServiceAccount(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	sa := utils.GrafanaServiceAccount(cr)
-	err := controllerutil.SetControllerReference(cr, sa, r.scheme)
-	if err != nil {
-		return err
-	}
-
-	selector := utils.GrafanaServiceAccountSelector(cr)
-
-	err = r.client.Get(r.ctx, selector, sa)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			err = r.client.Create(r.ctx, sa)
-			if err != nil {
-				return err
-			}
-			return nil
-		}
-		return err
-	}
-	err = r.client.Update(r.ctx, sa)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func reconcileGrafanaIngress(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {

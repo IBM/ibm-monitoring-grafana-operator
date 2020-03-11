@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ibm-grafana-operator
+  name: ibm-monitoring-grafana-operator
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: ibm-grafana-operator
+      name: ibm-monitoring-grafana-operator
   template:
     metadata:
       labels:
-        name: ibm-grafana-operator
+        name: ibm-monitoring-grafana-operator
     spec:
-      serviceAccountName: ibm-grafana-operator
+      serviceAccountName: ibm-monitoring-grafana-operator
       containers:
-        - name: ibm-grafana-operator
+        - name: grafana
           # Replace this with the built image name
-          image: quay.io/dongwangdw/grafana-operator:v0.1
+          image: quay.io/opencloudio/ibm-monitoring-grafana-operator
           command:
           - ibm-grafana-operator
           imagePullPolicy: Always
@@ -30,4 +30,4 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             - name: OPERATOR_NAME
-              value: "ibm-grafana-operator"
+              value: "ibm-monitoring-grafana-operator"
