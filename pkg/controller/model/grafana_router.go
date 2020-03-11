@@ -77,12 +77,11 @@ func getGrafanaRouterSC() *corev1.SecurityContext {
 
 }
 
-func getRouterProbe(delay, period int) *corev1.Probe {
+func getRouterProbe(delay, period int, iamNamespace string) *corev1.Probe {
 	config := conf.GetControllerConfig()
-	iamNamespace := config.GetConfigString(conf.IAMNamespaceName, "")
 	iamServicePort := config.GetConfigString(conf.IAMServicePortName, "")
 	wget := "wget --spider --no-check-certificate -S 'https://platform-identity-provider"
-	checkURL := wget + iamNamespace + ".svc." + ClusterDomain + ":" + iamServicePort + "/v1/info"
+	checkURL := wget + "." + iamNamespace + ".svc." + ClusterDomain + ":" + iamServicePort + "/v1/info'"
 	checkCMD := []string{"sh", "-c", checkURL}
 
 	handler := corev1.Handler{}
@@ -113,8 +112,8 @@ func createRouterContainer(cr *v1alpha1.Grafana) corev1.Container {
 			},
 		},
 		Resources:                getContainerResource(cr, "Router"),
-		LivenessProbe:            getRouterProbe(30, 20),
-		ReadinessProbe:           getRouterProbe(32, 10),
+		LivenessProbe:            getRouterProbe(30, 20, cr.Namespace),
+		ReadinessProbe:           getRouterProbe(32, 10, cr.Namespace),
 		SecurityContext:          getGrafanaRouterSC(),
 		VolumeMounts:             getVolumeMountsForRouter(),
 		Env:                      setupAdminEnv("GF_SECURITY_ADMIN_USER", "GF_SECURITY_ADMIN_PASSWORD"),

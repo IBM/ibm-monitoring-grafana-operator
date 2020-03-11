@@ -18,6 +18,7 @@ package model
 import (
 	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
@@ -78,11 +79,8 @@ func createVolumeFromCM(name string) corev1.Volume {
 	var stringMode string
 
 	stringMode = "0664"
-	if name == "grafana-crd-entry" {
+	if strings.Contains(name, "entry") {
 		stringMode = "0777"
-	}
-	if name == "grafana-ds-entry-config" || name == "router-entry" {
-		stringMode = "0774"
 	}
 
 	mode, _ := strconv.ParseInt(stringMode, 8, 32)

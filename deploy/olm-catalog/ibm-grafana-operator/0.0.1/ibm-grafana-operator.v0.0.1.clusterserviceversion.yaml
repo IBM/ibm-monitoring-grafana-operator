@@ -11,9 +11,9 @@ metadata:
             "name": "example-grafana"
           },
           "spec": {
-            "baseImage": "hyc-cloud-private-release-docker-local.artifactory.swg-devops.com/ibmcom-amd64/grafana",
+            "baseImage": "hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com/ibmcom-amd64/grafana",
             "imagePullSecrets": [
-              "monitor"
+              "infra-registry-key"
             ],
             "ipVersion": "4",
             "isHub": false,
@@ -47,22 +47,107 @@ spec:
       kind: Grafana
       name: grafanas.operator.ibm.com
       version: v1alpha1
+      displayName: IBM Monitoring Grafana
   description: Grafana Operator for IBM common service monitoring stack
   displayName: Ibm Grafana Operator
   install:
     spec:
+      clusterPermissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - services
+          - nodes
+          - nodes/proxy
+          - endpoints
+          - pods
+          - configmaps
+          verbs:
+          - get
+          - list
+          - watch
+        - nonResourceURLs:
+          - /metrics
+          verbs:
+          - get
+        - apiGroups:
+          - security.openshift.io
+          resourceNames:
+          - privileged
+          resources:
+          - securitycontextconstraints
+          verbs:
+          - use
+        serviceAccountName: ibm-monitoring-grafana
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          - services
+          - endpoints
+          - persistentvolumeclaims
+          - events
+          - configmaps
+          - secrets
+          verbs:
+          - '*'
+        - apiGroups:
+          - apps
+          resources:
+          - deployments
+          - statefulsets
+          - replicasets
+          verbs:
+          - '*'
+        - apiGroups:
+          - certmanager.k8s.io
+          resources:
+          - certificates
+          verbs:
+          - '*'
+        - apiGroups:
+          - certmanager.k8s.io
+          resources:
+          - clusterissuers
+          verbs:
+          - use
+        - apiGroups:
+          - operator.ibm.com
+          resources:
+          - grafanas
+          - grafanas/finalizers
+          - grafanas/status
+          verbs:
+          - '*'
+        - apiGroups:
+          - extensions
+          resources:
+          - ingresses
+          verbs:
+          - '*'
+        - apiGroups:
+          - security.openshift.io
+          resourceNames:
+          - privileged
+          resources:
+          - securitycontextconstraints
+          verbs:
+          - use
+        serviceAccountName: ibm-monitoring-grafana-operator
       deployments:
-      - name: ibm-grafana-operator
+      - name: ibm-monitoring-grafana-operator
         spec:
           replicas: 1
           selector:
             matchLabels:
-              name: ibm-grafana-operator
+              name: ibm-monitoring-grafana-operator
           strategy: {}
           template:
             metadata:
               labels:
-                name: ibm-grafana-operator
+                name: ibm-monitoring-grafana-operator
             spec:
               containers:
               - command:
@@ -77,89 +162,12 @@ spec:
                     fieldRef:
                       fieldPath: metadata.name
                 - name: OPERATOR_NAME
-                  value: ibm-grafana-operator
-                image: quay.io/dongwangdw/grafana-operator:v0.1
+                  value: ibm-monitoring-grafana-operator
+                image: quay.io/opencloudio/ibm-monitoring-grafana-operator
                 imagePullPolicy: Always
-                name: ibm-grafana-operator
+                name: grafana
                 resources: {}
-              serviceAccountName: ibm-grafana-operator
-      permissions:
-      - rules:
-        - apiGroups:
-          - ""
-          resources:
-          - pods
-          - services
-          - services/finalizers
-          - endpoints
-          - persistentvolumeclaims
-          - events
-          - configmaps
-          - secrets
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - apps
-          resources:
-          - deployments
-          - daemonsets
-          - replicasets
-          - statefulsets
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - monitoring.coreos.com
-          resources:
-          - servicemonitors
-          verbs:
-          - get
-          - create
-        - apiGroups:
-          - apps
-          resourceNames:
-          - ibm-grafana-operator
-          resources:
-          - deployments/finalizers
-          verbs:
-          - update
-        - apiGroups:
-          - ""
-          resources:
-          - pods
-          verbs:
-          - get
-        - apiGroups:
-          - apps
-          resources:
-          - replicasets
-          - deployments
-          verbs:
-          - get
-        - apiGroups:
-          - operator.ibm.com
-          resources:
-          - '*'
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        serviceAccountName: ibm-grafana-operator
+              serviceAccountName: ibm-monitoring-grafana-operator
     strategy: deployment
   installModes:
   - supported: true

@@ -36,13 +36,13 @@ const (
 	GrafanaPlugins             = "grafana-plugins"
 	GrafanaSecretsDir          = "/etc/grafana-secrets/"
 	GrafanaConfigMapsDir       = "/etc/grafana-configmaps/"
-	GrafanaServiceAccountName  = "grafana-serviceaccount"
-	GrafanaDeploymentName      = "grafana-deployment"
-	GrafanaServiceName         = "grafana-service"
+	GrafanaServiceAccountName  = "ibm-monitoring-grafana"
+	GrafanaDeploymentName      = "ibm-monitoring-grafana"
+	GrafanaServiceName         = "ibm-monitoring-grafana"
 	GrafanaHTTPPortName        = "grafana"
 	RequeueDelay               = time.Second * 10
 	DefaultGrafanaPort         = 3000
-	GrafanaRouteName           = "grafana-route"
+	GrafanaRouteName           = "ibm-monitoring-grafana"
 	GrafanaAdminUserEnvVar     = "username"
 	GrafanaAdminPasswordEnvVar = "password"
 	ClusterDomain              = "cluster.local"

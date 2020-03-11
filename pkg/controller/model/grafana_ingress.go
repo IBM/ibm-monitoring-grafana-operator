@@ -47,7 +47,7 @@ func GetIngressAnnotations(cr *v1alpha1.Grafana) map[string]string {
 		"icp.management.ibm.com/rewrite-target":          "/",
 	}
 
-	if cr.Spec.Service.Annotations != nil && cr.Spec.Service.Annotations != nil {
+	if cr.Spec.Service.Annotations != nil && len(cr.Spec.Service.Annotations) != 0 {
 		mergeMaps(annotations, cr.Spec.Service.Annotations)
 	}
 	return annotations

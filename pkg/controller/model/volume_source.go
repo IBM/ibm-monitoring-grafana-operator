@@ -129,7 +129,8 @@ func ReconcileConfigMaps(cr *v1alpha1.Grafana) []*corev1.ConfigMap {
 				panic(err)
 			}
 			data[name] = buff.String()
-			log.Info(fmt.Sprintf("configmap data is %s", buff.String()))
+			log.Info(fmt.Sprintf("configmap data generated for: %s", file))
+			log.V(10).Info(buff.String())
 		}
 		configmaps = append(configmaps, createConfigmap(cr.Namespace, file, data))
 	}

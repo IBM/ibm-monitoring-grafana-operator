@@ -309,8 +309,8 @@ func getPodLabels(cr *v1alpha1.Grafana) map[string]string {
 func getPodAnnotations(cr *v1alpha1.Grafana) map[string]string {
 
 	annotations := map[string]string{
-		"scheduler.alpha.kubernetes.io/critical-pod": "",
-		"clusterhealth.ibm.com/dependencies":         "ibm-common-services.grafana",
+		//"scheduler.alpha.kubernetes.io/critical-pod": "",
+		"clusterhealth.ibm.com/dependencies": "ibm-common-services.grafana",
 	}
 	if cr.Spec.Service != nil && cr.Spec.Service.Annotations != nil {
 		mergeMaps(annotations, cr.Spec.Service.Annotations)
@@ -433,7 +433,7 @@ func getDeploymentSpec(cr *v1alpha1.Grafana) appv1.DeploymentSpec {
 				Annotations: getPodAnnotations(cr),
 			},
 			Spec: corev1.PodSpec{
-				PriorityClassName:  "system-cluster-critical",
+				//PriorityClassName:  "system-cluster-critical",
 				ImagePullSecrets:   getImagePullSecrets(cr),
 				InitContainers:     getInitContainers(),
 				HostPID:            false,
@@ -450,7 +450,7 @@ func getDeploymentSpec(cr *v1alpha1.Grafana) appv1.DeploymentSpec {
 func GrafanaDeployment(cr *v1alpha1.Grafana) *appv1.Deployment {
 	return &appv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "ibm-grafana",
+			Name:      GrafanaDeploymentName,
 			Namespace: cr.Namespace,
 		},
 		Spec: getDeploymentSpec(cr),

@@ -2,4 +2,4 @@ channels:
 - currentCSV: ibm-grafana-operator.v0.0.1
   name: alpha
 defaultChannel: alpha
-packageName: ibm-grafana-operator
+packageName: ibm-monitoring-grafana-operator-app

@@ -37,7 +37,7 @@ ENV OPERATOR=/usr/local/bin/ibm-grafana-operator \
     USER_NAME=ibm-grafana-operator
 
 # install operator binary
-COPY build/_output/bin/ibm-grafana-operator ${OPERATOR}
+COPY build/_output/bin/ibm-monitoring-grafana-operator ${OPERATOR}
 
 COPY build/bin /usr/local/bin
 RUN  /usr/local/bin/user_setup
