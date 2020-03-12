@@ -8,7 +8,7 @@ metadata:
           "apiVersion": "operator.ibm.com/v1alpha1",
           "kind": "Grafana",
           "metadata": {
-            "name": "example-grafana"
+            "name": "ibm-monitoring"
           },
           "spec": {
             "baseImage": "hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com/ibmcom-amd64/grafana",

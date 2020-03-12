@@ -26,7 +26,7 @@ const grafanaConfig = `
     domain = 127.0.0.1
     http_port = {{ .ClusterPort }}
     root_url = %(protocol)s://%(domain)s:%(http_port)s/grafana
-    cert_file = /opt/ibm/monitoring/certs/tls.cert
+    cert_file = /opt/ibm/monitoring/certs/tls.crt
     cert_key = /opt/ibm/monitoring/certs/tls.key
 
     [users]

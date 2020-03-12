@@ -16,16 +16,15 @@
 package artifacts
 
 // With parameter clusterPort
-const crdEntry = `
-    #!/bin/bash
-    FLAG=false
-    while [[ $FLAG == false ]]; do
-      curl -k --connect-timeout 10 https://127.0.0.1:{{ .ClusterPort }}/api
-      if [[ $? == 0 ]]; then
-      FLAG=true
-      echo "Grafana process started"
-      fi
-    done
+const crdEntry = `#!/bin/bash
+FLAG=false
+while [[ $FLAG == false ]]; do
+  curl -k --connect-timeout 10 https://127.0.0.1:{{ .ClusterPort }}/api
+  if [[ $? == 0 ]]; then
+  FLAG=true
+  echo "Grafana process started"
+  fi
+done
 
-    /grafana-dashboard-crd
+/grafana-dashboard-crd
 `
