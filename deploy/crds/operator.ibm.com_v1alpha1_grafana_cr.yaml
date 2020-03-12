@@ -1,7 +1,7 @@
 apiVersion: operator.ibm.com/v1alpha1
 kind: Grafana
 metadata:
-  name: example-grafana
+  name: ibm-monitoring
 spec:
   service:
     type: NodePort

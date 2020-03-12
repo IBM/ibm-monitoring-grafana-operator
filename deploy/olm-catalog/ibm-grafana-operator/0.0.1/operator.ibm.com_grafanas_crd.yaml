@@ -1093,6 +1093,11 @@ spec:
                 enabled:
                   type: boolean
               type: object
+            prometheusServiceName:
+              type: string
+            prometheusServicePort:
+              format: int32
+              type: integer
             resources:
               properties:
                 dashboard:
