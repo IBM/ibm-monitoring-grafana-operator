@@ -33,6 +33,8 @@ spec:
           properties:
             baseImage:
               type: string
+            baseImageTag:
+              type: string
             configMaps:
               items:
                 type: string
@@ -1075,10 +1077,18 @@ spec:
                 - name
                 type: object
               type: array
+            dashboardImageController:
+              type: string
+            dashboardImageControllerTag:
+              type: string
             imagePullSecrets:
               items:
                 type: string
               type: array
+            initImage:
+              type: string
+            initImageTag:
+              type: string
             ipVersion:
               type: string
             isHub:
@@ -1107,6 +1117,10 @@ spec:
                 router:
                   type: integer
               type: object
+            routerImage:
+              type: string
+            routerImageTag:
+              type: string
             secrets:
               items:
                 type: string
@@ -1177,7 +1191,9 @@ spec:
                     service
                   type: string
               type: object
-            tag:
+            tlsClientSecretName:
+              type: string
+            tlsSecretName:
               type: string
           type: object
         status:

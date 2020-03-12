@@ -26,7 +26,6 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
-	"github.com/IBM/ibm-grafana-operator/pkg/controller/config"
 )
 
 var log = logf.Log.WithName("model")
@@ -101,9 +100,18 @@ func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 	volumes = append(volumes, createVolumeFromCM(grafanaLua))
 	volumes = append(volumes, createVolumeFromCM(utilLua))
 
-	volumes = append(volumes, createVolumeFromSecret("ibm-monitoring-certs", "ibm-monitoring-ca-certs"))
-	volumes = append(volumes, createVolumeFromSecret("ibm-monitoring-certs", "ibm-monitoring-certs"))
-	volumes = append(volumes, createVolumeFromSecret("ibm-monitoring-client-certs", "ibm-monitoring-client-certs"))
+	var cert, clientCert string
+	if cr.Spec.TLSSecretName != "" && cr.Spec.TLSClientSecretName != "" {
+		cert = cr.Spec.TLSSecretName
+		clientCert = cr.Spec.TLSClientSecretName
+	} else {
+		cert = "ibm-monitoring-certs"
+		clientCert = "ibm-monitoring-client-certs"
+	}
+
+	volumes = append(volumes, createVolumeFromSecret(cert, "ibm-monitoring-ca-certs"))
+	volumes = append(volumes, createVolumeFromSecret(cert, "ibm-monitoring-certs"))
+	volumes = append(volumes, createVolumeFromSecret(clientCert, "ibm-monitoring-client-certs"))
 
 	// Extra volumes for secrets
 	for _, secret := range cr.Spec.Secrets {
@@ -216,15 +224,11 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 
 	var image, tag string
 	containers := []corev1.Container{}
-	if cr.Spec.BaseImage != "" {
+	if cr.Spec.BaseImage != "" && cr.Spec.BaseImageTag != "" {
 		image = cr.Spec.BaseImage
+		tag = cr.Spec.BaseImageTag
 	} else {
 		image = DefaultGrafanaImage
-	}
-
-	if cr.Spec.Tag != "" {
-		tag = cr.Spec.Tag
-	} else {
 		tag = DefaultGrafanaImageTag
 	}
 
@@ -348,10 +352,17 @@ func getImagePullSecrets(cr *v1alpha1.Grafana) []corev1.LocalObjectReference {
 	return secrets
 }
 
-func getInitContainers() []corev1.Container {
-	cfg := config.GetControllerConfig()
-	image := cfg.GetConfigString(config.InitImageName, "")
-	tag := cfg.GetConfigString(config.InitImageTagName, "")
+func getInitContainers(cr *v1alpha1.Grafana) []corev1.Container {
+
+	var image, tag string
+	if cr.Spec.InitImage != "" && cr.Spec.InitImageTag != "" {
+		image = cr.Spec.InitImage
+		tag = cr.Spec.InitImageTag
+	} else {
+		image = DefaultInitImage
+		tag = DefaultInitImageTag
+	}
+
 	False := false
 
 	volumeMounts := []corev1.VolumeMount{}
@@ -435,7 +446,7 @@ func getDeploymentSpec(cr *v1alpha1.Grafana) appv1.DeploymentSpec {
 			Spec: corev1.PodSpec{
 				//PriorityClassName:  "system-cluster-critical",
 				ImagePullSecrets:   getImagePullSecrets(cr),
-				InitContainers:     getInitContainers(),
+				InitContainers:     getInitContainers(cr),
 				HostPID:            false,
 				HostIPC:            false,
 				HostNetwork:        false,

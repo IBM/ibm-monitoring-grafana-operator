@@ -21,13 +21,9 @@ import (
 )
 
 var (
-	InitImageName       = "init-image"
-	InitImageTagName    = "init-image-tag"
 	IAMNamespaceName    = "iam-namespace"
 	IAMServicePortName  = "iam-service-port"
 	IAMServicePort      = "4300"
-	DefaultInitImage    = "hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com/ibmcom-amd64/icp-initcontainer"
-	DefaultInitImageTag = "1.0.0-build.2"
 	DefaultIamNamespace = "ibm-common-services"
 )
 

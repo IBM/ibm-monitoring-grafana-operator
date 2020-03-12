@@ -100,9 +100,18 @@ func getRouterProbe(delay, period int, iamNamespace string) *corev1.Probe {
 
 func createRouterContainer(cr *v1alpha1.Grafana) corev1.Container {
 
+	var image, tag string
+	if cr.Spec.RouterImage != "" && cr.Spec.RouterImageTag != "" {
+		image = cr.Spec.RouterImage
+		tag = cr.Spec.RouterImageTag
+	} else {
+		image = cr.Spec.RouterImage
+		tag = RouterImageTag
+	}
+
 	return corev1.Container{
 		Name:    "router",
-		Image:   fmt.Sprintf("%s:%s", RouterImage, RouterImageTag),
+		Image:   fmt.Sprintf("%s:%s", image, tag),
 		Command: []string{"/opt/ibm/router/entry/entrypoint.sh"},
 		Ports: []corev1.ContainerPort{
 			{

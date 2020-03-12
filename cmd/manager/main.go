@@ -76,8 +76,6 @@ func init() {
 	// controller-runtime)
 	flagSet.AddGoFlagSet(flag.CommandLine)
 	flag.StringVar(&iamNamespace, "iam-namespace", conf.DefaultIamNamespace, "Set iam namespace.")
-	flag.StringVar(&initImage, "init-container-image", conf.DefaultInitImage, "Set initial container image.")
-	flag.StringVar(&initImageTag, "init-container-image-tag", conf.DefaultInitImageTag, "Set initial container image tag.")
 	flag.StringVar(&iamServicePort, "iam-service-port", conf.IAMServicePort, "Set iam service port")
 	pflag.Parse()
 
@@ -104,8 +102,6 @@ func main() {
 
 	newConfig := conf.GetControllerConfig()
 	newConfig.AddConfigItem(conf.IAMNamespaceName, iamNamespace)
-	newConfig.AddConfigItem(conf.InitImageName, initImage)
-	newConfig.AddConfigItem(conf.InitImageTagName, initImageTag)
 	newConfig.AddConfigItem(conf.IAMServicePortName, iamServicePort)
 	// Get a config to talk to the apiserver
 	cfg, err := config.GetConfig()

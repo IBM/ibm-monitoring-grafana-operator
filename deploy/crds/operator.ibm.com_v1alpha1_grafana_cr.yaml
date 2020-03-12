@@ -14,8 +14,10 @@ spec:
     router: 1
     dashboard: 1
   baseImage: hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com/ibmcom-amd64/grafana
-  tag: v6.5.2-build.1
+  baseImageTag: v6.5.2-build.1
   ipVersion: "4"
   isHub: false
   imagePullSecrets:
     - infra-registry-key
+  tlsSecretName: ibm-monitoring-certs
+  tlsClientSecretName: ibm-monitoring-client-certs
