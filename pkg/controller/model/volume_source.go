@@ -31,9 +31,9 @@ import (
 
 // These vars are used to recontile all the configmaps.
 var (
-	clusterPort           int    = 8443
+	clusterPort           int32  = 8443
 	environment           string = "openshift"
-	prometheusServiceName string = "monitoring-prometheus"
+	prometheusServiceName string = "ibm-monitoring-prometheus"
 	IsConfigMapsCreated   bool   = false
 
 	//configmap names
@@ -57,9 +57,9 @@ type templateData struct {
 	ClusterDomain      string
 	GrafanaFullName    string
 	PrometheusFullName string
-	ClusterPort        int
-	PrometheusPort     int
-	GrafanaPort        int
+	ClusterPort        int32
+	PrometheusPort     int32
+	GrafanaPort        int32
 }
 
 // FileKeys stores the configmap name and file key
@@ -101,11 +101,22 @@ func createConfigmap(namespace, name string, data map[string]string) *corev1.Con
 func ReconcileConfigMaps(cr *v1alpha1.Grafana) []*corev1.ConfigMap {
 	configmaps := []*corev1.ConfigMap{}
 	namespace := cr.Namespace
-	var httpPort int
+	var prometheusPort, httpPort int32
+	var prometheusFullName string
 
 	httpPort = clusterPort
 
-	prometheusFullName := prometheusServiceName
+	if cr.Spec.PrometheusServiceName != "" {
+		prometheusFullName = cr.Spec.PrometheusServiceName
+	} else {
+		prometheusFullName = prometheusServiceName
+	}
+
+	if cr.Spec.PrometheusServicePort != 0 {
+		prometheusPort = cr.Spec.PrometheusServicePort
+	} else {
+		prometheusPort = PrometheusPort
+	}
 	grafanaPort := DefaultGrafanaPort
 	grafanaFullName := GrafanaServiceName
 
@@ -115,7 +126,7 @@ func ReconcileConfigMaps(cr *v1alpha1.Grafana) []*corev1.ConfigMap {
 		Environment:        environment,
 		ClusterDomain:      ClusterDomain,
 		PrometheusFullName: prometheusFullName,
-		PrometheusPort:     PrometheusPort,
+		PrometheusPort:     prometheusPort,
 		GrafanaFullName:    grafanaFullName,
 		GrafanaPort:        grafanaPort,
 	}

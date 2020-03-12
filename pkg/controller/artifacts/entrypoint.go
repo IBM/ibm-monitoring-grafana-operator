@@ -18,8 +18,8 @@ package artifacts
 const entrypoint = `#!/bin/sh
     chown -R 472:472 /var/lib/grafana
 
-    export CA=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' /opt/ibm/monitoring/ca-certs/ca.cert)
-    export CERT=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' /opt/ibm/monitoring/certs/tls.cert)
+    export CA=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' /opt/ibm/monitoring/ca-certs/ca.crt)
+    export CERT=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' /opt/ibm/monitoring/certs/tls.crt)
     export KEY=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' /opt/ibm/monitoring/certs/tls.key)
 
     cat >> /etc/grafana/provisioning/datasources/datasource.yaml <<EOF

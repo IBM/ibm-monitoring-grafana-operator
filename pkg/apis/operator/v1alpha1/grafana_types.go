@@ -31,18 +31,20 @@ type GrafanaSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html
-	Containers       []corev1.Container       `json:"containers,omitempty"`
-	Service          *GrafanaService          `json:"service,omitempty"`
-	ServiceAccount   string                   `json:"metaData,omitempty"`
-	ConfigMaps       []string                 `json:"configMaps,omitempty"`
-	Secrets          []string                 `json:"secrets,omitempty"`
-	BaseImage        string                   `json:"baseImage,omitempty"`
-	Tag              string                   `json:"tag,omitempty"`
-	Resources        *GrafanaResources        `json:"resources,omitempty"`
-	PersistentVolume *GrafanaPersistentVolume `json:"persistentVolume,omitempty"`
-	IsHub            bool                     `json:"isHub,omitempty"`
-	IPVersion        string                   `json:"ipVersion,omitempty"`
-	ImagePullSecrets []string                 `json:"imagePullSecrets,omitempty"`
+	Containers            []corev1.Container       `json:"containers,omitempty"`
+	Service               *GrafanaService          `json:"service,omitempty"`
+	ServiceAccount        string                   `json:"metaData,omitempty"`
+	ConfigMaps            []string                 `json:"configMaps,omitempty"`
+	Secrets               []string                 `json:"secrets,omitempty"`
+	BaseImage             string                   `json:"baseImage,omitempty"`
+	Tag                   string                   `json:"tag,omitempty"`
+	Resources             *GrafanaResources        `json:"resources,omitempty"`
+	PersistentVolume      *GrafanaPersistentVolume `json:"persistentVolume,omitempty"`
+	IsHub                 bool                     `json:"isHub,omitempty"`
+	IPVersion             string                   `json:"ipVersion,omitempty"`
+	ImagePullSecrets      []string                 `json:"imagePullSecrets,omitempty"`
+	PrometheusServiceName string                   `json:"prometheusServiceName,omitempty"`
+	PrometheusServicePort int32                    `json:"prometheusServicePort,omitempty"`
 }
 
 type GrafanaResources struct {

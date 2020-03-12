@@ -59,7 +59,7 @@ const routerConfig = `
             listen 8445 ssl default_server;
             ssl_certificate server.crt;
             ssl_certificate_key server.key;
-            ssl_client_certificate /opt/ibm/router/caCerts/ca-cert;
+            ssl_client_certificate /opt/ibm/router/ca-certs/ca.crt;
             ssl_verify_client on;
             ssl_protocols TLSv1.2;
             # Ref: https://github.com/cloudflare/sslconfig/blob/master/conf
