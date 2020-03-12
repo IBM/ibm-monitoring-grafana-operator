@@ -15,6 +15,12 @@ spec:
     dashboard: 1
   baseImage: hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com/ibmcom-amd64/grafana
   baseImageTag: v6.5.2-build.1
+  routerImage: hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com/ibmcom-amd64/icp-management-ingress
+  routerImageTag: 2.5.1
+  dashboardCtlImage: hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com/ibmcom-amd64/dashboard-controller
+  dashboardCtlImageTag: v1.2.0-build.2
+  initImage: hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com/ibmcom-amd64/icp-initcontainer
+  routerImageTag: 1.0.0-build.2
   ipVersion: "4"
   isHub: false
   imagePullSecrets:

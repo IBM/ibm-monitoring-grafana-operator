@@ -49,8 +49,8 @@ type GrafanaSpec struct {
 	InitImageTag                string                   `json:"initImageTag,omitempty"`
 	RouterImage                 string                   `json:"routerImage,omitempty"`
 	RouterImageTag              string                   `json:"routerImageTag,omitempty"`
-	DashboardControllerImage    string                   `json:"dashboardImageController,omitempty"`
-	DashboardControllerImageTag string                   `json:"dashboardImageControllerTag,omitempty"`
+	DashboardControllerImage    string                   `json:"dashboardCtlImage,omitempty"`
+	DashboardControllerImageTag string                   `json:"dashboardCtlImageTag,omitempty"`
 	TLSSecretName               string                   `json:"tlsSecretName,omitempty"`
 	TLSClientSecretName         string                   `json:"tlsClientSecretName,omitempty"`
 }

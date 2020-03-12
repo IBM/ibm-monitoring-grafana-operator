@@ -1077,9 +1077,9 @@ spec:
                 - name
                 type: object
               type: array
-            dashboardImageController:
+            dashboardCtlImage:
               type: string
-            dashboardImageControllerTag:
+            dashboardCtlImageTag:
               type: string
             imagePullSecrets:
               items:
