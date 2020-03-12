@@ -296,7 +296,7 @@ func getPodLabels(cr *v1alpha1.Grafana) map[string]string {
 	labels := map[string]string{
 		"app":                        "grafana",
 		"component":                  "grafana",
-		"app.kubernetes.io/instance": "grafana-service",
+		"app.kubernetes.io/instance": "common-monitoring",
 	}
 
 	if cr.Spec.Service != nil && cr.Spec.Service.Labels != nil {
@@ -310,7 +310,7 @@ func getPodAnnotations(cr *v1alpha1.Grafana) map[string]string {
 
 	annotations := map[string]string{
 		//"scheduler.alpha.kubernetes.io/critical-pod": "",
-		"clusterhealth.ibm.com/dependencies": "ibm-common-services.grafana",
+		"clusterhealth.ibm.com/dependencies": "cert-manager, auth-idp, icp-management-ingress",
 	}
 	if cr.Spec.Service != nil && cr.Spec.Service.Annotations != nil {
 		mergeMaps(annotations, cr.Spec.Service.Annotations)
