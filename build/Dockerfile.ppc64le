@@ -1,6 +1,30 @@
+#
+# Copyright 2020 IBM Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 FROM alpine as builder
 
 RUN wget -O /qemu-ppc64le-static https://github.com/multiarch/qemu-user-static/releases/latest/download/qemu-ppc64le-static
+
+RUN chmod +x /qemu-ppc64le-static
+
+#Using sha to reference image so that we get the actual architecture image since this build occurrs
+#on amd and using the fat manifest only pulls amd
+#FROM registry.access.redhat.com/ubi8/ubi-minimal:8.1-398
+FROM registry.access.redhat.com/ubi8/ubi-minimal@sha256:c3b4979b758ca7d4d790d418aa2f3010ebe9ad1ffcf3b4092e47ee03bf447823
+
 ARG IMAGE_NAME
 ARG IMAGE_DISPLAY_NAME
 ARG IMAGE_NAME_ARCH
@@ -34,14 +58,22 @@ LABEL org.label-schema.vendor="$IMAGE_VENDOR" \
       io.openshift.tags="$IMAGE_OPENSHIFT_TAGS"
 
 ENV OPERATOR=/usr/local/bin/ibm-grafana-operator \
+    DEPLOY_DIR=/deploy \
     USER_UID=1001 \
     USER_NAME=ibm-grafana-operator
 
+COPY --from=builder /qemu-ppc64le-static /usr/bin/
+
 # install operator binary
-COPY build/_output/bin/ibm-monitoring-grafana-operator ${OPERATOR}
+COPY build/_output/bin/ibm-monitoring-grafana-operator-ppc64le ${OPERATOR}
+COPY deploy/crds ${DEPLOY_DIR}
 
 COPY build/bin /usr/local/bin
 RUN  /usr/local/bin/user_setup
+
+# copy licenses
+RUN mkdir /licenses
+COPY LICENSE /licenses
 
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
 

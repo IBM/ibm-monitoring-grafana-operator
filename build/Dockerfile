@@ -33,14 +33,20 @@ LABEL org.label-schema.vendor="$IMAGE_VENDOR" \
       io.openshift.tags="$IMAGE_OPENSHIFT_TAGS"
 
 ENV OPERATOR=/usr/local/bin/ibm-grafana-operator \
+    DEPLOY_DIR=/deploy \
     USER_UID=1001 \
     USER_NAME=ibm-grafana-operator
 
 # install operator binary
 COPY build/_output/bin/ibm-monitoring-grafana-operator ${OPERATOR}
+COPY deploy/crds ${DEPLOY_DIR}
 
 COPY build/bin /usr/local/bin
 RUN  /usr/local/bin/user_setup
+
+# copy licenses
+RUN mkdir /licenses
+COPY LICENSE /licenses
 
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
 
