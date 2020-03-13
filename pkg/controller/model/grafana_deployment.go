@@ -42,9 +42,9 @@ func getPersistentVolume(cr *v1alpha1.Grafana, name string) corev1.Volume {
 	}
 
 }
+
 func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 	var volumes []corev1.Volume
-	var volumeOptional bool = true
 
 	// Volume to store the logs
 	volumes = append(volumes, corev1.Volume{
@@ -113,34 +113,6 @@ func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 	volumes = append(volumes, createVolumeFromSecret(cert, "ibm-monitoring-certs"))
 	volumes = append(volumes, createVolumeFromSecret(clientCert, "ibm-monitoring-client-certs"))
 
-	// Extra volumes for secrets
-	for _, secret := range cr.Spec.Secrets {
-		volumeName := fmt.Sprintf("secret-%s", secret)
-		volumes = append(volumes, corev1.Volume{
-			Name: volumeName,
-			VolumeSource: corev1.VolumeSource{
-				Secret: &corev1.SecretVolumeSource{
-					SecretName: secret,
-					Optional:   &volumeOptional,
-				},
-			},
-		})
-	}
-
-	// Extra volumes for config maps
-	for _, configmap := range cr.Spec.ConfigMaps {
-		volumeName := fmt.Sprintf("configmap-%s", configmap)
-		volumes = append(volumes, corev1.Volume{
-			Name: volumeName,
-			VolumeSource: corev1.VolumeSource{
-				ConfigMap: &corev1.ConfigMapVolumeSource{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: configmap,
-					},
-				},
-			},
-		})
-	}
 	return volumes
 }
 
@@ -182,22 +154,6 @@ func getVolumeMounts(cr *v1alpha1.Grafana) []corev1.VolumeMount {
 		Name:      "ibm-monitoring-certs",
 		MountPath: "/opt/ibm/monitoring/certs",
 	})
-
-	for _, secret := range cr.Spec.Secrets {
-		mountName := fmt.Sprintf("secret-%s", secret)
-		mounts = append(mounts, corev1.VolumeMount{
-			Name:      mountName,
-			MountPath: GrafanaSecretsDir + secret,
-		})
-	}
-
-	for _, configmap := range cr.Spec.ConfigMaps {
-		mountName := fmt.Sprintf("configmap-%s", configmap)
-		mounts = append(mounts, corev1.VolumeMount{
-			Name:      mountName,
-			MountPath: GrafanaConfigMapsDir + configmap,
-		})
-	}
 
 	return mounts
 }
@@ -252,47 +208,10 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 		ImagePullPolicy:          "IfNotPresent",
 	})
 
-	// Add extra containers
-	for _, container := range cr.Spec.Containers {
-		container.VolumeMounts = getExtraContainerVolumeMounts(cr, container.VolumeMounts)
-		containers = append(containers, container)
-	}
-
 	containers = append(containers, createRouterContainer(cr))
 	containers = append(containers, createDashboardContainer(cr))
 
 	return containers
-}
-
-// Add extra mounts of containers
-func getExtraContainerVolumeMounts(cr *v1alpha1.Grafana, mounts []corev1.VolumeMount) []corev1.VolumeMount {
-
-	appendIfEmpty := func(mounts []corev1.VolumeMount, mount corev1.VolumeMount) []corev1.VolumeMount {
-		for _, existing := range mounts {
-			if existing.Name == mount.Name || existing.MountPath == mount.MountPath {
-				return mounts
-			}
-		}
-		return append(mounts, mount)
-	}
-
-	for _, secret := range cr.Spec.Secrets {
-		mountName := fmt.Sprintf("secret-%s", secret)
-		mounts = appendIfEmpty(mounts, corev1.VolumeMount{
-			Name:      mountName,
-			MountPath: GrafanaSecretsDir + secret,
-		})
-	}
-
-	for _, configmap := range cr.Spec.ConfigMaps {
-		mountName := fmt.Sprintf("configmap-%s", configmap)
-		mounts = appendIfEmpty(mounts, corev1.VolumeMount{
-			Name:      mountName,
-			MountPath: GrafanaConfigMapsDir + configmap,
-		})
-	}
-
-	return mounts
 }
 
 func getPodLabels(cr *v1alpha1.Grafana) map[string]string {

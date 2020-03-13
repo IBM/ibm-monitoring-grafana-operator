@@ -35,10 +35,9 @@ spec:
               type: string
             baseImageTag:
               type: string
-            configMaps:
-              items:
-                type: string
-              type: array
+            clusterPort:
+              format: int32
+              type: integer
             containers:
               description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
                 Important: Run "operator-sdk generate k8s" to regenerate code after
@@ -1093,8 +1092,6 @@ spec:
               type: string
             isHub:
               type: boolean
-            metaData:
-              type: string
             persistentVolume:
               description: GrafanaPersistentVolume setup persistent volumes.
               properties:
@@ -1121,10 +1118,6 @@ spec:
               type: string
             routerImageTag:
               type: string
-            secrets:
-              items:
-                type: string
-              type: array
             service:
               description: GrafanaService provides a means to configure the service
               properties:
@@ -1191,6 +1184,8 @@ spec:
                     service
                   type: string
               type: object
+            serviceAccount:
+              type: string
             tlsClientSecretName:
               type: string
             tlsSecretName:

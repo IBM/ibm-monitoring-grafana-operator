@@ -33,9 +33,8 @@ type GrafanaSpec struct {
 	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html
 	Containers                  []corev1.Container       `json:"containers,omitempty"`
 	Service                     *GrafanaService          `json:"service,omitempty"`
-	ServiceAccount              string                   `json:"metaData,omitempty"`
-	ConfigMaps                  []string                 `json:"configMaps,omitempty"`
-	Secrets                     []string                 `json:"secrets,omitempty"`
+	ServiceAccount              string                   `json:"serviceAccount,omitempty"`
+	ClusterPort                 int32                    `json:"clusterPort,omitempty"`
 	BaseImage                   string                   `json:"baseImage,omitempty"`
 	BaseImageTag                string                   `json:"baseImageTag,omitempty"`
 	Resources                   *GrafanaResources        `json:"resources,omitempty"`

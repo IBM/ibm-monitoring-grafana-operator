@@ -105,7 +105,7 @@ func createRouterContainer(cr *v1alpha1.Grafana) corev1.Container {
 		image = cr.Spec.RouterImage
 		tag = cr.Spec.RouterImageTag
 	} else {
-		image = cr.Spec.RouterImage
+		image = RouterImage
 		tag = RouterImageTag
 	}
 

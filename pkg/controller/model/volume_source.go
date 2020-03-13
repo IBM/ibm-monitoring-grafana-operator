@@ -104,7 +104,9 @@ func ReconcileConfigMaps(cr *v1alpha1.Grafana) []*corev1.ConfigMap {
 	var prometheusPort, httpPort int32
 	var prometheusFullName string
 
-	httpPort = clusterPort
+	if cr.Spec.ClusterPort != 0 {
+		httpPort = cr.Spec.ClusterPort
+	}
 
 	if cr.Spec.PrometheusServiceName != "" {
 		prometheusFullName = cr.Spec.PrometheusServiceName

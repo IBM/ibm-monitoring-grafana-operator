@@ -175,16 +175,6 @@ func (in *GrafanaSpec) DeepCopyInto(out *GrafanaSpec) {
 		*out = new(GrafanaService)
 		(*in).DeepCopyInto(*out)
 	}
-	if in.ConfigMaps != nil {
-		in, out := &in.ConfigMaps, &out.ConfigMaps
-		*out = make([]string, len(*in))
-		copy(*out, *in)
-	}
-	if in.Secrets != nil {
-		in, out := &in.Secrets, &out.Secrets
-		*out = make([]string, len(*in))
-		copy(*out, *in)
-	}
 	if in.Resources != nil {
 		in, out := &in.Resources, &out.Resources
 		*out = new(GrafanaResources)

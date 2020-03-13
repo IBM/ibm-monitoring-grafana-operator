@@ -63,7 +63,7 @@ func getServicePorts(cr *v1alpha1.Grafana, currentState *corev1.Service) []corev
 			Name:       GrafanaHTTPPortName,
 			Protocol:   "TCP",
 			Port:       intPort,
-			TargetPort: intstr.FromString("grafana-https"),
+			TargetPort: intstr.FromString("8445"),
 		},
 	}
 

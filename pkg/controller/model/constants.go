@@ -32,7 +32,7 @@ const (
 	GrafanaServiceAccountName        = "ibm-monitoring-grafana"
 	GrafanaDeploymentName            = "ibm-monitoring-grafana"
 	GrafanaServiceName               = "ibm-monitoring-grafana"
-	GrafanaHTTPPortName              = "grafana"
+	GrafanaHTTPPortName              = "web"
 	RequeueDelay                     = time.Second * 10
 	DefaultGrafanaPort         int32 = 3000
 	GrafanaRouteName                 = "ibm-monitoring-grafana"

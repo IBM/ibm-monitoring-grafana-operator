@@ -4,9 +4,8 @@ metadata:
   name: ibm-monitoring
 spec:
   service:
-    type: NodePort
     ports:
-      - name: grafana-service
+      - name: ibm-monitoring-grafana
         protocol: TCP
         port: 3000
   resources:
@@ -27,3 +26,5 @@ spec:
     - infra-registry-key
   tlsSecretName: ibm-monitoring-certs
   tlsClientSecretName: ibm-monitoring-client-certs
+  prometheusServiceName: ibm-moitoring-prometheus
+  prometheusServicePort: 9090

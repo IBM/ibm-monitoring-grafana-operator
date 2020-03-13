@@ -63,7 +63,7 @@ func getIngressSpec() v1beta1.IngressSpec {
 							{
 								Path: "/grafana",
 								Backend: v1beta1.IngressBackend{
-									ServiceName: "grfana-service",
+									ServiceName: GrafanaServiceName,
 									ServicePort: intstr.IntOrString{
 										Type:   intstr.Int,
 										IntVal: DefaultGrafanaPort,
