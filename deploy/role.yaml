@@ -80,6 +80,7 @@ rules:
   - endpoints
   - pods
   - configmaps
+  - namespaces
   verbs:
   - get
   - list

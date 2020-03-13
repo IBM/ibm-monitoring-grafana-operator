@@ -102,6 +102,9 @@ func setupDashboardEnv(cr *v1alpha1.Grafana) []corev1.EnvVar {
 	}, corev1.EnvVar{
 		Name:  "LOOPBACK",
 		Value: loopback,
+	}, corev1.EnvVar{
+		Name:  "NAMESPACES",
+		Value: cr.Namespace,
 	})
 
 	return envs
