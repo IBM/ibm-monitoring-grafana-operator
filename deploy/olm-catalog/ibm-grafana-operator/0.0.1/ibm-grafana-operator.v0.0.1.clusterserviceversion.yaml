@@ -36,12 +36,12 @@ metadata:
                   "port": 3000,
                   "protocol": "TCP"
                 }
-              ],
+              ]
             },
             "tlsClientSecretName": "ibm-monitoring-client-certs",
             "tlsSecretName": "ibm-monitoring-certs",
-            prometheusServiceName: "ibm-moitoring-prometheus",
-            prometheusServicePort: 9090
+            "prometheusServiceName": "ibm-moitoring-prometheus",
+            "prometheusServicePort": 9090
           }
         }
       ]
