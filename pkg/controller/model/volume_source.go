@@ -30,10 +30,8 @@ import (
 
 // These vars are used to recontile all the configmaps.
 var (
-	clusterPort           int32  = 8443
-	environment           string = "openshift"
-	prometheusServiceName string = "ibm-monitoring-prometheus"
-	IsConfigMapsCreated   bool   = false
+	environment         string = "openshift"
+	IsConfigMapsCreated bool   = false
 
 	//configmap names
 	grafanaLua              string = "grafana-lua-script-config"
@@ -106,13 +104,13 @@ func ReconcileConfigMaps(cr *v1alpha1.Grafana) []*corev1.ConfigMap {
 	if cr.Spec.ClusterPort != 0 {
 		httpPort = cr.Spec.ClusterPort
 	} else {
-		httpPort = clusterPort
+		httpPort = DefaultClusterPort
 	}
 
 	if cr.Spec.PrometheusServiceName != "" {
 		prometheusFullName = cr.Spec.PrometheusServiceName
 	} else {
-		prometheusFullName = prometheusServiceName
+		prometheusFullName = PrometheusServiceName
 	}
 
 	if cr.Spec.PrometheusServicePort != 0 {
@@ -152,8 +150,6 @@ func ReconcileConfigMaps(cr *v1alpha1.Grafana) []*corev1.ConfigMap {
 	return configmaps
 }
 
-var grafanaSecretName = "grafana-secret"
-
 // CreateGrafanaSecret create a secret from the user/passwd from config file
 func CreateGrafanaSecret(cr *v1alpha1.Grafana) *corev1.Secret {
 
@@ -162,7 +158,7 @@ func CreateGrafanaSecret(cr *v1alpha1.Grafana) *corev1.Secret {
 
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      grafanaSecretName,
+			Name:      GrafanaAdminSecretName,
 			Namespace: cr.Namespace,
 			Labels:    map[string]string{"app": "grafana", "component": "grafana"},
 		},
@@ -174,7 +170,7 @@ func CreateGrafanaSecret(cr *v1alpha1.Grafana) *corev1.Secret {
 // GrafanaSecretSelector to retrieve the secret
 func GrafanaSecretSelector(cr *v1alpha1.Grafana) client.ObjectKey {
 	return client.ObjectKey{
-		Name:      grafanaSecretName,
+		Name:      GrafanaAdminSecretName,
 		Namespace: cr.Namespace,
 	}
 }

@@ -47,10 +47,27 @@ func setVolumeMountsForDashboard() []corev1.VolumeMount {
 func setupDashboardEnv(cr *v1alpha1.Grafana) []corev1.EnvVar {
 
 	var isHub bool
-	var loopback string
-	var version string
+	var version, prometheusHost, loopback string
+	var clusterPort, prometheusPort int32
 
-	clusterPort := "8443"
+	if cr.Spec.ClusterPort != 0 {
+		clusterPort = cr.Spec.ClusterPort
+	} else {
+		clusterPort = DefaultClusterPort
+	}
+
+	if cr.Spec.PrometheusServiceName != "" {
+		prometheusHost = cr.Spec.PrometheusServiceName
+	} else {
+		prometheusHost = PrometheusServiceName
+	}
+
+	if cr.Spec.PrometheusServicePort != 0 {
+		prometheusPort = cr.Spec.PrometheusServicePort
+	} else {
+		prometheusPort = PrometheusPort
+	}
+
 	envs := []corev1.EnvVar{}
 	envs = append(envs, setupAdminEnv("USER", "PASSWORD")...)
 	if cr.Spec.IsHub {
@@ -72,13 +89,13 @@ func setupDashboardEnv(cr *v1alpha1.Grafana) []corev1.EnvVar {
 
 	envs = append(envs, corev1.EnvVar{
 		Name:  "PROMETHEUS_HOST",
-		Value: "monitoring.prometheus",
+		Value: prometheusHost,
 	}, corev1.EnvVar{
 		Name:  "PROMETHEUS_PORT",
-		Value: string(PrometheusPort),
+		Value: string(prometheusPort),
 	}, corev1.EnvVar{
 		Name:  "PORT",
-		Value: clusterPort,
+		Value: string(clusterPort),
 	}, corev1.EnvVar{
 		Name:  "IS_HUB_CLUSTER",
 		Value: strconv.FormatBool(isHub),
