@@ -60,10 +60,13 @@ func getServicePorts(cr *v1alpha1.Grafana, currentState *corev1.Service) []corev
 
 	defaultPorts := []corev1.ServicePort{
 		{
-			Name:       GrafanaHTTPPortName,
-			Protocol:   "TCP",
-			Port:       intPort,
-			TargetPort: intstr.FromString("8445"),
+			Name:     GrafanaHTTPPortName,
+			Protocol: "TCP",
+			Port:     intPort,
+			TargetPort: intstr.IntOrString{
+				Type:   intstr.Int,
+				IntVal: 8445,
+			},
 		},
 	}
 

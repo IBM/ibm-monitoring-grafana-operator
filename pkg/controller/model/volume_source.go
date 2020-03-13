@@ -17,7 +17,6 @@ package model
 
 import (
 	"bytes"
-	b64 "encoding/base64"
 	"fmt"
 	"text/template"
 
@@ -106,6 +105,8 @@ func ReconcileConfigMaps(cr *v1alpha1.Grafana) []*corev1.ConfigMap {
 
 	if cr.Spec.ClusterPort != 0 {
 		httpPort = cr.Spec.ClusterPort
+	} else {
+		httpPort = clusterPort
 	}
 
 	if cr.Spec.PrometheusServiceName != "" {
@@ -157,9 +158,7 @@ var grafanaSecretName = "grafana-secret"
 func CreateGrafanaSecret(cr *v1alpha1.Grafana) *corev1.Secret {
 
 	var password, user string = "admin", "admin"
-	encUser := b64.StdEncoding.EncodeToString([]byte(user))
-	encPass := b64.StdEncoding.EncodeToString([]byte(password))
-	data := map[string][]byte{"username": []byte(encUser), "password": []byte(encPass)}
+	data := map[string][]byte{"username": []byte(user), "password": []byte(password)}
 
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
