@@ -60,6 +60,8 @@ rules:
   - use
 - apiGroups:
   - monitoringcontroller.cloud.ibm.com
+  resources:
+  - monitoringdashboards
   verbs:
   - '*'
 ---
@@ -95,5 +97,7 @@ rules:
   - use
 - apiGroups:
   - monitoringcontroller.cloud.ibm.com
-  verbs
+  resources:
+  - monitoringdashboards
+  verbs:
   - '*'

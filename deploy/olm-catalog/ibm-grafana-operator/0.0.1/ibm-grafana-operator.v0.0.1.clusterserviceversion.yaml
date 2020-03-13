@@ -57,6 +57,11 @@ spec:
       name: grafanas.operator.ibm.com
       version: v1alpha1
       displayName: IBM Monitoring Grafana
+    - description: MonitoringDashboard is the Schema for Grafana Dashboard
+      kind: MonitoringDashboard
+      name: monitoringdashboards.monitoringcontroller.cloud.ibm.com
+      version: v1
+      displayName: IBM Grafana Dashboard
   description: Grafana Operator for IBM common service monitoring stack
   displayName: Ibm Grafana Operator
   install:
@@ -88,6 +93,12 @@ spec:
           - securitycontextconstraints
           verbs:
           - use
+        - apiGroups:
+          - monitoringcontroller.cloud.ibm.com
+          resources:
+          - monitoringdashboards
+          verbs:
+          - '*'
         serviceAccountName: ibm-monitoring-grafana
       - rules:
         - apiGroups:
@@ -144,6 +155,12 @@ spec:
           - securitycontextconstraints
           verbs:
           - use
+        - apiGroups:
+          - monitoringcontroller.cloud.ibm.com
+          resources:
+          - monitoringdashboards
+          verbs:
+          - '*'
         serviceAccountName: ibm-monitoring-grafana-operator
       deployments:
       - name: ibm-monitoring-grafana-operator
