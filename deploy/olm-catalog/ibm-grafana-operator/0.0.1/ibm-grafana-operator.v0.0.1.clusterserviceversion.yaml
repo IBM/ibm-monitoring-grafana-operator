@@ -32,15 +32,16 @@ metadata:
             "service": {
               "ports": [
                 {
-                  "name": "grafana-service",
+                  "name": "ibm-monitoring-grafana",
                   "port": 3000,
                   "protocol": "TCP"
                 }
               ],
-              "type": "NodePort"
             },
             "tlsClientSecretName": "ibm-monitoring-client-certs",
-            "tlsSecretName": "ibm-monitoring-certs"
+            "tlsSecretName": "ibm-monitoring-certs",
+            prometheusServiceName: "ibm-moitoring-prometheus",
+            prometheusServicePort: 9090
           }
         }
       ]
