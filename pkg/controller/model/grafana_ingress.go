@@ -43,7 +43,7 @@ func GetIngressAnnotations(cr *v1alpha1.Grafana) map[string]string {
 		"kubernetes.io/ingress.class":                    "ibm-icp-management",
 		"icp.management.ibm.com/authz-type":              "rbac",
 		"icp.management.ibm.com/secure-backends":         "true",
-		"icp.management.ibm.com/secure-client-ca-secret": "monitoring-client-certs",
+		"icp.management.ibm.com/secure-client-ca-secret": cr.Spec.TLSClientSecretName,
 		"icp.management.ibm.com/rewrite-target":          "/",
 	}
 
