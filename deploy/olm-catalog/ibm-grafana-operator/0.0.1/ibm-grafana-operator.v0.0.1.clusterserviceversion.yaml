@@ -40,7 +40,7 @@ metadata:
             },
             "tlsClientSecretName": "ibm-monitoring-client-certs",
             "tlsSecretName": "ibm-monitoring-certs",
-            "prometheusServiceName": "ibm-moitoring-prometheus",
+            "prometheusServiceName": "ibm-monitoring-prometheus",
             "prometheusServicePort": 9090
           }
         }
