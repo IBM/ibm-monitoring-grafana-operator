@@ -92,10 +92,10 @@ func setupDashboardEnv(cr *v1alpha1.Grafana) []corev1.EnvVar {
 		Value: prometheusHost,
 	}, corev1.EnvVar{
 		Name:  "PROMETHEUS_PORT",
-		Value: string(prometheusPort),
+		Value: strconv.FormatInt(int64(prometheusPort), 10),
 	}, corev1.EnvVar{
 		Name:  "PORT",
-		Value: string(clusterPort),
+		Value: strconv.FormatInt(int64(clusterPort), 10),
 	}, corev1.EnvVar{
 		Name:  "IS_HUB_CLUSTER",
 		Value: strconv.FormatBool(isHub),

@@ -70,9 +70,9 @@ func init() {
 	FileKeys[routerEntry] = map[string]*template.Template{"entrypoint.sh": tpls.RouterEntry}
 	FileKeys[grafanaCRD] = map[string]*template.Template{"run.sh": tpls.GrafanaCRDEntry}
 	FileKeys[grafanaDefaultDashboard] = map[string]*template.Template{
-		"helm-release-dashboard.json":   tpls.HelmReleaseDashboard,
-		"kubenertes-pod-dashboard.json": tpls.KubernetesPodDashboard,
-		"mcm-monitoring-dashboard.json": tpls.MCMMonitoringDashboard,
+		"helm-release-monitoring.json": tpls.HelmReleaseDashboard,
+		"kubernetes-pod-overview.json": tpls.KubernetesPodDashboard,
+		"mcm-clusters-monitoring.json": tpls.MCMMonitoringDashboard,
 	}
 	FileKeys[dsConfig] = map[string]*template.Template{"entrypoint.sh": tpls.Entrypoint}
 	FileKeys[grafanaConfig] = map[string]*template.Template{"grafana.ini": tpls.GrafanaConfig}

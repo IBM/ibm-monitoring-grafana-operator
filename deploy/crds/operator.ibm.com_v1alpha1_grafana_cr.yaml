@@ -26,5 +26,5 @@ spec:
     - infra-registry-key
   tlsSecretName: ibm-monitoring-certs
   tlsClientSecretName: ibm-monitoring-client-certs
-  prometheusServiceName: ibm-moitoring-prometheus
+  prometheusServiceName: ibm-monitoring-prometheus
   prometheusServicePort: 9090
