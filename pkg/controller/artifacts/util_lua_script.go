@@ -84,7 +84,7 @@ const utilLuaScript = `
         local user_id = ""
         local httpc = http.new()
         ngx.req.set_header('Authorization', 'Bearer '.. token)
-        local res, err = httpc:request_uri("https://platform-identity-provider.kube-system.svc.{{ .ClusterDomain }}:4300/v1/auth/userInfo", {
+        local res, err = httpc:request_uri("https://platform-identity-provider.ibm-common-services.svc.{{ .ClusterDomain }}:4300/v1/auth/userInfo", {
             method = "POST",
             body = "access_token=" .. token,
             headers = {
@@ -109,7 +109,7 @@ const utilLuaScript = `
 
     local function get_user_role(token, uid)
         local httpc = http.new()
-        local res, err = httpc:request_uri("https://platform-identity-management.kube-system.svc.{{ .ClusterDomain }}:4500/identity/api/v1/users/" .. uid .. "/getHighestRoleForCRN", {
+        local res, err = httpc:request_uri("https://platform-identity-management.ibm-common-services.svc.{{ .ClusterDomain }}:4500/identity/api/v1/users/" .. uid .. "/getHighestRoleForCRN", {
             method = "GET",
             headers = {
               ["Content-Type"] = "application/json",
@@ -135,7 +135,7 @@ const utilLuaScript = `
 
     local function get_user_namespaces(token, uid)
         local httpc = http.new()
-        res, err = httpc:request_uri("https://platform-identity-management.kube-system.svc.{{ .ClusterDomain }}:4500/identity/api/v1/users/" .. uid .. "/getTeamResources", {
+        res, err = httpc:request_uri("https://platform-identity-management.ibm-common-services.svc.{{ .ClusterDomain }}:4500/identity/api/v1/users/" .. uid .. "/getTeamResources", {
             method = "GET",
             headers = {
               ["Content-Type"] = "application/json",
@@ -201,7 +201,7 @@ const utilLuaScript = `
 
     local function get_all_users(token)
         local httpc = http.new()
-        res, err = httpc:request_uri("https://platform-identity-management.kube-system.svc.{{ .ClusterDomain }}:4500/identity/api/v1/users", {
+        res, err = httpc:request_uri("https://platform-identity-management.ibm-common-services.svc.{{ .ClusterDomain }}:4500/identity/api/v1/users", {
             method = "GET",
             headers = {
               ["Accept"] = "application/json",
