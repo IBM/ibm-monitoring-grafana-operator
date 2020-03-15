@@ -70,6 +70,7 @@ COPY deploy/crds ${DEPLOY_DIR}
 
 COPY build/bin /usr/local/bin
 RUN  /usr/local/bin/user_setup
+COPY build/dashboards /dashboards
 
 # copy licenses
 RUN mkdir /licenses

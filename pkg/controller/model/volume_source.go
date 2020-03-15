@@ -26,6 +26,7 @@ import (
 
 	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	tpls "github.com/IBM/ibm-grafana-operator/pkg/controller/artifacts"
+	"github.com/IBM/ibm-grafana-operator/pkg/controller/dashboards"
 )
 
 // These vars are used to recontile all the configmaps.
@@ -69,11 +70,6 @@ func init() {
 	FileKeys[routerConfig] = map[string]*template.Template{"nginx.conf": tpls.RouterConfig}
 	FileKeys[routerEntry] = map[string]*template.Template{"entrypoint.sh": tpls.RouterEntry}
 	FileKeys[grafanaCRD] = map[string]*template.Template{"run.sh": tpls.GrafanaCRDEntry}
-	FileKeys[grafanaDefaultDashboard] = map[string]*template.Template{
-		"helm-release-monitoring.json": tpls.HelmReleaseDashboard,
-		"kubernetes-pod-overview.json": tpls.KubernetesPodDashboard,
-		"mcm-clusters-monitoring.json": tpls.MCMMonitoringDashboard,
-	}
 	FileKeys[dsConfig] = map[string]*template.Template{"entrypoint.sh": tpls.Entrypoint}
 	FileKeys[grafanaConfig] = map[string]*template.Template{"grafana.ini": tpls.GrafanaConfig}
 	FileKeys[grafanaDBConfig] = map[string]*template.Template{"dashboards.yaml": tpls.GrafanaDBConfig}
@@ -90,6 +86,23 @@ func createConfigmap(namespace, name string, data map[string]string) *corev1.Con
 		Data: data,
 	}
 	return &configmap
+}
+
+func createDefaultDashboard(namespace string) *corev1.ConfigMap {
+	configData := map[string]string{}
+
+	for file, data := range dashboards.DefaultDashboards {
+		configData[file] = data
+	}
+
+	return &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      grafanaDefaultDashboard,
+			Namespace: namespace,
+			Labels:    map[string]string{"app": "ibm-monitoring-grafana", "component": "grafana"},
+		},
+		Data: configData,
+	}
 }
 
 // ReconcileConfigMaps will reconcile all the confimaps for the grafana.
@@ -147,6 +160,7 @@ func ReconcileConfigMaps(cr *v1alpha1.Grafana) []*corev1.ConfigMap {
 		configmaps = append(configmaps, createConfigmap(cr.Namespace, file, data))
 	}
 
+	configmaps = append(configmaps, createDefaultDashboard(cr.Namespace))
 	return configmaps
 }
 

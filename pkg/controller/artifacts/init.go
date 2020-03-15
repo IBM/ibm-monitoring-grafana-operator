@@ -19,15 +19,6 @@ import (
 	"text/template"
 )
 
-// HelmReleaseDashboard export the template data
-var HelmReleaseDashboard *template.Template
-
-// KubernetesPodDashboard export dasdhboard data
-var KubernetesPodDashboard *template.Template
-
-// MCMMonitoringDashboard export mcm dashboard data
-var MCMMonitoringDashboard *template.Template
-
 // GrafanaLuaScript export grafana lua script
 var GrafanaLuaScript *template.Template
 
@@ -54,9 +45,6 @@ var GrafanaDBConfig *template.Template
 
 func init() {
 
-	HelmReleaseDashboard = template.Must(template.New("HRD").Parse(helmReleaseDashboard))
-	KubernetesPodDashboard = template.Must(template.New("KPD").Parse(podDashboard))
-	MCMMonitoringDashboard = template.Must(template.New("MCM").Parse(mcmDashboard))
 	GrafanaCRDEntry = template.Must(template.New("GE").Parse(crdEntry))
 	RouterConfig = template.Must(template.New("RE").Parse(routerConfig))
 	RouterEntry = template.Must(template.New("REN").Parse(routerEntry))
