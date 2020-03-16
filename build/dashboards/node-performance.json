@@ -71,7 +71,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(avg without (cpu)(irate(node_cpu_seconds_total{instance=~\"$Node:8445\",mode!=\"idle\"}[5m]))) by(instance)",
+              "expr": "sum(avg without (cpu)(irate(node_cpu_seconds_total{instance=~\"$Node.*\",mode!=\"idle\"}[5m]))) by(instance)",
               "format": "time_series",
               "instant": false,
               "interval": "",
@@ -163,7 +163,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum({__name__=~\"^node_load.*\",instance=~\"$Node:8445\"})by(instance)",
+              "expr": "sum({__name__=~\"^node_load.*\",instance=~\"$Node.*\"})by(instance)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "{{ instance }}",
@@ -269,7 +269,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "node_memory_Active_anon_bytes{instance=~\"$Node:8445\"}",
+              "expr": "node_memory_Active_anon_bytes{instance=~\"$Node.*\"}",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -277,7 +277,7 @@
               "refId": "A"
             },
             {
-              "expr": "node_memory_MemTotal_bytes{instance=~\"$Node:8445\"}",
+              "expr": "node_memory_MemTotal_bytes{instance=~\"$Node.*\"}",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "{{ instance }} Total",
@@ -366,7 +366,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "node_memory_MemAvailable_bytes{instance=~\"$Node:8445\"}",
+              "expr": "node_memory_MemAvailable_bytes{instance=~\"$Node.*\"}",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -456,7 +456,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "node_memory_SwapTotal_bytes{instance=~\"$Node:8445\"}",
+              "expr": "node_memory_SwapTotal_bytes{instance=~\"$Node.*\"}",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "{{ instance }}",
@@ -545,7 +545,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "node_memory_SwapFree_bytes{instance=~\"$Node:8445\"}",
+              "expr": "node_memory_SwapFree_bytes{instance=~\"$Node.*\"}",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "{{ instance }}",
@@ -634,7 +634,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "node_memory_SwapCached_bytes{instance=~\"$Node:8445\"}",
+              "expr": "node_memory_SwapCached_bytes{instance=~\"$Node.*\"}",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "{{ instance }}",
@@ -740,7 +740,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "node_filesystem_size_bytes{instance=~\"$Node:8445\",device!~'rootfs'} - node_filesystem_avail_bytes{instance=~\"$Node:8445\",device!~'rootfs'}",
+              "expr": "node_filesystem_size_bytes{instance=~\"$Node.*\",device!~'rootfs'} - node_filesystem_avail_bytes{instance=~\"$Node.*\",device!~'rootfs'}",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "{{ instance }} {{ mountpoint }}",
@@ -830,14 +830,14 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum (irate(node_disk_read_bytes_total{instance=~\"$Node:8445\", mode!=\"idle\"}[5m])) by (instance)",
+              "expr": "sum (irate(node_disk_read_bytes_total{instance=~\"$Node.*\", mode!=\"idle\"}[5m])) by (instance)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "{{ instance }} R",
               "refId": "A"
             },
             {
-              "expr": "sum (irate(node_disk_written_bytes_total{instance=~\"$Node:8445\", mode!=\"idle\"}[5m])) by (instance)",
+              "expr": "sum (irate(node_disk_written_bytes_total{instance=~\"$Node.*\", mode!=\"idle\"}[5m])) by (instance)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "{{ instance }} W",
@@ -940,7 +940,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "node_sockstat_TCP_tw{instance=~\"$Node:8445\"}",
+              "expr": "node_sockstat_TCP_tw{instance=~\"$Node.*\"}",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "{{ instance }}",
@@ -1029,7 +1029,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum (irate (node_network_receive_bytes_total{instance=~\"$Node:8445\", mode!=\"idle\"}[5m])) by (instance)",
+              "expr": "sum (irate (node_network_receive_bytes_total{instance=~\"$Node.*\", mode!=\"idle\"}[5m])) by (instance)",
               "format": "time_series",
               "hide": false,
               "instant": false,
@@ -1038,7 +1038,7 @@
               "refId": "A"
             },
             {
-              "expr": "- sum(irate (node_network_transmit_bytes_total{instance=~\"$Node:8445\", mode!=\"idle\"}[5m])) by (instance)",
+              "expr": "- sum(irate (node_network_transmit_bytes_total{instance=~\"$Node.*\", mode!=\"idle\"}[5m])) by (instance)",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "{{ instance }}  TX",
