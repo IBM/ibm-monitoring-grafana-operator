@@ -203,11 +203,6 @@ func reconcileAllDashboards(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 		if err != nil {
 			if errors.IsNotFound(err) && enable {
 				createdDB := dashboards.CreateDashboard(namespace, name)
-				err = controllerutil.SetControllerReference(cr, createdDB, r.scheme)
-				if err != nil {
-					log.Error(err, fmt.Sprintf("Fail to set reference on dashboard %s", name))
-					return err
-				}
 				err = r.client.Create(r.ctx, createdDB)
 				if err != nil {
 					log.Error(err, fmt.Sprintf("Fail to create dashboard %s in %s", name, namespace))
