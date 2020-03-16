@@ -52,6 +52,15 @@ type GrafanaSpec struct {
 	DashboardControllerImageTag string                   `json:"dashboardCtlImageTag,omitempty"`
 	TLSSecretName               string                   `json:"tlsSecretName,omitempty"`
 	TLSClientSecretName         string                   `json:"tlsClientSecretName,omitempty"`
+	DashboardsConfig            *DashboardConfig         `json:"dashboardConfig,omitempty"`
+}
+
+// DashboardConfig define dashboard config
+// DisabledDashboards to disable the  config by name
+// MainOrg to decide which org as the main org  for all dashboards
+type DashboardConfig struct {
+	DisabledDashboards []string `json:"disabledDashboards,omitempty"`
+	MainOrg            string   `json:"mainOrg,omitempty"`
 }
 
 type GrafanaResources struct {

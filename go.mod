@@ -38,6 +38,7 @@ replace github.com/openshift/api => github.com/openshift/api v0.0.0-201909241025
 
 require (
 	github.com/spf13/pflag v1.0.5
+	github.ibm.com/IBMPrivateCloud/grafana-dashboard-crd v1.2.0
 	k8s.io/api v0.0.0
 	k8s.io/apimachinery v0.0.0
 	k8s.io/client-go v12.0.0+incompatible

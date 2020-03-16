@@ -34,6 +34,7 @@ import (
 	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
 	"github.com/IBM/ibm-grafana-operator/pkg/controller/config"
 	utils "github.com/IBM/ibm-grafana-operator/pkg/controller/model"
+	dbv1 "github.ibm.com/IBMPrivateCloud/grafana-dashboard-crd/pkg/apis/monitoringcontroller/v1"
 )
 
 var log = logf.Log.WithName("controller_grafana")
@@ -104,6 +105,15 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	}
 
 	err = c.Watch(&source.Kind{Type: &v1beta1.Ingress{}}, &handler.EnqueueRequestForOwner{
+		IsController: true,
+		OwnerType:    &v1alpha1.Grafana{},
+	})
+
+	if err != nil {
+		return err
+	}
+
+	err = c.Watch(&source.Kind{Type: &dbv1.MonitoringDashboard{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
 		OwnerType:    &v1alpha1.Grafana{},
 	})

@@ -17,17 +17,24 @@ package grafana
 
 import (
 	"fmt"
+	"time"
 
+	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
+	"github.com/IBM/ibm-grafana-operator/pkg/controller/dashboards"
 	utils "github.com/IBM/ibm-grafana-operator/pkg/controller/model"
+	dbv1 "github.ibm.com/IBMPrivateCloud/grafana-dashboard-crd/pkg/apis/monitoringcontroller/v1"
 )
+
+var IsGrafanaRunning bool = false
 
 func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
@@ -55,6 +62,12 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	err = reconcileGrafanaDeployment(r, cr)
 	if err != nil {
 		log.Error(err, "Fail to reconcile grafana deployment.")
+		return err
+	}
+
+	err = reconcileAllDashboards(r, cr)
+	if err != nil {
+		log.Error(err, "Fail to  reconcile grafana dashboards.")
 		return err
 	}
 
@@ -112,6 +125,108 @@ func reconcileAllConfigMaps(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 		}
 	}
 
+	return nil
+}
+
+func getPodStatus(r *ReconcileGrafana) corev1.PodPhase {
+	var podPhase corev1.PodPhase
+	namespace, err := k8sutil.GetOperatorNamespace()
+	if err != nil {
+		log.Error(err, "Fail to get operator namespace")
+	}
+	podList := &corev1.PodList{}
+	listOpts := []client.ListOption{
+		client.InNamespace(namespace),
+		client.MatchingLabels(map[string]string{"app:": "grafana"}),
+	}
+	log.Info("Start to get grafana pods status")
+
+	time.Sleep(30 * time.Second)
+	for {
+		r.client.List(r.ctx, podList, listOpts...)
+		podPhase = podList.Items[0].Status.Phase
+		if podPhase == "Running" || podPhase == "Failed" {
+			log.Info(fmt.Sprintf("Grafana pod is %s.", podPhase))
+			break
+		}
+	}
+	return podPhase
+}
+
+func reconcileAllDashboards(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
+
+	var namespace string = "kube-system"
+	var disabledDBs []string
+	var phase corev1.PodPhase
+
+	log.Info("Start to reconcile grafana dashboards")
+	// Get status of grafana pod before creating dshboarding
+	// if it is not  running.
+	if !IsGrafanaRunning {
+		phase = getPodStatus(r)
+
+		if phase == "Running" {
+			IsGrafanaRunning = true
+		} else {
+			return fmt.Errorf("Fail to start grafana pod.")
+		}
+	}
+
+	// Update the dashboards status
+	if cr.Spec.DashboardsConfig != nil && cr.Spec.DashboardsConfig.MainOrg != "" {
+		namespace = cr.Spec.DashboardsConfig.MainOrg
+	}
+
+	selector := client.ObjectKey{
+		Namespace: namespace,
+		Name:      utils.GrafanaDeploymentName,
+	}
+
+	if cr.Spec.DashboardsConfig != nil && cr.Spec.DashboardsConfig.DisabledDashboards != nil {
+		disabledDBs = cr.Spec.DashboardsConfig.DisabledDashboards
+		for _, key := range disabledDBs {
+			if _, ok := dashboards.DefaultDBsStatus[key]; !ok {
+				continue
+			}
+			dashboards.DefaultDBsStatus[key] = false
+		}
+	}
+
+	if cr.Spec.IsHub {
+		dashboards.DefaultDBsStatus["mcm-clusters-monitoring"] = true
+	}
+
+	// Reconcile all the dashboards
+	for name, enable := range dashboards.DefaultDBsStatus {
+		db := &dbv1.MonitoringDashboard{}
+		err := r.client.Get(r.ctx, selector, db)
+		if err != nil {
+			if errors.IsNotFound(err) && enable {
+				createdDB := dashboards.CreateDashboard(namespace, name)
+				err = controllerutil.SetControllerReference(cr, createdDB, r.scheme)
+				if err != nil {
+					log.Error(err, fmt.Sprintf("Fail to set reference on dashboard %s", name))
+					return err
+				}
+				err = r.client.Create(r.ctx, createdDB)
+				if err != nil {
+					log.Error(err, fmt.Sprintf("Fail to create dashboard %s in %s", name, namespace))
+					return err
+				}
+				log.Info(fmt.Sprintf("Dashboard %s created.", name))
+			}
+			return err
+		}
+		// Found this db, disable it if it is disabled from CR.
+		if !enable {
+			db.Spec.Enabled = false
+			err = r.client.Update(r.ctx, db)
+			if err != nil {
+				log.Error(err, fmt.Sprintf("Fail to update dashboard %s", name))
+				return err
+			}
+		}
+	}
 	return nil
 }
 

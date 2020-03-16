@@ -1076,6 +1076,18 @@ spec:
                 - name
                 type: object
               type: array
+            dashboardConfig:
+              description: DashboardConfig define dashboard config DisabledDashboards
+                to disable the  config by name MainOrg to decide which org as the
+                main org  for all dashboards
+              properties:
+                disabledDashboards:
+                  items:
+                    type: string
+                  type: array
+                mainOrg:
+                  type: string
+              type: object
             dashboardCtlImage:
               type: string
             dashboardCtlImageTag:
