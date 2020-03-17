@@ -56,11 +56,11 @@ type GrafanaSpec struct {
 }
 
 // DashboardConfig define dashboard config
-// DisabledDashboards to disable the  config by name
+// DashboardsStatus to disable/enable dashboards by name
 // MainOrg to decide which org as the main org  for all dashboards
 type DashboardConfig struct {
-	DisabledDashboards []string `json:"disabledDashboards,omitempty"`
-	MainOrg            string   `json:"mainOrg,omitempty"`
+	DashboardsStatus map[string]bool `json:"dashboardsStatus,omitempty"`
+	MainOrg          string          `json:"mainOrg,omitempty"`
 }
 
 type GrafanaResources struct {

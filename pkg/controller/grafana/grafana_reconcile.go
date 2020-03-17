@@ -156,7 +156,6 @@ func getPodStatus(r *ReconcileGrafana) corev1.PodPhase {
 func reconcileAllDashboards(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
 	var namespace string = "kube-system"
-	var disabledDBs []string
 	var phase corev1.PodPhase
 
 	log.Info("Start to reconcile grafana dashboards")
@@ -182,19 +181,7 @@ func reconcileAllDashboards(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 		Name:      utils.GrafanaDeploymentName,
 	}
 
-	if cr.Spec.DashboardsConfig != nil && cr.Spec.DashboardsConfig.DisabledDashboards != nil {
-		disabledDBs = cr.Spec.DashboardsConfig.DisabledDashboards
-		for _, key := range disabledDBs {
-			if _, ok := dashboards.DefaultDBsStatus[key]; !ok {
-				continue
-			}
-			dashboards.DefaultDBsStatus[key] = false
-		}
-	}
-
-	if cr.Spec.IsHub {
-		dashboards.DefaultDBsStatus["mcm-clusters-monitoring"] = true
-	}
+	dashboards.ReconcileDashboardsStatus(cr)
 
 	// Reconcile all the dashboards
 	for name, enable := range dashboards.DefaultDBsStatus {

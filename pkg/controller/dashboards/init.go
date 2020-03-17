@@ -22,9 +22,10 @@ import (
 	"strings"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	dbv1 "github.ibm.com/IBMPrivateCloud/grafana-dashboard-crd/pkg/apis/monitoringcontroller/v1"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
+
+	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
+	dbv1 "github.ibm.com/IBMPrivateCloud/grafana-dashboard-crd/pkg/apis/monitoringcontroller/v1"
 )
 
 // DefaultDashboards store default dashboards
@@ -53,6 +54,27 @@ func CreateDashboard(namespace, name string) *dbv1.MonitoringDashboard {
 	}
 }
 
+func ReconcileDashboardsStatus(cr *v1alpha1.Grafana) {
+	var newStatus map[string]bool
+	if cr.Spec.DashboardsConfig != nil {
+		if cr.Spec.DashboardsConfig.DashboardsStatus != nil {
+			newStatus = cr.Spec.DashboardsConfig.DashboardsStatus
+		}
+	}
+
+	if cr.Spec.IsHub {
+		DefaultDBsStatus["mcm-clusters-monitoring"] = true
+	}
+
+	if newStatus != nil {
+		for dbName, status := range newStatus {
+			if _, ok := DefaultDBsStatus[dbName]; ok {
+				DefaultDBsStatus[dbName] = status
+			}
+		}
+	}
+}
+
 // Initialize DefaultDashboards, dashboardsData, DefaultDBsStatus
 func init() {
 	DefaultDashboards = map[string]string{}
@@ -77,8 +99,13 @@ func init() {
 		dashboardsData[name] = string(jsData)
 		DefaultDBsStatus[name] = true
 	}
-	// MCM monitoring default is disabled
+	// Set default dashboards status
 	DefaultDBsStatus["mcm-clusters-monitoring"] = false
+	DefaultDBsStatus["cs-calico-monitoring"] = false
+	DefaultDBsStatus["cs-glusterfs-monitoring"] = false
+	DefaultDBsStatus["cs-minio-monitoring"] = false
+	DefaultDBsStatus["etcd-monitoring"] = false
+
 	DefaultDashboards["helm-release-monitoring.json"] = dashboardsData["helm-release-monitoring"]
 	DefaultDashboards["mcm-clusters-monitoring.json"] = dashboardsData["mcm-clusters-monitoring"]
 	DefaultDashboards["kubernetes-pod-overview.json"] = dashboardsData["kubernetes-pod-overview"]
