@@ -74,65 +74,84 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	return nil
 }
 
+func getCurrentNamespace() (string, error) {
+	namespace, err := k8sutil.GetOperatorNamespace()
+	if err != nil {
+		log.Error(err, "Fail to get operator namespace")
+		return "", err
+	}
+	return namespace, nil
+}
+
 func reconcileAllConfigMaps(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	configmaps := utils.ReconcileConfigMaps(cr)
+	namespace, err := getCurrentNamespace()
+	if err != nil {
+		panic(err)
+	}
+	selector := func(name string) client.ObjectKey {
+		return client.ObjectKey{
+			Namespace: namespace,
+			Name:      name,
+		}
+	}
 
-	create := func(configmaps []*corev1.ConfigMap, r *ReconcileGrafana) error {
-		for _, cm := range configmaps {
-			err := controllerutil.SetControllerReference(cr, cm, r.scheme)
-			if err != nil {
-				return err
-			}
-			err = r.client.Create(r.ctx, cm)
-			if err != nil {
-				if errors.IsAlreadyExists(err) {
-					continue
+	create := func(cm *corev1.ConfigMap) error {
+		err := controllerutil.SetControllerReference(cr, cm, r.scheme)
+		if err != nil {
+			return err
+		}
+		err = r.client.Create(r.ctx, cm)
+		if err != nil {
+			return err
+		}
+		log.Info(fmt.Sprintf("configmap %s is created.", cm.ObjectMeta.Name))
+		return nil
+	}
+
+	update := func(cm *corev1.ConfigMap) error {
+		err := controllerutil.SetControllerReference(cr, cm, r.scheme)
+		if err != nil {
+			return err
+		}
+		err = r.client.Update(r.ctx, cm)
+		if err != nil {
+			return err
+		}
+		log.Info(fmt.Sprintf("configmap %s is updated.", cm.ObjectMeta.Name))
+		return nil
+	}
+
+	log.Info("Start to reconcile all the confimaps")
+	for _, cm := range configmaps {
+		name := cm.ObjectMeta.Name
+		err := r.client.Get(r.ctx, selector(name), cm)
+		if err != nil {
+			if errors.IsNotFound(err) {
+				err = create(cm)
+				if err != nil {
+					log.Error(err, fmt.Sprintf("Fail to create configmap %s", name))
+					return err
 				}
-				return err
+				log.Info(fmt.Sprintf("configmap %s created.", name))
 			}
-			log.Info(fmt.Sprintf("configmap %s is created.", cm.ObjectMeta.Name))
-		}
-		return nil
-	}
-
-	update := func(configmaps []*corev1.ConfigMap, r *ReconcileGrafana) error {
-		for _, cm := range configmaps {
-			err := controllerutil.SetControllerReference(cr, cm, r.scheme)
-			if err != nil {
-				return err
-			}
-			err = r.client.Update(r.ctx, cm)
-			if err != nil {
-				return err
-			}
-			log.Info(fmt.Sprintf("configmap %s is updated.", cm.ObjectMeta.Name))
-		}
-		return nil
-	}
-
-	if utils.IsConfigMapsCreated {
-		err := update(configmaps, r)
-		if err != nil {
 			return err
 		}
 
-	} else {
-		utils.IsConfigMapsCreated = true
-		err := create(configmaps, r)
+		err = update(cm)
 		if err != nil {
-			log.Error(err, "Fail to create configmap.")
+			log.Error(err, fmt.Sprintf("Fail to update configmap %s", name))
 			return err
 		}
 	}
-
 	return nil
 }
 
 func getPodStatus(r *ReconcileGrafana) corev1.PodPhase {
 	var podPhase corev1.PodPhase
-	namespace, err := k8sutil.GetOperatorNamespace()
+	namespace, err := getCurrentNamespace()
 	if err != nil {
-		log.Error(err, "Fail to get operator namespace")
+		panic(err)
 	}
 	podList := &corev1.PodList{}
 	listOpts := []client.ListOption{

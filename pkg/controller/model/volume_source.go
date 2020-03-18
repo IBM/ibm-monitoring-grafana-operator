@@ -17,7 +17,6 @@ package model
 
 import (
 	"bytes"
-	"fmt"
 	"text/template"
 
 	corev1 "k8s.io/api/core/v1"
@@ -31,9 +30,7 @@ import (
 
 // These vars are used to recontile all the configmaps.
 var (
-	environment         string = "openshift"
-	IsConfigMapsCreated bool   = false
-
+	environment string = "openshift"
 	//configmap names
 	grafanaLua              string = "grafana-lua-script-config"
 	utilLua                 string = "grafana-util-lua-script-config"
@@ -154,8 +151,6 @@ func ReconcileConfigMaps(cr *v1alpha1.Grafana) []*corev1.ConfigMap {
 				panic(err)
 			}
 			data[name] = buff.String()
-			log.Info(fmt.Sprintf("configmap data generated for: %s", file))
-			log.V(10).Info(buff.String())
 		}
 		configmaps = append(configmaps, createConfigmap(cr.Namespace, file, data))
 	}
