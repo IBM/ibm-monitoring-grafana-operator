@@ -105,6 +105,7 @@ func init() {
 	DefaultDBsStatus["cs-glusterfs-monitoring"] = false
 	DefaultDBsStatus["cs-minio-monitoring"] = false
 	DefaultDBsStatus["etcd-monitoring"] = false
+	DefaultDBsStatus["cs-rook-ceph-monitoring"] = false
 
 	DefaultDashboards["helm-release-monitoring.json"] = dashboardsData["helm-release-monitoring"]
 	DefaultDashboards["mcm-clusters-monitoring.json"] = dashboardsData["mcm-clusters-monitoring"]
