@@ -234,6 +234,10 @@ func getPodAnnotations(cr *v1alpha1.Grafana) map[string]string {
 	annotations := map[string]string{
 		//"scheduler.alpha.kubernetes.io/critical-pod": "",
 		"clusterhealth.ibm.com/dependencies": "cert-manager, auth-idp, icp-management-ingress",
+		"productName":                        "IBM Cloud Platform Common Services",
+		"productID":                          "068a62892a1e4db39641342e592daa25",
+		"productVersion":                     "3.3.0",
+		"productMetric":                      "FREE",
 	}
 	if cr.Spec.Service != nil && cr.Spec.Service.Annotations != nil {
 		mergeMaps(annotations, cr.Spec.Service.Annotations)
