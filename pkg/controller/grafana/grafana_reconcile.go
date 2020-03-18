@@ -176,20 +176,21 @@ func reconcileAllDashboards(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 		namespace = cr.Spec.DashboardsConfig.MainOrg
 	}
 
-	selector := client.ObjectKey{
-		Namespace: namespace,
-		Name:      utils.GrafanaDeploymentName,
+	selector := func(name string) client.ObjectKey {
+		return client.ObjectKey{
+			Namespace: namespace,
+			Name:      name,
+		}
 	}
-
 	dashboards.ReconcileDashboardsStatus(cr)
 
 	// Reconcile all the dashboards
-	for name, enable := range dashboards.DefaultDBsStatus {
+	for name, status := range dashboards.DefaultDBsStatus {
 		db := &dbv1.MonitoringDashboard{}
-		err := r.client.Get(r.ctx, selector, db)
+		err := r.client.Get(r.ctx, selector(name), db)
 		if err != nil {
-			if errors.IsNotFound(err) && enable {
-				createdDB := dashboards.CreateDashboard(namespace, name)
+			if errors.IsNotFound(err) {
+				createdDB := dashboards.CreateDashboard(namespace, name, status)
 				err = r.client.Create(r.ctx, createdDB)
 				if err != nil {
 					log.Error(err, fmt.Sprintf("Fail to create dashboard %s in %s", name, namespace))
@@ -199,14 +200,11 @@ func reconcileAllDashboards(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 			}
 			return err
 		}
-		// Found this db, disable it if it is disabled from CR.
-		if !enable {
-			db.Spec.Enabled = false
-			err = r.client.Update(r.ctx, db)
-			if err != nil {
-				log.Error(err, fmt.Sprintf("Fail to update dashboard %s", name))
-				return err
-			}
+		// Found this db, update it.
+		err = r.client.Update(r.ctx, db)
+		if err != nil {
+			log.Error(err, fmt.Sprintf("Fail to update dashboard %s", name))
+			return err
 		}
 	}
 	return nil

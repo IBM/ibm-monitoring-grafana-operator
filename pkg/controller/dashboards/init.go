@@ -37,7 +37,7 @@ var log = logf.Log.WithName("dashboard")
 // are all enabled.
 var DefaultDBsStatus map[string]bool
 
-func CreateDashboard(namespace, name string) *dbv1.MonitoringDashboard {
+func CreateDashboard(namespace, name string, status bool) *dbv1.MonitoringDashboard {
 
 	dashboardJSON := dashboardsData[name]
 	return &dbv1.MonitoringDashboard{
@@ -49,7 +49,7 @@ func CreateDashboard(namespace, name string) *dbv1.MonitoringDashboard {
 		},
 		Spec: dbv1.MonitoringDashboardSpec{
 			Data:    string(dashboardJSON),
-			Enabled: true,
+			Enabled: status,
 		},
 	}
 }
