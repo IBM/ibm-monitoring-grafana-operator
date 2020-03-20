@@ -79,7 +79,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"$namespace\"}[$interval])) by (pod_name) * 100",
+              "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"$namespace\"}[$interval])) by (name) * 100",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
@@ -292,7 +292,7 @@
           ],
           "targets": [
             {
-              "expr": "sum(label_replace(kubernetes_namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{kubernetes_namespace=\"$namespace\"}, \"pod\", \"$1\", \"pod_name\", \"(.*)\")) by (pod)",
+              "expr": "sum(rate(container_cpu_usage_seconds_total{kubernetes_namespace=\"$namespace\"}[5m])) by (pod)",
               "format": "table",
               "instant": true,
               "intervalFactor": 2,
@@ -310,7 +310,7 @@
               "step": 10
             },
             {
-              "expr": "sum(label_replace(kubernetes_namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{kubernetes_namespace=\"$namespace\"}, \"pod\", \"$1\", \"pod_name\", \"(.*)\")) by (pod) / sum(kube_pod_container_resource_requests_cpu_cores{namespace=\"$namespace\"}) by (pod)",
+              "expr": "sum(rate(container_cpu_usage_seconds_total{kubernetes_namespace=\"$namespace\"}[5m])) by (pod) / sum(kube_pod_container_resource_requests_cpu_cores{namespace=\"$namespace\"}) by (pod)",
               "format": "table",
               "instant": true,
               "intervalFactor": 2,
@@ -328,7 +328,7 @@
               "step": 10
             },
             {
-              "expr": "sum(label_replace(kubernetes_namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{kubernetes_namespace=\"$namespace\"}, \"pod\", \"$1\", \"pod_name\", \"(.*)\")) by (pod) / sum(kube_pod_container_resource_limits_cpu_cores{namespace=\"$namespace\"}) by (pod)",
+              "expr": "sum(rate(container_cpu_usage_seconds_total{kubernetes_namespace=\"$namespace\"}[5m])) by (pod) / sum(kube_pod_container_resource_limits_cpu_cores{namespace=\"$namespace\"}) by (pod)",
               "format": "table",
               "instant": true,
               "intervalFactor": 2,
@@ -428,7 +428,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(container_memory_usage_bytes{namespace=\"$namespace\", container_name!=\"\"}) by (pod_name)",
+              "expr": "sum(container_memory_usage_bytes{namespace=\"$namespace\", container!=\"\"}) by (pod)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "{{pod_name}}",
@@ -641,7 +641,7 @@
           ],
           "targets": [
             {
-              "expr": "sum(label_replace(container_memory_usage_bytes{namespace=\"$namespace\",container_name!=\"\"}, \"pod\", \"$1\", \"pod_name\", \"(.*)\")) by (pod)",
+              "expr": "sum(container_memory_usage_bytes{namespace=\"$namespace\",container!=\"\"}) by (pod)",
               "format": "table",
               "instant": true,
               "intervalFactor": 2,
@@ -659,7 +659,7 @@
               "step": 10
             },
             {
-              "expr": "sum(label_replace(container_memory_usage_bytes{namespace=\"$namespace\",container_name!=\"\"}, \"pod\", \"$1\", \"pod_name\", \"(.*)\")) by (pod) / sum(kube_pod_container_resource_requests_memory_bytes{namespace=\"$namespace\"}) by (pod)",
+              "expr": "sum(container_memory_usage_bytes{namespace=\"$namespace\",container!=\"\"}) by (pod) / sum(kube_pod_container_resource_requests_memory_bytes{namespace=\"$namespace\"}) by (pod)",
               "format": "table",
               "instant": true,
               "intervalFactor": 2,
@@ -677,7 +677,7 @@
               "step": 10
             },
             {
-              "expr": "sum(label_replace(container_memory_usage_bytes{namespace=\"$namespace\",container_name!=\"\"}, \"pod\", \"$1\", \"pod_name\", \"(.*)\")) by (pod) / sum(kube_pod_container_resource_limits_memory_bytes{namespace=\"$namespace\"}) by (pod)",
+              "expr": "sum(container_memory_usage_bytes{namespace=\"$namespace\",container!=\"\"}) by (pod) / sum(kube_pod_container_resource_limits_memory_bytes{namespace=\"$namespace\"}) by (pod)",
               "format": "table",
               "instant": true,
               "intervalFactor": 2,
