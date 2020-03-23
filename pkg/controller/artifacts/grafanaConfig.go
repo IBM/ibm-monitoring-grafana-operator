@@ -35,6 +35,9 @@ const grafanaConfig = `
     [log]
     mode = console
 
+    [security]
+    allow_embedding = true
+
     [auth]
     disable_login_form = true
     disable_signout_menu = true
