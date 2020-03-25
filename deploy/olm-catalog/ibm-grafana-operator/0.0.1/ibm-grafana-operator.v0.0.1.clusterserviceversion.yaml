@@ -175,6 +175,11 @@ spec:
             metadata:
               labels:
                 name: ibm-monitoring-grafana-operator
+              annotations:
+                productName: IBM Cloud Platform Common Services
+                productID: "068a62892a1e4db39641342e592daa25"
+                productVersion: "3.3.0"
+                productMetric: FREE
             spec:
               containers:
               - command:
@@ -206,6 +211,7 @@ spec:
   - supported: true
     type: AllNamespaces
   maturity: alpha
-  provider: {}
+  provider:
+    name: IBM
   replaces: ibm-grafana-operator.v0.0.0
   version: 0.0.1
