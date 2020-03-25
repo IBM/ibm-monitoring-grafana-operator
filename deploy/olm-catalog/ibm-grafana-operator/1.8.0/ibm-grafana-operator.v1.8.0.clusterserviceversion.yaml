@@ -46,7 +46,13 @@ metadata:
         }
       ]
     capabilities: Basic Install
-  name: ibm-grafana-operator.v0.0.1
+    categories: Monitoring
+    certified: 'false'
+    createdAt: 2020-03-25 12:00:00
+    support: IBM
+    description: Provisions node-exporter, kube-state-metrics and collectd exporter with tls enabled
+    repository: https://github.com/IBM/ibm-grafana-operator
+  name: ibm-grafana-operator.v1.8.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -214,4 +220,4 @@ spec:
   provider:
     name: IBM
   replaces: ibm-grafana-operator.v0.0.0
-  version: 0.0.1
+  version: 1.8.0

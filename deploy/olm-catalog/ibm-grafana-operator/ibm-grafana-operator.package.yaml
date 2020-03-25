@@ -1,5 +1,5 @@
 channels:
-- currentCSV: ibm-grafana-operator.v0.0.1
-  name: alpha
-defaultChannel: alpha
+- currentCSV: ibm-grafana-operator.v1.8.0
+  name: stable-v1
+defaultChannel: stable-v1
 packageName: ibm-monitoring-grafana-operator-app
