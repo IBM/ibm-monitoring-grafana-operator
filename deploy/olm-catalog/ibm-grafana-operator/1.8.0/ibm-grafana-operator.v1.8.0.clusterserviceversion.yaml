@@ -11,14 +11,14 @@ metadata:
             "name": "ibm-monitoring"
           },
           "spec": {
-            "baseImage": "hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com/ibmcom-amd64/grafana",
-            "baseImageTag": "v6.5.2-build.1",
-            "routerImage": "hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com/ibmcom-amd64/icp-management-ingress",
+            "baseImage": "quay.io/opencloudio/grafana",
+            "baseImageTag": "v6.5.2-build.2",
+            "routerImage": "quay.io/opencloudio/icp-management-ingress",
             "routerImageTag": "2.5.1",
-            "dashboardCtlImage": "hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com/ibmcom-amd64/dashboard-controller",
-            "dashboardCtlImageTag": "v1.2.0-build.2",
-            "initImage": "hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com/ibmcom-amd64/icp-initcontainer",
-            "initImageTag": "1.0.0-build.2",
+            "dashboardCtlImage": "quay.io/opencloudio/dashboard-controller",
+            "dashboardCtlImageTag": "v1.2.0-build.3",
+            "initImage": "quay.io/opencloudio/icp-initcontainer",
+            "initImageTag": "1.0.0-build.3",
             "imagePullSecrets": [
               "infra-registry-key"
             ],
