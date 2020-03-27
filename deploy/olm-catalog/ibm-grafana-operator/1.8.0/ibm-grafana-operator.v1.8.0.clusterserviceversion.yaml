@@ -296,7 +296,7 @@ spec:
                       fieldPath: metadata.name
                 - name: OPERATOR_NAME
                   value: ibm-monitoring-grafana-operator
-                image: quay.io/opencloudio/ibm-monitoring-grafana-operator
+                image: quay.io/opencloudio/ibm-monitoring-grafana-operator:1.8.0
                 imagePullPolicy: Always
                 name: grafana
                 resources: {}
