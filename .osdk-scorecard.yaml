@@ -11,4 +11,4 @@ scorecard:
     - olm:
         cr-manifest:
           - "deploy/crds/operator.ibm.com_v1alpha1_grafana_cr.yaml"
-        csv-path: "deploy/olm-catalog/ibm-grafana-operator/0.0.1/ibm-grafana-operator.v0.0.1.clusterserviceversion.yaml"
+        csv-path: "deploy/olm-catalog/ibm-grafana-operator/1.8.0/ibm-grafana-operator.v1.8.0.clusterserviceversion.yaml"
