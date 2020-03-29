@@ -320,5 +320,5 @@ spec:
     name: Dong Wang
   provider:
     name: IBM
-  replaces: ibm-grafana-operator.v0.0.0
+  #replaces: ibm-grafana-operator.v0.0.0
   version: 1.8.0
