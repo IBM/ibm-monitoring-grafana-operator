@@ -163,7 +163,7 @@
             "format": "time_series",
             "hide": false,
             "intervalFactor": 1,
-            "legendFormat": "{{ container_name }}",
+            "legendFormat": "{{ container }}",
             "refId": "A"
         }
         ],
@@ -331,7 +331,7 @@
             "expr": "container_memory_working_set_bytes{pod=\"$pod_name\", container=~\".+\", container=\"POD\" }",
             "format": "time_series",
             "intervalFactor": 1,
-            "legendFormat": "{{ container_name }}",
+            "legendFormat": "{{ container }}",
             "refId": "A"
         }
         ],

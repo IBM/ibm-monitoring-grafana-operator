@@ -79,11 +79,11 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"$namespace\"}[$interval])) by (name) * 100",
+              "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"$namespace\"}[$interval])) by (pod) * 100",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
-              "legendFormat": "{{pod_name}}",
+              "legendFormat": "{{pod}}",
               "refId": "A",
               "step": 10
             }
@@ -431,7 +431,7 @@
               "expr": "sum(container_memory_usage_bytes{namespace=\"$namespace\", container!=\"\"}) by (pod)",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "{{pod_name}}",
+              "legendFormat": "{{pod}}",
               "legendLink": null,
               "refId": "A",
               "step": 10
