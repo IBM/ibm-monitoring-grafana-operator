@@ -840,7 +840,7 @@
             "expr": "rate (container_network_transmit_bytes_total{pod=~\"$pod\",interface=\"eth0\"}[5m])",
             "format": "time_series",
             "intervalFactor": 2,
-            "legendFormat": "TX : {{ pod_name }}",
+            "legendFormat": "TX : {{ pod }}",
             "refId": "A",
             "step": 2
         },
@@ -848,7 +848,7 @@
             "expr": "rate (container_network_receive_bytes_total{pod=~\"$pod\",interface=\"eth0\"}[5m])",
             "format": "time_series",
             "intervalFactor": 2,
-            "legendFormat": "RX : {{ pod_name }}",
+            "legendFormat": "RX : {{ pod }}",
             "refId": "B",
             "step": 2
         }
