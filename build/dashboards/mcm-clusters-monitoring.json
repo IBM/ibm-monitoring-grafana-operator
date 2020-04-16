@@ -1280,7 +1280,7 @@
                             "step": 10
                         },
                         {
-                            "expr": "sum (container_memory_working_set_bytes{name!~\"^k8s_.*\",cluster_name=~\"^$cluster$\",cluster_name=~\".+\"}) by (cluster_name, name)",
+                            "expr": "sum (container_memory_working_set_bytes{image!=\"\",name!~\"^k8s_.*\",cluster_name=~\"^$cluster$\",cluster_name=~\".+\"}) by (cluster_name, name)",
                             "interval": "10s",
                             "intervalFactor": 1,
                             "legendFormat": "docker: {{ cluster_name }} | {{ image }} ({{ name }})",
