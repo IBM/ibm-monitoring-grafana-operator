@@ -31,9 +31,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
-	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
-	"github.com/IBM/ibm-grafana-operator/pkg/controller/config"
-	utils "github.com/IBM/ibm-grafana-operator/pkg/controller/model"
+	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
+	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/config"
+	utils "github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/model"
 	dbv1 "github.ibm.com/IBMPrivateCloud/grafana-dashboard-crd/pkg/apis/monitoringcontroller/v1"
 )
 

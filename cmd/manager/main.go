@@ -26,10 +26,10 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"k8s.io/client-go/rest"
 
-	"github.com/IBM/ibm-grafana-operator/pkg/apis"
-	"github.com/IBM/ibm-grafana-operator/pkg/controller"
-	conf "github.com/IBM/ibm-grafana-operator/pkg/controller/config"
-	"github.com/IBM/ibm-grafana-operator/version"
+	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis"
+	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller"
+	conf "github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/config"
+	"github.com/IBM/ibm-monitoring-grafana-operator/version"
 
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	kubemetrics "github.com/operator-framework/operator-sdk/pkg/kube-metrics"
@@ -113,7 +113,7 @@ func main() {
 
 	ctx := context.TODO()
 	// Become the leader before proceeding
-	err = leader.Become(ctx, "ibm-grafana-operator-lock")
+	err = leader.Become(ctx, "ibm-monitoring-grafana-operator-lock")
 	if err != nil {
 		log.Error(err, "")
 		os.Exit(1)

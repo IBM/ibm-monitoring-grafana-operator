@@ -1,4 +1,4 @@
-module github.com/IBM/ibm-grafana-operator
+module github.com/IBM/ibm-monitoring-grafana-operator
 
 go 1.13
 

@@ -23,9 +23,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
-	tpls "github.com/IBM/ibm-grafana-operator/pkg/controller/artifacts"
-	"github.com/IBM/ibm-grafana-operator/pkg/controller/dashboards"
+	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
+	tpls "github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/artifacts"
+	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/dashboards"
 )
 
 // These vars are used to recontile all the configmaps.

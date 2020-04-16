@@ -23,7 +23,7 @@ spec:
           # Replace this with the built image name
           image: quay.io/opencloudio/ibm-monitoring-grafana-operator
           command:
-          - ibm-grafana-operator
+          - ibm-monitoring-grafana-operator
           imagePullPolicy: Always
           env:
             - name: WATCH_NAMESPACE
