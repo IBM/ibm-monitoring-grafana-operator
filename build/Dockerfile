@@ -48,10 +48,10 @@ LABEL org.label-schema.vendor="$IMAGE_VENDOR" \
       io.k8s.description="$IMAGE_DESCRIPTION" \
       io.openshift.tags="$IMAGE_OPENSHIFT_TAGS"
 
-ENV OPERATOR=/usr/local/bin/ibm-grafana-operator \
+ENV OPERATOR=/usr/local/bin/ibm-monitoring-grafana-operator \
     DEPLOY_DIR=/deploy \
     USER_UID=1001 \
-    USER_NAME=ibm-grafana-operator
+    USER_NAME=ibm-monitoring-grafana-operator
 
 # install operator binary
 COPY build/_output/bin/ibm-monitoring-grafana-operator ${OPERATOR}

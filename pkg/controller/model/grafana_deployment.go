@@ -25,7 +25,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
-	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
+	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
 )
 
 var log = logf.Log.WithName("model")

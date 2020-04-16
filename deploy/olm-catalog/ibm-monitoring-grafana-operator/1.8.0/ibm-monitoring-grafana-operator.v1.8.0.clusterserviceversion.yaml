@@ -71,9 +71,9 @@ metadata:
     createdAt: 2020-03-25 12:00:00
     support: IBM
     description: Provisions node-exporter, kube-state-metrics and collectd exporter with tls enabled
-    repository: https://github.com/IBM/ibm-grafana-operator
+    repository: https://github.com/IBM/ibm-monitoring-grafana-operator
     containerImage: quay.io/opencloudio/ibm-monitoring-grafana-operator:1.8.0
-  name: ibm-grafana-operator.v1.8.0
+  name: ibm-monitoring-grafana-operator.v1.8.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -284,7 +284,7 @@ spec:
             spec:
               containers:
               - command:
-                - ibm-grafana-operator
+                - ibm-monitoring-grafana-operator
                 env:
                 - name: WATCH_NAMESPACE
                   valueFrom:
@@ -314,11 +314,11 @@ spec:
   maturity: alpha
   links:
   - name: IBM Monitoring Grafana Operator
-    url: https://github.com/IBM/ibm-grafana-operator
+    url: https://github.com/IBM/ibm-monitoring-grafana-operator
   maintainers:
   - email: dongdwdw@cn.ibm.com
     name: Dong Wang
   provider:
     name: IBM
-  #replaces: ibm-grafana-operator.v0.0.0
+  #replaces: ibm-monitoring-grafana-operator.v0.0.0
   version: 1.8.0

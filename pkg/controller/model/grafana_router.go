@@ -18,10 +18,10 @@ package model
 import (
 	"fmt"
 
-	conf "github.com/IBM/ibm-grafana-operator/pkg/controller/config"
+	conf "github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/config"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/IBM/ibm-grafana-operator/pkg/apis/operator/v1alpha1"
+	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
 )
 
 func getVolumeMountsForRouter() []corev1.VolumeMount {
