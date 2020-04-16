@@ -16,7 +16,7 @@
 package controller
 
 import (
-	"github.com/IBM/ibm-grafana-operator/pkg/controller/grafana"
+	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/grafana"
 )
 
 func init() {
