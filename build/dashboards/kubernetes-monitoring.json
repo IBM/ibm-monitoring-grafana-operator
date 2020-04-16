@@ -989,7 +989,7 @@
           "steppedLine": true,
           "targets": [
             {
-              "expr": "sum (rate (container_cpu_usage_seconds_total{name=~\"^k8s_.*\",container!=\"POD\",kubernetes_io_hostname=~\"^$Node$\"}[5m])) by (container, pod)",
+              "expr": "sum (rate (container_cpu_usage_seconds_total{image!=\"\",name=~\"^k8s_.*\",container!=\"POD\",kubernetes_io_hostname=~\"^$Node$\"}[5m])) by (container, pod)",
               "hide": false,
               "interval": "10s",
               "intervalFactor": 1,
@@ -999,7 +999,7 @@
               "step": 10
             },
             {
-              "expr": "sum (rate (container_cpu_usage_seconds_total{name!~\"^k8s_.*\",kubernetes_io_hostname=~\"^$Node$\"}[5m])) by (kubernetes_io_hostname, name, image)",
+              "expr": "sum (rate (container_cpu_usage_seconds_total{image!=\"\",name!~\"^k8s_.*\",kubernetes_io_hostname=~\"^$Node$\"}[5m])) by (kubernetes_io_hostname, name, image)",
               "hide": false,
               "interval": "10s",
               "intervalFactor": 1,
@@ -1315,7 +1315,7 @@
           ],
           "targets": [
             {
-              "expr": "sum(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate) by (namespace)",
+              "expr": "sum(rate(container_cpu_usage_seconds_total{ container != \"POD\", namespace!=\"\"}[5m])) by (namespace)",
               "format": "table",
               "instant": true,
               "intervalFactor": 2,
@@ -1333,7 +1333,7 @@
               "step": 10
             },
             {
-              "expr": "sum(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate) by (namespace) / sum(kube_pod_container_resource_requests_cpu_cores) by (namespace)",
+              "expr": "sum(rate(container_cpu_usage_seconds_total{ container != \"POD\", namespace!=\"\"}[5m])) by (namespace) / sum(kube_pod_container_resource_requests_cpu_cores) by (namespace)",
               "format": "table",
               "instant": true,
               "intervalFactor": 2,
@@ -1351,7 +1351,7 @@
               "step": 10
             },
             {
-              "expr": "sum(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate) by (namespace) / sum(kube_pod_container_resource_limits_cpu_cores) by (namespace)",
+              "expr": "sum(rate(container_cpu_usage_seconds_total{ container != \"POD\"}[5m])) by (namespace) / sum(kube_pod_container_resource_limits_cpu_cores) by (namespace)",
               "format": "table",
               "instant": true,
               "intervalFactor": 2,
@@ -1459,7 +1459,7 @@
           "steppedLine": true,
           "targets": [
             {
-              "expr": "sum (container_memory_working_set_bytes{name=~\"^k8s_.*\",container!=\"POD\",kubernetes_io_hostname=~\"^$Node$\"}) by (container, pod)",
+              "expr": "sum (container_memory_working_set_bytes{image!=\"\",name=~\"^k8s_.*\",container!=\"POD\",kubernetes_io_hostname=~\"^$Node$\"}) by (container, pod)",
               "interval": "10s",
               "intervalFactor": 1,
               "legendFormat": "pod: {{ pod }} | {{ container }}",
@@ -1468,7 +1468,7 @@
               "step": 10
             },
             {
-              "expr": "sum (container_memory_working_set_bytes{name!~\"^k8s_.*\",kubernetes_io_hostname=~\"^$Node$\"}) by (kubernetes_io_hostname, name, image)",
+              "expr": "sum (container_memory_working_set_bytes{image!=\"\",name!~\"^k8s_.*\",kubernetes_io_hostname=~\"^$Node$\"}) by (kubernetes_io_hostname, name, image)",
               "interval": "10s",
               "intervalFactor": 1,
               "legendFormat": "docker: {{ kubernetes_io_hostname }} | {{ image }} ({{ name }})",
@@ -2036,7 +2036,7 @@
               "step": 10
             },
             {
-              "expr": "sum (rate (container_network_receive_bytes_total{name!~\"^k8s_.*\",kubernetes_io_hostname=~\"^$Node$\"}[5m])) by (kubernetes_io_hostname, name, image)",
+              "expr": "sum (rate (container_network_receive_bytes_total{name!~\"^k8s_.*\",kubernetes_io_hostname=~\"^$Node$\"}[5m])) by (kubernetes_io_hostname, name)",
               "hide": false,
               "interval": "10s",
               "intervalFactor": 1,
@@ -2046,7 +2046,7 @@
               "step": 10
             },
             {
-              "expr": "- sum (rate (container_network_transmit_bytes_total{name!~\"^k8s_.*\",kubernetes_io_hostname=~\"^$Node$\"}[5m])) by (kubernetes_io_hostname, name, image)",
+              "expr": "- sum (rate (container_network_transmit_bytes_total{name!~\"^k8s_.*\",kubernetes_io_hostname=~\"^$Node$\"}[5m])) by (kubernetes_io_hostname, name)",
               "hide": false,
               "interval": "10s",
               "intervalFactor": 1,
