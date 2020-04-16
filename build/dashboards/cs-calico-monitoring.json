@@ -264,11 +264,11 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum (rate (container_cpu_usage_seconds_total{pod_name=~\"^calico-node.*\"}[5m])) by (pod_name)",
+              "expr": "sum (rate (container_cpu_usage_seconds_total{pod=~\"^calico-node.*\"}[5m])) by (pod)",
               "format": "time_series",
               "interval": "10s",
               "intervalFactor": 1,
-              "legendFormat": "{{ pod_name }}",
+              "legendFormat": "{{ pod }}",
               "metric": "container_cpu",
               "refId": "A",
               "step": 10
@@ -353,11 +353,11 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum (rate (container_cpu_usage_seconds_total{pod_name=~\"^calico-kube-.*\"}[5m])) by (pod_name)",
+              "expr": "sum (rate (container_cpu_usage_seconds_total{pod=~\"^calico-kube-.*\"}[5m])) by (pod)",
               "format": "time_series",
               "interval": "10s",
               "intervalFactor": 1,
-              "legendFormat": "{{ pod_name }}",
+              "legendFormat": "{{ pod }}",
               "metric": "container_cpu",
               "refId": "A",
               "step": 10
@@ -454,11 +454,11 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum (container_memory_working_set_bytes{pod_name=~\"^calico-node-.*\"}) by (pod_name)",
+              "expr": "sum (container_memory_working_set_bytes{pod=~\"^calico-node-.*\"}) by (pod)",
               "format": "time_series",
               "interval": "10s",
               "intervalFactor": 1,
-              "legendFormat": "{{ pod_name }}",
+              "legendFormat": "{{ pod }}",
               "metric": "container_memory_usage:sort_desc",
               "refId": "A",
               "step": 10
@@ -542,11 +542,11 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum (container_memory_working_set_bytes{pod_name=~\"^calico-kube-.*\"}) by (pod_name)",
+              "expr": "sum (container_memory_working_set_bytes{pod=~\"^calico-kube-.*\"}) by (pod)",
               "format": "time_series",
               "interval": "10s",
               "intervalFactor": 1,
-              "legendFormat": "{{ pod_name }}",
+              "legendFormat": "{{ pod }}",
               "metric": "container_memory_usage:sort_desc",
               "refId": "A",
               "step": 10

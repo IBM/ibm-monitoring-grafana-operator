@@ -1780,12 +1780,12 @@
           "steppedLine": true,
           "targets": [
             {
-              "expr": "sum (rate (container_cpu_usage_seconds_total{image!=\"\",name=~\"^k8s_.*\"}[$interval])) by (pod_name)",
+              "expr": "sum (rate (container_cpu_usage_seconds_total{image!=\"\",name=~\"^k8s_.*\"}[$interval])) by (pod)",
               "format": "time_series",
               "hide": false,
               "interval": "1m",
               "intervalFactor": 2,
-              "legendFormat": "{{ pod_name }}",
+              "legendFormat": "{{ pod }}",
               "metric": "",
               "refId": "A",
               "step": 120
@@ -1863,11 +1863,11 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum (container_memory_working_set_bytes{image!=\"\",name=~\"^k8s_.*\"}) by (pod_name)",
+              "expr": "sum (container_memory_working_set_bytes{image!=\"\",name=~\"^k8s_.*\"}) by (pod)",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
-              "legendFormat": "{{ pod_name }}",
+              "legendFormat": "{{ pod }}",
               "metric": "container_memory_usage:sort_desc",
               "refId": "A",
               "step": 10
