@@ -63,8 +63,33 @@ metadata:
                 "version": 1
               }
             }
+        },
+        {
+          "apiVersion": "operator.ibm.com/v1alpha1",
+          "kind": "OperandRequest",
+          "metadata": {
+            "name": "monitoring-grafana-operator-request"
+          },
+          "spec": {
+            "requests": [
+              {
+                "operands": [
+                  {
+                    "name": "ibm-iam-operator",
+                  },
+                  {
+                    "name": "ibm-management-ingress-operator",
+                  },
+                  {
+                    "name": "ibm-commonui-operator"
+                  }
+                ],
+                "registry":"common-service"
+              }
+            ]
+          }
         }
-        ]
+      ]
     capabilities: Basic Install
     categories: Monitoring
     certified: 'false'
