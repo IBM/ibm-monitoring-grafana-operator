@@ -51,14 +51,6 @@ rules:
   verbs:
   - '*'
 - apiGroups:
-  - security.openshift.io
-  resourceNames:
-  - privileged
-  resources:
-  - securitycontextconstraints
-  verbs:
-  - use
-- apiGroups:
   - monitoringcontroller.cloud.ibm.com
   resources:
   - monitoringdashboards
