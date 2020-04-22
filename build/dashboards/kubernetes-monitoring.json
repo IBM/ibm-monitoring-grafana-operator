@@ -1315,7 +1315,7 @@
           ],
           "targets": [
             {
-              "expr": "sum(rate(container_cpu_usage_seconds_total{ container != \"POD\"}[5m])) by (namespace)",
+              "expr": "sum(rate(container_cpu_usage_seconds_total{ container != \"POD\", namespace!=\"\"}[5m])) by (namespace)",
               "format": "table",
               "instant": true,
               "intervalFactor": 2,
@@ -1333,7 +1333,7 @@
               "step": 10
             },
             {
-              "expr": "sum(rate(container_cpu_usage_seconds_total{ container != \"POD\"}[5m])) by (namespace) / sum(kube_pod_container_resource_requests_cpu_cores) by (namespace)",
+              "expr": "sum(rate(container_cpu_usage_seconds_total{ container != \"POD\", namespace!=\"\"}[5m])) by (namespace) / sum(kube_pod_container_resource_requests_cpu_cores) by (namespace)",
               "format": "table",
               "instant": true,
               "intervalFactor": 2,
