@@ -17,7 +17,7 @@
 
 set -e
 QUAY_NAMESPACE=${QUAY_NAMESPACE:-opencloudio}
-QUAY_REPOSITORY=${QUAY_REPOSITORY:-ibm-metering-operator-app}
+QUAY_REPOSITORY=${QUAY_REPOSITORY:-ibm-monitoring-grafana-operator-app}
 
 [[ "X$QUAY_USERNAME" == "X" ]] && read -rp "Enter username quay.io: " QUAY_USERNAME
 [[ "X$QUAY_PASSWORD" == "X" ]] && read -rsp "Enter password quay.io: " QUAY_PASSWORD && echo
