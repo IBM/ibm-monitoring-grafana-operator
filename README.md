@@ -21,6 +21,11 @@ Other dependencies are as below:
 4. Prometheus services to query data.
 For the details, please refer to the CR.
 
+## SecurityContextConstraints Requirements
+
+- privileged SCC for operands
+- restricted SCC for operator
+  
 ## Documentation
 
 For installation and configuration, see [IBM Knowledge Center link](https://www-03preprod.ibm.com/support/knowledgecenter/en/SSHKN6/monitoring/1.8.0/monitoring_service.html).

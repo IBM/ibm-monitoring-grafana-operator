@@ -1,6 +1,10 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: ClusterServiceVersion
 metadata:
+  labels:
+    app.kubernetes.io/name: ibm-monitoring
+    app.kubernetes.io/instance: grafana
+    app.kubernetes.io/managed-by: ibm-monitoring-grafana-operator
   annotations:
     alm-examples: |-
       [
@@ -274,6 +278,9 @@ spec:
           template:
             metadata:
               labels:
+                app.kubernetes.io/name: ibm-monitoring
+                app.kubernetes.io/instance: grafana
+                app.kubernetes.io/managed-by: ibm-monitoring-grafana-operator
                 name: ibm-monitoring-grafana-operator
               annotations:
                 productName: IBM Cloud Platform Common Services
@@ -298,8 +305,36 @@ spec:
                 image: quay.io/opencloudio/ibm-monitoring-grafana-operator
                 imagePullPolicy: Always
                 name: grafana
-                resources: {}
+                securityContext:
+                  privileged: false
+                  allowPrivilegeEscalation: false
+                  readOnlyRootFilesystem: true
+                  runAsNonRoot: true
+                  capabilities:
+                    drop:
+                    - ALL
+                resources:
+                  limits:
+                    cpu: 50m
+                    memory: 128Mi
+                  requests:
+                    cpu: 20m
+                    memory: 64Mi
               serviceAccountName: ibm-monitoring-grafana-operator
+              hostIPC: false
+              hostNetwork: false
+              hostPID: false
+              affinity:
+                nodeAffinity:
+                  requiredDuringSchedulingIgnoredDuringExecution:
+                    nodeSelectorTerms:
+                    - matchExpressions:
+                      - key: beta.kubernetes.io/arch
+                        operator: In
+                        values:
+                        - amd64
+                        - ppc64le
+                        - s390x
     strategy: deployment
   installModes:
   - supported: true
