@@ -2,6 +2,10 @@ apiVersion: operators.coreos.com/v1alpha1
 kind: ClusterServiceVersion
 metadata:
   annotations:
+    labels:
+      app.kubernetes.io/name: ibm-monitoring
+      app.kubernetes.io/instance: grafana
+      app.kubernetes.io/managed-by: ibm-monitoring-grafana-operator
     alm-examples: |-
       [
         {

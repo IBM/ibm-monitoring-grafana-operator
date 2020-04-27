@@ -1,6 +1,10 @@
 apiVersion: operator.ibm.com/v1alpha1
 kind: Grafana
 metadata:
+  labels:
+    app.kubernetes.io/name: ibm-monitoring
+    app.kubernetes.io/instance: grafana
+    app.kubernetes.io/managed-by: ibm-monitoring-grafana-operator
   name: ibm-monitoring
 spec:
   service:
