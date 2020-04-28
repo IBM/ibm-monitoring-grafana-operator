@@ -67,31 +67,6 @@ metadata:
                 "version": 1
               }
             }
-        },
-        {
-          "apiVersion": "operator.ibm.com/v1alpha1",
-          "kind": "OperandRequest",
-          "metadata": {
-            "name": "monitoring-grafana-operator-request"
-          },
-          "spec": {
-            "requests": [
-              {
-                "operands": [
-                  {
-                    "name": "ibm-iam-operator",
-                  },
-                  {
-                    "name": "ibm-management-ingress-operator",
-                  },
-                  {
-                    "name": "ibm-commonui-operator"
-                  }
-                ],
-                "registry":"common-service"
-              }
-            ]
-          }
         }
       ]
     capabilities: Basic Install
@@ -101,7 +76,7 @@ metadata:
     support: IBM
     description: Provisions node-exporter, kube-state-metrics and collectd exporter with tls enabled
     repository: https://github.com/IBM/ibm-monitoring-grafana-operator
-    containerImage: quay.io/opencloudio/ibm-monitoring-grafana-operator
+    containerImage: quay.io/opencloudio/ibm-monitoring-grafana-operator:1.8.1
   name: ibm-monitoring-grafana-operator.v1.8.1
   namespace: placeholder
 spec:
@@ -217,6 +192,14 @@ spec:
           verbs:
           - get
         - apiGroups:
+          - security.openshift.io
+          resourceNames:
+          - privileged
+          resources:
+          - securitycontextconstraints
+          verbs:
+          - use
+        - apiGroups:
           - monitoringcontroller.cloud.ibm.com
           resources:
           - monitoringdashboards
@@ -317,7 +300,7 @@ spec:
                       fieldPath: metadata.name
                 - name: OPERATOR_NAME
                   value: ibm-monitoring-grafana-operator
-                image: quay.io/opencloudio/ibm-monitoring-grafana-operator
+                image: quay.io/opencloudio/ibm-monitoring-grafana-operator:1.8.1
                 imagePullPolicy: Always
                 name: grafana
                 resources: {}
