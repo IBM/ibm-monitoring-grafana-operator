@@ -23,9 +23,6 @@ metadata:
             "dashboardCtlImageTag": "v1.2.0-build.3",
             "initImage": "quay.io/opencloudio/icp-initcontainer",
             "initImageTag": "1.0.0-build.3",
-            "imagePullSecrets": [
-              "infra-registry-key"
-            ],
             "ipVersion": "4",
             "isHub": false,
             "resources": {
@@ -98,7 +95,7 @@ metadata:
     certified: 'false'
     createdAt: 2020-04-26 12:00:00
     support: IBM
-    description: Provisions node-exporter, kube-state-metrics and collectd exporter with tls enabled
+    description: Provision Grafana with TLS enabled and multi-tenancy
     repository: https://github.com/IBM/ibm-monitoring-grafana-operator
     containerImage: quay.io/opencloudio/ibm-monitoring-grafana-operator
   name: ibm-monitoring-grafana-operator.v1.9.0
