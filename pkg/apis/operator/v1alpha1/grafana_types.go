@@ -37,6 +37,7 @@ type GrafanaSpec struct {
 	ClusterPort                 int32                    `json:"clusterPort,omitempty"`
 	BaseImage                   string                   `json:"baseImage,omitempty"`
 	BaseImageTag                string                   `json:"baseImageTag,omitempty"`
+	BaseImageSHA                string                   `json:"baseImageSHA,omitempty"`
 	Resources                   *GrafanaResources        `json:"resources,omitempty"`
 	PersistentVolume            *GrafanaPersistentVolume `json:"persistentVolume,omitempty"`
 	IsHub                       bool                     `json:"isHub,omitempty"`
@@ -46,10 +47,13 @@ type GrafanaSpec struct {
 	PrometheusServicePort       int32                    `json:"prometheusServicePort,omitempty"`
 	InitImage                   string                   `json:"initImage,omitempty"`
 	InitImageTag                string                   `json:"initImageTag,omitempty"`
+	InitImageSHA                string                   `json:"initImageSHA,omitempty"`
 	RouterImage                 string                   `json:"routerImage,omitempty"`
 	RouterImageTag              string                   `json:"routerImageTag,omitempty"`
+	RouterImageSHA              string                   `json:"routerImageSHA,omitempty"`
 	DashboardControllerImage    string                   `json:"dashboardCtlImage,omitempty"`
 	DashboardControllerImageTag string                   `json:"dashboardCtlImageTag,omitempty"`
+	DashboardControllerImageSHA string                   `json:"dashboardCtlImageSHA,omitempty"`
 	TLSSecretName               string                   `json:"tlsSecretName,omitempty"`
 	TLSClientSecretName         string                   `json:"tlsClientSecretName,omitempty"`
 	DashboardsConfig            *DashboardConfig         `json:"dashboardConfig,omitempty"`

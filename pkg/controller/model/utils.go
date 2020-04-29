@@ -16,6 +16,7 @@
 package model
 
 import (
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -135,4 +136,45 @@ func setupAdminEnv(username, password string) []corev1.EnvVar {
 			},
 		},
 	}
+}
+
+func getImage(component string, cr *v1alpha1.GrafanaSpec) string {
+
+	defaultImageMap := map[string]string{
+		"DefaultRouterImageTag":              DefaultRouterImageTag,
+		"DefaultRouterImage":                 DefaultRouterImage,
+		"DefaultBaseImage":                   DefaultBaseImage,
+		"DefaultBaseImageTag":                DefaultBaseImageTag,
+		"DefaultInitImage":                   DefaultInitImage,
+		"DefaultInitImageTag":                DefaultInitImageTag,
+		"DefaultDashboardControllerImage":    DefaultDashboardControllerImage,
+		"DefaultDashboardControllerImageTag": DefaultDashboardControllerImageTag,
+	}
+
+	imageHashField := component + "ImageSHA"
+	imageField := component + "Image"
+	imageTagFiled := component + "ImageTag"
+
+	defaultImageField := "Default" + component + "Image"
+	defaultImageTagField := "Default" + component + "ImageTag"
+	defaultImage := defaultImageMap[defaultImageField]
+	defaultImageTag := defaultImageMap[defaultImageTagField]
+
+	elements := reflect.ValueOf(cr).Elem()
+
+	imageHash := elements.FieldByName(imageHashField).String()
+	imageTag := elements.FieldByName(imageTagFiled).String()
+	image := elements.FieldByName(imageField).String()
+
+	if image != "" {
+		if imageHash != "" {
+			return fmt.Sprintf("%s@%s", image, imageHash)
+		}
+		if imageTag != "" {
+			return fmt.Sprintf("%s:%s", image, imageTag)
+		}
+	}
+
+	return fmt.Sprintf("%s:%s", defaultImage, defaultImageTag)
+
 }

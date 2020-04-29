@@ -16,8 +16,6 @@
 package model
 
 import (
-	"fmt"
-
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -178,19 +176,12 @@ func getProbe(delay, timeout, failure int32) *corev1.Probe {
 
 func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 
-	var image, tag string
 	containers := []corev1.Container{}
-	if cr.Spec.BaseImage != "" && cr.Spec.BaseImageTag != "" {
-		image = cr.Spec.BaseImage
-		tag = cr.Spec.BaseImageTag
-	} else {
-		image = DefaultGrafanaImage
-		tag = DefaultGrafanaImageTag
-	}
+	image := getImage("Base", &cr.Spec)
 
 	containers = append(containers, corev1.Container{
 		Name:  "grafana",
-		Image: fmt.Sprintf("%s:%s", image, tag),
+		Image: image,
 		Ports: []corev1.ContainerPort{
 			{
 				Name:          "web",
@@ -277,14 +268,7 @@ func getImagePullSecrets(cr *v1alpha1.Grafana) []corev1.LocalObjectReference {
 
 func getInitContainers(cr *v1alpha1.Grafana) []corev1.Container {
 
-	var image, tag string
-	if cr.Spec.InitImage != "" && cr.Spec.InitImageTag != "" {
-		image = cr.Spec.InitImage
-		tag = cr.Spec.InitImageTag
-	} else {
-		image = DefaultInitImage
-		tag = DefaultInitImageTag
-	}
+	image := getImage("Init", &cr.Spec)
 
 	False := false
 
@@ -329,7 +313,7 @@ func getInitContainers(cr *v1alpha1.Grafana) []corev1.Container {
 	return []corev1.Container{
 		{
 			Name:            InitContainerName,
-			Image:           fmt.Sprintf("%s:%s", image, tag),
+			Image:           image,
 			Command:         []string{"/opt/entry/entrypoint.sh"},
 			Resources:       corev1.ResourceRequirements{},
 			SecurityContext: &SC,

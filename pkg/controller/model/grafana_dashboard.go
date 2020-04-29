@@ -16,7 +16,6 @@
 package model
 
 import (
-	"fmt"
 	"strconv"
 
 	corev1 "k8s.io/api/core/v1"
@@ -125,18 +124,12 @@ func getDashboardSC() *corev1.SecurityContext {
 }
 
 func createDashboardContainer(cr *v1alpha1.Grafana) corev1.Container {
-	var image, tag string
 
-	if cr.Spec.DashboardControllerImage != "" && cr.Spec.DashboardControllerImageTag != "" {
-		image = cr.Spec.DashboardControllerImage
-		tag = cr.Spec.DashboardControllerImageTag
-	} else {
-		image = DashboardImage
-		tag = DashboardImageTag
-	}
+	image := getImage("DashboardController", &cr.Spec)
+
 	return corev1.Container{
 		Name:                     "dashboard-controller",
-		Image:                    fmt.Sprintf("%s:%s", image, tag),
+		Image:                    image,
 		ImagePullPolicy:          "IfNotPresent",
 		Resources:                getContainerResource(cr, "Dashboard"),
 		SecurityContext:          getDashboardSC(),
