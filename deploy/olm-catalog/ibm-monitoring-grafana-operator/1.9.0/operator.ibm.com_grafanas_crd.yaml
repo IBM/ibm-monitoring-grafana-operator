@@ -37,6 +37,8 @@ spec:
           properties:
             baseImage:
               type: string
+            baseImageSHA:
+              type: string
             baseImageTag:
               type: string
             clusterPort:
@@ -1094,6 +1096,8 @@ spec:
               type: object
             dashboardCtlImage:
               type: string
+            dashboardCtlImageSHA:
+              type: string
             dashboardCtlImageTag:
               type: string
             imagePullSecrets:
@@ -1101,6 +1105,8 @@ spec:
                 type: string
               type: array
             initImage:
+              type: string
+            initImageSHA:
               type: string
             initImageTag:
               type: string
@@ -1131,6 +1137,8 @@ spec:
                   type: integer
               type: object
             routerImage:
+              type: string
+            routerImageSHA:
               type: string
             routerImageTag:
               type: string

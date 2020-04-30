@@ -17,12 +17,16 @@ metadata:
           "spec": {
             "baseImage": "quay.io/opencloudio/grafana",
             "baseImageTag": "v6.5.2-build.2",
+            "baseImageSHA": "sha256:21c6298b163d98fb61f18d83e049f2674ab8ae5b841a4a3dcf457d2426c0b34a",
             "routerImage": "quay.io/opencloudio/icp-management-ingress",
             "routerImageTag": "2.5.1",
+            "routerImageSHA": "sha256:c49e551f9f68f2e024a8a50e35f2ce4a6ec86f169d9bfb489b47fa6e8e216571",
             "dashboardCtlImage": "quay.io/opencloudio/dashboard-controller",
             "dashboardCtlImageTag": "v1.2.0-build.3",
+            "dashboardCtlImageSHA:" "sha256:3e98d208350826127bd514d2d06d31c4d521cd4b56cdfdeb705ba3434a1b543d",
             "initImage": "quay.io/opencloudio/icp-initcontainer",
             "initImageTag": "1.0.0-build.3",
+            "initImageSHA": "sha256:fc551f9f875782a9a59cee90b2b82af288dc9b63b7ef7924f3ebe4181930ef59",
             "ipVersion": "4",
             "isHub": false,
             "resources": {
@@ -135,18 +139,27 @@ spec:
       - description: grafana spec defines initImageTag as initial image tag
         displayName: Initial Image Tag
         path: initImageTag
+      - description: initImageSHA as init image hash value
+        displayName: Initial Image SHA
+        path: initImageSHA
       - description: baseImage as grafana base image
         displayName: Base Image
         path: baseImage
       - description: baseImagetag as grafana base image tag
         displayName: Base Image Tag
         path: baseImageTag
+      - description: baseImageSHA as hash value of base image
+        displayName: Base Image SHA
+        path: baseImageSHA
       - description: dashboardCtlImage as dashbord controller image
         displayName: Dashboard Controller Image
         path: dashboardCtlImage
       - description: dashboardCtlImageTag as dashboard controller image tag
         displayName: Dashboard Controller Image Tag
         path: dashboardCtlImageTag
+      - description: dashboardCtlImageSHA as dashboard controller image hash value
+        displayName: Dashboard Controller Image SHA
+        path: dashboardCtlImageSHA
       - description: imagePullSecrets as images pull secrets
         displayName: Image Pull Secrets
         path: imagePullSecrets
@@ -171,6 +184,9 @@ spec:
       - description: routerImageTag as router image tag
         displayName: Router Image Tag
         path: routerImageTag
+      - description: routerImageSHA as the router image hash value
+        displayName: Router Image SHA
+        path: routerImageSHA
       - description: tlsClientSecretName as TLS client secret name
         displayName: TLS Client Secret Name
         path: tlsClientSecretName
@@ -275,19 +291,18 @@ spec:
           verbs:
           - '*'
         - apiGroups:
-          - security.openshift.io
-          resourceNames:
-          - privileged
-          resources:
-          - securitycontextconstraints
-          verbs:
-          - use
-        - apiGroups:
           - monitoringcontroller.cloud.ibm.com
           resources:
           - monitoringdashboards
           verbs:
           - '*'
+        - apiGroups:
+          - monitoring.coreos.com
+          resources:
+          - servicemonitors
+          verbs:
+          - get
+          - create
         serviceAccountName: ibm-monitoring-grafana-operator
       deployments:
       - name: ibm-monitoring-grafana-operator
@@ -307,7 +322,7 @@ spec:
               annotations:
                 productName: IBM Cloud Platform Common Services
                 productID: "068a62892a1e4db39641342e592daa25"
-                productVersion: "3.3.0"
+                productVersion: "3.4.0"
                 productMetric: FREE
             spec:
               containers:
