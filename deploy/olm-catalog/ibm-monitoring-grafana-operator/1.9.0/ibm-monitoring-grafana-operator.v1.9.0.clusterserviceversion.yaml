@@ -23,7 +23,7 @@ metadata:
             "routerImageSHA": "sha256:c49e551f9f68f2e024a8a50e35f2ce4a6ec86f169d9bfb489b47fa6e8e216571",
             "dashboardCtlImage": "quay.io/opencloudio/dashboard-controller",
             "dashboardCtlImageTag": "v1.2.0-build.3",
-            "dashboardCtlImageSHA:" "sha256:3e98d208350826127bd514d2d06d31c4d521cd4b56cdfdeb705ba3434a1b543d",
+            "dashboardCtlImageSHA": "sha256:3e98d208350826127bd514d2d06d31c4d521cd4b56cdfdeb705ba3434a1b543d",
             "initImage": "quay.io/opencloudio/icp-initcontainer",
             "initImageTag": "1.0.0-build.3",
             "initImageSHA": "sha256:fc551f9f875782a9a59cee90b2b82af288dc9b63b7ef7924f3ebe4181930ef59",
