@@ -51,4 +51,9 @@ const (
 	DefaultBaseImageTag                       = "v6.5.2-build.2"
 	DefaultRouterImage                        = "quay.io/opencloudio/icp-management-ingress"
 	DefaultRouterImageTag                     = "2.5.1"
+
+	grafanaImageEnv      = "GRAFANA_IMAGE"
+	routerImageEnv       = "ROUTER_IMAGE"
+	dashboardCtlImageEnv = "DASHBOARD_CTL_IMAGE"
+	imageDigestKey       = `sha256:`
 )

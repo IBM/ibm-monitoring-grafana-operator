@@ -16,18 +16,8 @@ spec:
     grafana: 2
     router: 1
     dashboard: 1
-  baseImage: quay.io/opencloudio/grafana
-  baseImageTag: v6.5.2-build.2
-  routerImage: quay.io/opencloudio/icp-management-ingress
-  routerImageTag: 2.5.1
-  dashboardCtlImage: quay.io/opencloudio/dashboard-controller
-  dashboardCtlImageTag: v1.2.0-build.3
-  initImage: quay.io/opencloudio/icp-initcontainer
-  initImageTag: 1.0.0-build.3
   ipVersion: "4"
   isHub: false
-  imagePullSecrets:
-    - infra-registry-key
   tlsSecretName: ibm-monitoring-certs
   tlsClientSecretName: ibm-monitoring-client-certs
   prometheusServiceName: ibm-monitoring-prometheus
