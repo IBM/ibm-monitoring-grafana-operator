@@ -16,6 +16,8 @@
 package model
 
 import (
+	"os"
+
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -177,7 +179,7 @@ func getProbe(delay, timeout, failure int32) *corev1.Probe {
 func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 
 	containers := []corev1.Container{}
-	image := getImage("Base", &cr.Spec)
+	image := imageName(os.Getenv(grafanaImageEnv), cr.Spec.BaseImage)
 
 	containers = append(containers, corev1.Container{
 		Name:  "grafana",
@@ -268,7 +270,7 @@ func getImagePullSecrets(cr *v1alpha1.Grafana) []corev1.LocalObjectReference {
 
 func getInitContainers(cr *v1alpha1.Grafana) []corev1.Container {
 
-	image := getImage("Init", &cr.Spec)
+	image := imageName(os.Getenv(routerImageEnv), cr.Spec.InitImage)
 
 	False := false
 

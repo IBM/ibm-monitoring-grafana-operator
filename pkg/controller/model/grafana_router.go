@@ -16,6 +16,8 @@
 package model
 
 import (
+	"os"
+
 	conf "github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/config"
 	corev1 "k8s.io/api/core/v1"
 
@@ -98,7 +100,7 @@ func getRouterProbe(delay, period int, iamNamespace string) *corev1.Probe {
 
 func createRouterContainer(cr *v1alpha1.Grafana) corev1.Container {
 
-	image := getImage("Router", &cr.Spec)
+	image := imageName(os.Getenv(routerImageEnv), cr.Spec.RouterImage)
 
 	return corev1.Container{
 		Name:    "router",

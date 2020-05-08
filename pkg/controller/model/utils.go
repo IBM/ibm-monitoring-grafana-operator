@@ -36,7 +36,13 @@ func mergeMaps(to, from map[string]string) {
 		to[key] = val
 	}
 }
-
+func imageName(defaultV string, overwrite string) string {
+	if strings.Contains(overwrite, imageDigestKey) {
+		return overwrite
+	} else {
+		return defaultV
+	}
+}
 func getContainerResource(cr *v1alpha1.Grafana, name string) corev1.ResourceRequirements {
 
 	var resources *v1alpha1.GrafanaResources

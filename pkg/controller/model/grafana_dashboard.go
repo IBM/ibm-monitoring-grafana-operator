@@ -16,6 +16,7 @@
 package model
 
 import (
+	"os"
 	"strconv"
 
 	corev1 "k8s.io/api/core/v1"
@@ -125,7 +126,7 @@ func getDashboardSC() *corev1.SecurityContext {
 
 func createDashboardContainer(cr *v1alpha1.Grafana) corev1.Container {
 
-	image := getImage("DashboardController", &cr.Spec)
+	image := imageName(os.Getenv(dashboardCtlImageEnv), cr.Spec.DashboardControllerImage)
 
 	return corev1.Container{
 		Name:                     "dashboard-controller",
