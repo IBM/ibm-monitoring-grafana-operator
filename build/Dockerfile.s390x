@@ -23,7 +23,7 @@ RUN chmod +x /qemu-s390x-static
 #Using sha to reference image so that we get the actual architecture image since this build occurrs
 #on amd and using the fat manifest only pulls amd
 #FROM registry.access.redhat.com/ubi8/ubi-minimal:8.1-398
-FROM registry.access.redhat.com/ubi8/ubi-minimal@sha256:d61900307c7441a2065c102a4e6a3d55050027b6f1fd301ec691dd8dd032411a
+FROM registry.access.redhat.com/ubi8/ubi-minimal@sha256:7bb4dacb1e5fb5ad0742578d616982f836778fd0c5a0a00f843e9a7b1dabf487
 
 ARG IMAGE_NAME
 ARG IMAGE_DISPLAY_NAME
