@@ -1033,8 +1033,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "kube-system",
-          "value": "kube-system"
+          "text": "ibm-common-services",
+          "value": "ibm-common-services"
         },
         "datasource": "prometheus",
         "hide": 0,
