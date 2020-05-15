@@ -74,6 +74,12 @@ metadata:
                   },
                   {
                     "name": "ibm-commonui-operator"
+                  },
+                  {
+                    "name": "ibm-monitoring-exporters-operator"
+                  },
+                  {
+                    "name": "ibm-monitoring-prometheusext-operator"
                   }
                 ],
                 "registry":"common-service"
