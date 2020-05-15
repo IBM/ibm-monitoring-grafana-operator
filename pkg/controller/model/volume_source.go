@@ -73,12 +73,14 @@ func init() {
 }
 
 func createConfigmap(namespace, name string, data map[string]string) *corev1.ConfigMap {
+	labels := map[string]string{"app": "grafana"}
+	labels = appendCommonLabels(labels)
 
 	configmap := corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
-			Labels:    map[string]string{"app": "grafana"},
+			Labels:    labels,
 		},
 		Data: data,
 	}
@@ -92,11 +94,13 @@ func createDefaultDashboard(namespace string) *corev1.ConfigMap {
 		configData[file] = data
 	}
 
+	labels := map[string]string{"app": "ibm-monitoring-grafana", "component": "grafana"}
+	labels = appendCommonLabels(labels)
 	return &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      grafanaDefaultDashboard,
 			Namespace: namespace,
-			Labels:    map[string]string{"app": "ibm-monitoring-grafana", "component": "grafana"},
+			Labels:    labels,
 		},
 		Data: configData,
 	}
@@ -165,11 +169,13 @@ func CreateGrafanaSecret(cr *v1alpha1.Grafana) *corev1.Secret {
 	var password, user string = "admin", "admin"
 	data := map[string][]byte{"username": []byte(user), "password": []byte(password)}
 
+	labels := map[string]string{"app": "grafana", "component": "grafana"}
+	labels = appendCommonLabels(labels)
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      GrafanaAdminSecretName,
 			Namespace: cr.Namespace,
-			Labels:    map[string]string{"app": "grafana", "component": "grafana"},
+			Labels:    labels,
 		},
 		Type: "Opaque",
 		Data: data,

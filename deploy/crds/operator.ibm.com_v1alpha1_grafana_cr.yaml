@@ -3,7 +3,7 @@ kind: Grafana
 metadata:
   labels:
     app.kubernetes.io/name: ibm-monitoring
-    app.kubernetes.io/instance: grafana
+    app.kubernetes.io/instance: common-monitoring
     app.kubernetes.io/managed-by: ibm-monitoring-grafana-operator
   name: ibm-monitoring
 spec:

@@ -210,11 +210,10 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 func getPodLabels(cr *v1alpha1.Grafana) map[string]string {
 
 	labels := map[string]string{
-		"app":                        "grafana",
-		"component":                  "grafana",
-		"app.kubernetes.io/instance": "common-monitoring",
+		"app":       "grafana",
+		"component": "grafana",
 	}
-
+	labels = appendCommonLabels(labels)
 	if cr.Spec.Service != nil && cr.Spec.Service.Labels != nil {
 		mergeMaps(labels, cr.Spec.Service.Labels)
 	}

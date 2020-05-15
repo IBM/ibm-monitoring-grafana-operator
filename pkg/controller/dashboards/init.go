@@ -37,15 +37,24 @@ var log = logf.Log.WithName("dashboard")
 // are all enabled.
 var DefaultDBsStatus map[string]bool
 
+func appendCommonLabels(labels map[string]string) map[string]string {
+	labels["app.kubernetes.io/name"] = "ibm-monitoring"
+	labels["app.kubernetes.io/instance"] = "common-monitoring"
+	labels["app.kubernetes.io/managed-by"] = "ibm-monitoring-exporters-operator"
+	return labels
+}
+
 func CreateDashboard(namespace, name string, status bool) *dbv1.MonitoringDashboard {
 
+	labels := map[string]string{"app": "ibm-monitoring-grafana", "component": "grafana"}
+	labels = appendCommonLabels(labels)
 	dashboardJSON := dashboardsData[name]
 	return &dbv1.MonitoringDashboard{
 		TypeMeta: metav1.TypeMeta{APIVersion: dbv1.SchemeGroupVersion.String()},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
-			Labels:    map[string]string{"app": "ibm-monitoring-grafana", "component": "grafana"},
+			Labels:    labels,
 		},
 		Spec: dbv1.MonitoringDashboardSpec{
 			Data:    string(dashboardJSON),

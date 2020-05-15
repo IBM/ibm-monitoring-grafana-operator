@@ -3,7 +3,7 @@ kind: ClusterServiceVersion
 metadata:
   labels:
     app.kubernetes.io/name: ibm-monitoring
-    app.kubernetes.io/instance: grafana
+    app.kubernetes.io/instance: common-monitoring
     app.kubernetes.io/managed-by: ibm-monitoring-grafana-operator
   annotations:
     alm-examples: |-
@@ -304,7 +304,7 @@ spec:
             metadata:
               labels:
                 app.kubernetes.io/name: ibm-monitoring
-                app.kubernetes.io/instance: grafana
+                app.kubernetes.io/instance: common-monitoring
                 app.kubernetes.io/managed-by: ibm-monitoring-grafana-operator
                 name: ibm-monitoring-grafana-operator
               annotations:
