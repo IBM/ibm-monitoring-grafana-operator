@@ -184,3 +184,9 @@ func getImage(component string, cr *v1alpha1.GrafanaSpec) string {
 	return fmt.Sprintf("%s:%s", defaultImage, defaultImageTag)
 
 }
+func AppendCommonLabels(labels map[string]string) map[string]string {
+	labels["app.kubernetes.io/name"] = "ibm-monitoring"
+	labels["app.kubernetes.io/instance"] = "common-monitoring"
+	labels["app.kubernetes.io/managed-by"] = "ibm-monitoring-exporters-operator"
+	return labels
+}

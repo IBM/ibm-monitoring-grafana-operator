@@ -25,6 +25,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
+	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/model"
 	dbv1 "github.ibm.com/IBMPrivateCloud/grafana-dashboard-crd/pkg/apis/monitoringcontroller/v1"
 )
 
@@ -39,13 +40,15 @@ var DefaultDBsStatus map[string]bool
 
 func CreateDashboard(namespace, name string, status bool) *dbv1.MonitoringDashboard {
 
+	labels := map[string]string{"app": "ibm-monitoring-grafana", "component": "grafana"}
+	labels = model.AppendCommonLabels(labels)
 	dashboardJSON := dashboardsData[name]
 	return &dbv1.MonitoringDashboard{
 		TypeMeta: metav1.TypeMeta{APIVersion: dbv1.SchemeGroupVersion.String()},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
-			Labels:    map[string]string{"app": "ibm-monitoring-grafana", "component": "grafana"},
+			Labels:    labels,
 		},
 		Spec: dbv1.MonitoringDashboardSpec{
 			Data:    string(dashboardJSON),
