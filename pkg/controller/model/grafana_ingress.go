@@ -32,7 +32,7 @@ func GetIngressLabels(cr *v1alpha1.Grafana) map[string]string {
 		"app":       "grafana",
 		"component": "grafana",
 	}
-	labels = AppendCommonLabels(labels)
+	labels = appendCommonLabels(labels)
 	if cr.Spec.Service != nil && cr.Spec.Service.Labels != nil {
 		mergeMaps(labels, cr.Spec.Service.Labels)
 	}

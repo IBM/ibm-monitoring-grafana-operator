@@ -74,7 +74,7 @@ func init() {
 
 func createConfigmap(namespace, name string, data map[string]string) *corev1.ConfigMap {
 	labels := map[string]string{"app": "grafana"}
-	labels = AppendCommonLabels(labels)
+	labels = appendCommonLabels(labels)
 
 	configmap := corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
@@ -95,7 +95,7 @@ func createDefaultDashboard(namespace string) *corev1.ConfigMap {
 	}
 
 	labels := map[string]string{"app": "ibm-monitoring-grafana", "component": "grafana"}
-	labels = AppendCommonLabels(labels)
+	labels = appendCommonLabels(labels)
 	return &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      grafanaDefaultDashboard,
@@ -170,7 +170,7 @@ func CreateGrafanaSecret(cr *v1alpha1.Grafana) *corev1.Secret {
 	data := map[string][]byte{"username": []byte(user), "password": []byte(password)}
 
 	labels := map[string]string{"app": "grafana", "component": "grafana"}
-	labels = AppendCommonLabels(labels)
+	labels = appendCommonLabels(labels)
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      GrafanaAdminSecretName,
