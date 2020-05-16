@@ -6,6 +6,7 @@ metadata:
     app.kubernetes.io/instance: common-monitoring
     app.kubernetes.io/managed-by: ibm-monitoring-grafana-operator
   annotations:
+    olm.skipRange: '>=1.8.0 <1.9.0'
     alm-examples: |-
       [
         {
@@ -341,7 +342,7 @@ spec:
                   value: quay.io/opencloudio/dashboard-controller@sha256:1ee93c6cb1bcad119b4d4397b689b4ddc3c7accb1784b09638c673bca552d7a8
                 - name: INIT_IMAGE
                   value: quay.io/opencloudio/icp-initcontainer@sha256:9aad9fd724ec9308bec711d7738b5f0ae0c37a72ffb19a26dbcf622f1a603e89
-                image: quay.io/opencloudio/ibm-monitoring-grafana-operator
+                image: quay.io/opencloudio/ibm-monitoring-grafana-operator@sha256:74be3e0945d2c089501239c89e50eef687ed26faa2748c0d2a9828aaa33d7041
                 imagePullPolicy: Always
                 name: grafana
                 securityContext:
