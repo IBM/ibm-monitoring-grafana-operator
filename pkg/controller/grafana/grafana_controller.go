@@ -18,6 +18,7 @@ package grafana
 import (
 	"context"
 
+	dbv1 "github.ibm.com/IBMPrivateCloud/grafana-dashboard-crd/pkg/apis/monitoringcontroller/v1"
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
@@ -34,7 +35,6 @@ import (
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/config"
 	utils "github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/model"
-	dbv1 "github.ibm.com/IBMPrivateCloud/grafana-dashboard-crd/pkg/apis/monitoringcontroller/v1"
 )
 
 var log = logf.Log.WithName("controller_grafana")

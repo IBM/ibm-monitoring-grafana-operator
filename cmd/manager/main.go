@@ -49,8 +49,6 @@ import (
 
 var iamNamespace string
 var iamServicePort string
-var initImage string
-var initImageTag string
 
 // Change below variables to serve metrics on different host or port.
 var (

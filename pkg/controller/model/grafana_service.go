@@ -57,7 +57,7 @@ func getServiceType(cr *v1alpha1.Grafana) corev1.ServiceType {
 }
 
 func getServicePorts(cr *v1alpha1.Grafana, currentState *corev1.Service) []corev1.ServicePort {
-	intPort := int32(DefaultGrafanaPort)
+	intPort := DefaultGrafanaPort
 
 	defaultPorts := []corev1.ServicePort{
 		{

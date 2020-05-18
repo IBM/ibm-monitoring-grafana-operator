@@ -23,12 +23,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
 )
-
-var log = logf.Log.WithName("model")
 
 func getPersistentVolume(cr *v1alpha1.Grafana, name string) corev1.Volume {
 	return corev1.Volume{
@@ -47,58 +44,56 @@ func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 	var volumes []corev1.Volume
 
 	// Volume to store the logs
-	volumes = append(volumes, corev1.Volume{
-		Name: GrafanaLogVolumes,
-		VolumeSource: corev1.VolumeSource{
-			EmptyDir: &corev1.EmptyDirVolumeSource{},
+	volumes = append(volumes,
+		corev1.Volume{
+			Name: GrafanaLogVolumes,
+			VolumeSource: corev1.VolumeSource{
+				EmptyDir: &corev1.EmptyDirVolumeSource{},
+			},
 		},
-	})
-
-	volumes = append(volumes, corev1.Volume{
-		Name: GrafanaDatasourceName,
-		VolumeSource: corev1.VolumeSource{
-			EmptyDir: &corev1.EmptyDirVolumeSource{},
+		corev1.Volume{
+			Name: GrafanaDatasourceName,
+			VolumeSource: corev1.VolumeSource{
+				EmptyDir: &corev1.EmptyDirVolumeSource{},
+			},
 		},
-	})
-
-	volumes = append(volumes, corev1.Volume{
-		Name: GrafanaPlugins,
-		VolumeSource: corev1.VolumeSource{
-			EmptyDir: &corev1.EmptyDirVolumeSource{},
+		corev1.Volume{
+			Name: GrafanaPlugins,
+			VolumeSource: corev1.VolumeSource{
+				EmptyDir: &corev1.EmptyDirVolumeSource{},
+			},
 		},
-	})
-
-	volumes = append(volumes, corev1.Volume{
-		Name: "dashboard-volume",
-		VolumeSource: corev1.VolumeSource{
-			EmptyDir: &corev1.EmptyDirVolumeSource{},
+		corev1.Volume{
+			Name: "dashboard-volume",
+			VolumeSource: corev1.VolumeSource{
+				EmptyDir: &corev1.EmptyDirVolumeSource{},
+			},
 		},
-	})
+	)
 
 	if cr.Spec.PersistentVolume != nil && cr.Spec.PersistentVolume.Enabled {
 		storageVol := getPersistentVolume(cr, "grafana-storage")
 		volumes = append(volumes, storageVol)
+	} else {
+		volumes = append(volumes, corev1.Volume{
+			Name: "grafana-storage",
+			VolumeSource: corev1.VolumeSource{
+				EmptyDir: &corev1.EmptyDirVolumeSource{},
+			},
+		})
 	}
-	volumes = append(volumes, corev1.Volume{
-		Name: "grafana-storage",
-		VolumeSource: corev1.VolumeSource{
-			EmptyDir: &corev1.EmptyDirVolumeSource{},
-		},
-	})
 
 	// configmap name also the volume name
-	volumes = append(volumes, createVolumeFromCM(GrafanaConfigName))
-	volumes = append(volumes, createVolumeFromCM(dsConfig))
-	volumes = append(volumes, createVolumeFromCM(grafanaDBConfig))
-
-	volumes = append(volumes, createVolumeFromCM(grafanaDefaultDashboard))
-	volumes = append(volumes, createVolumeFromCM(grafanaCRD))
-
-	volumes = append(volumes, createVolumeFromCM(routerConfig))
-	volumes = append(volumes, createVolumeFromCM(routerEntry))
-
-	volumes = append(volumes, createVolumeFromCM(grafanaLua))
-	volumes = append(volumes, createVolumeFromCM(utilLua))
+	volumes = append(volumes, createVolumeFromCM(GrafanaConfigName),
+		createVolumeFromCM(dsConfig),
+		createVolumeFromCM(grafanaDBConfig),
+		createVolumeFromCM(grafanaDefaultDashboard),
+		createVolumeFromCM(grafanaCRD),
+		createVolumeFromCM(routerConfig),
+		createVolumeFromCM(routerEntry),
+		createVolumeFromCM(grafanaLua),
+		createVolumeFromCM(utilLua),
+	)
 
 	var cert, clientCert string
 	if cr.Spec.TLSSecretName != "" && cr.Spec.TLSClientSecretName != "" {
@@ -109,51 +104,48 @@ func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 		clientCert = "ibm-monitoring-client-certs"
 	}
 
-	volumes = append(volumes, createVolumeFromSecret(cert, "ibm-monitoring-ca-certs"))
-	volumes = append(volumes, createVolumeFromSecret(cert, "ibm-monitoring-certs"))
-	volumes = append(volumes, createVolumeFromSecret(clientCert, "ibm-monitoring-client-certs"))
+	volumes = append(volumes, createVolumeFromSecret(cert, "ibm-monitoring-ca-certs"),
+		createVolumeFromSecret(cert, "ibm-monitoring-certs"),
+		createVolumeFromSecret(clientCert, "ibm-monitoring-client-certs"),
+	)
 
 	return volumes
 }
 
-func getVolumeMounts(cr *v1alpha1.Grafana) []corev1.VolumeMount {
+func getVolumeMounts() []corev1.VolumeMount {
 	var mounts []corev1.VolumeMount
 
-	mounts = append(mounts, corev1.VolumeMount{
-		Name:      GrafanaConfigName,
-		MountPath: "/etc/grafana/grafana.ini",
-		SubPath:   "grafana.ini",
-	})
-
-	mounts = append(mounts, corev1.VolumeMount{
-		Name:      "dashboard-volume",
-		MountPath: "/etc/grafana/dashboards/grafana",
-	})
-
-	mounts = append(mounts, corev1.VolumeMount{
-		Name:      grafanaDBConfig,
-		MountPath: "/etc/grafana/provisioning/dashboards",
-	})
-
-	mounts = append(mounts, corev1.VolumeMount{
-		Name:      GrafanaDataVolumes,
-		MountPath: "/var/lib/grafana",
-	})
-
-	mounts = append(mounts, corev1.VolumeMount{
-		Name:      GrafanaLogVolumes,
-		MountPath: "/var/log/grafana",
-	})
-
-	mounts = append(mounts, corev1.VolumeMount{
-		Name:      GrafanaDatasourceName,
-		MountPath: "/etc/grafana/provisioning/datasources",
-	})
-
-	mounts = append(mounts, corev1.VolumeMount{
-		Name:      "ibm-monitoring-certs",
-		MountPath: "/opt/ibm/monitoring/certs",
-	})
+	mounts = append(mounts,
+		corev1.VolumeMount{
+			Name:      GrafanaConfigName,
+			MountPath: "/etc/grafana/grafana.ini",
+			SubPath:   "grafana.ini",
+		},
+		corev1.VolumeMount{
+			Name:      "dashboard-volume",
+			MountPath: "/etc/grafana/dashboards/grafana",
+		},
+		corev1.VolumeMount{
+			Name:      grafanaDBConfig,
+			MountPath: "/etc/grafana/provisioning/dashboards",
+		},
+		corev1.VolumeMount{
+			Name:      GrafanaDataVolumes,
+			MountPath: "/var/lib/grafana",
+		},
+		corev1.VolumeMount{
+			Name:      GrafanaLogVolumes,
+			MountPath: "/var/log/grafana",
+		},
+		corev1.VolumeMount{
+			Name:      GrafanaDatasourceName,
+			MountPath: "/etc/grafana/provisioning/datasources",
+		},
+		corev1.VolumeMount{
+			Name:      "ibm-monitoring-certs",
+			MountPath: "/opt/ibm/monitoring/certs",
+		},
+	)
 
 	return mounts
 }
@@ -187,22 +179,22 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 		Ports: []corev1.ContainerPort{
 			{
 				Name:          "web",
-				ContainerPort: int32(DefaultGrafanaPort),
+				ContainerPort: DefaultGrafanaPort,
 				Protocol:      "TCP",
 			},
 		},
 		SecurityContext:          getGrafanaSC(),
 		Resources:                getContainerResource(cr, "Grafana"),
-		VolumeMounts:             getVolumeMounts(cr),
-		LivenessProbe:            getProbe(40, 30, 10),
+		VolumeMounts:             getVolumeMounts(),
+		LivenessProbe:            getProbe(40, 35, 15),
 		ReadinessProbe:           getProbe(30, 30, 10),
 		TerminationMessagePath:   "/dev/termination-log",
 		TerminationMessagePolicy: "File",
 		ImagePullPolicy:          "IfNotPresent",
-	})
-
-	containers = append(containers, createRouterContainer(cr))
-	containers = append(containers, createDashboardContainer(cr))
+	},
+		createRouterContainer(cr),
+		createDashboardContainer(cr),
+	)
 
 	return containers
 }

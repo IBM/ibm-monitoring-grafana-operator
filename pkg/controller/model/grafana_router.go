@@ -18,40 +18,40 @@ package model
 import (
 	"os"
 
-	conf "github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/config"
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
+	conf "github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/config"
 )
 
 func getVolumeMountsForRouter() []corev1.VolumeMount {
 	return []corev1.VolumeMount{
-		corev1.VolumeMount{
+		{
 			Name:      routerConfig,
 			MountPath: "/opt/ibm/router/conf",
 		},
-		corev1.VolumeMount{
+		{
 			Name:      routerEntry,
 			MountPath: "/opt/ibm/router/entry",
 		},
-		corev1.VolumeMount{
+		{
 			Name:      "grafana-storage",
 			MountPath: "/test",
 			ReadOnly:  true,
 		},
-		corev1.VolumeMount{
+		{
 			Name:      "ibm-monitoring-ca-certs",
 			MountPath: "/opt/ibm/router/ca-certs",
 		},
-		corev1.VolumeMount{
+		{
 			Name:      "ibm-monitoring-certs",
 			MountPath: "/opt/ibm/router/certs",
 		},
-		corev1.VolumeMount{
+		{
 			Name:      grafanaLua,
 			MountPath: "/opt/lua-scripts",
 		},
-		corev1.VolumeMount{
+		{
 			Name:      utilLua,
 			MountPath: "/opt/ibm/router/nginx/conf/monitoring-util.lua",
 			SubPath:   "monitoring-util.lua",
