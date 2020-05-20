@@ -30,6 +30,11 @@
 remote="$1"
 url="$2"
 
+python common/scripts/csv-protect.py
+if [ $? != 0 ];then
+   exit 1
+fi
+
 .git/hooks/make_lint-all.sh
 
 exit $?

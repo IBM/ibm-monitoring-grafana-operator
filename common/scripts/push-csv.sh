@@ -59,6 +59,14 @@ function push_csv() {
   }'
 }
 
+function protect_csv() {
+  python common/scripts/csv-protect.py
+  res=$?
+  if [ $res != 0 ];then
+     exit 1
+  fi
+}
+
 # Delete application release in repository
 function delete_csv() {
   echo "Delete release ${RELEASE} of package ${QUAY_REPOSITORY} from namespace ${QUAY_NAMESPACE}"
@@ -68,5 +76,6 @@ function delete_csv() {
 }
 
 #-------------------------------------- Main --------------------------------------#
+protect_csv
 delete_csv
 push_csv
