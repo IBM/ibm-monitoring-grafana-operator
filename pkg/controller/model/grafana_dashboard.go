@@ -133,6 +133,8 @@ func createDashboardContainer(cr *v1alpha1.Grafana) corev1.Container {
 		Image:                    image,
 		ImagePullPolicy:          "IfNotPresent",
 		Resources:                getContainerResource(cr, "Dashboard"),
+		LivenessProbe:            getProbe(40, 30, 10),
+		ReadinessProbe:           getProbe(30, 30, 10),
 		SecurityContext:          getDashboardSC(),
 		Command:                  []string{"/grafana/entry/run.sh"},
 		Env:                      setupDashboardEnv(cr),

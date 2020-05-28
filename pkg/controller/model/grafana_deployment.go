@@ -194,7 +194,7 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 		SecurityContext:          getGrafanaSC(),
 		Resources:                getContainerResource(cr, "Grafana"),
 		VolumeMounts:             getVolumeMounts(cr),
-		LivenessProbe:            getProbe(30, 30, 10),
+		LivenessProbe:            getProbe(40, 30, 10),
 		ReadinessProbe:           getProbe(30, 30, 10),
 		TerminationMessagePath:   "/dev/termination-log",
 		TerminationMessagePolicy: "File",
