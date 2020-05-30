@@ -1,39 +1,49 @@
-# IBM Grafana Operator
+# ibm-monitoring-grafana-operator
 
-This is IBM Grafana Operator, supporting TLS and multicluster monitoring.
+>**Important:** Do not install this operator directly. Only install this operator using the IBM Common Services Operator. For more information about installing this operator and other Common Services operators, see [Installer documentation](http://ibm.biz/cpcs_opinstall). If you are using this operator as part of an IBM Cloud Pak, see the documentation for that IBM Cloud Pak to learn more about how to install and use the operator service. For more information about IBM Cloud Paks, see [IBM Cloud Paks that use Common Services](http://ibm.biz/cpcs_cloudpaks).
+
+- The ibm-monitoring-grafana-operator installs the Grafana service. Use the Grafana service to present metrics dashboards that you can use for monitoring. You can also create your own metrics dashboards.
 
 ## Supported platforms
+Red Hat OpenShift Container Platform 4.x or newer installed on one of the following platforms:
 
-Curently, we support x86, Power, and s390 platform. For enterprise k8s cluster
-platform, we support Openshift Container Platform.
+- Linux x86_64
+- Linux on Power (ppc64le)
+- Linux on IBM Z and LinuxONE
 
 ## Operator versions
 
-The latest version now is 1.8.0.
+- 1.8.0
+- 1.8.1
+- 1.9.0
 
 ## Prerequisites
-This grafana operator is part of IBM Common Services.
-You can use OLM or ODLM to install.
-Other dependencies are as below:
-1. IBM IAM run time services for role access management.
-2. IBM cert manager services for TLS cert management
-3. IBM ingress service access control.
-4. Prometheus services to query data.
-For the details, please refer to the CR.
+Before you install this operator, you need to first install the operator dependencies and prerequisites:
 
-## SecurityContextConstraints Requirements
+- For the list of operator dependencies, see the IBM Knowledge Center [Common Services dependencies documentation](http://ibm.biz/cpcs_opdependencies).
 
-- privileged SCC for operands
-- restricted SCC for operator
+- For the list of prerequisites for installing the operator, see the IBM Knowledge Center [Preparing to install services documentation](http://ibm.biz/cpcs_opinstprereq).
+
   
 ## Documentation
 
-For installation and configuration, see [IBM Knowledge Center link](https://www-03preprod.ibm.com/support/knowledgecenter/en/SSHKN6/monitoring/1.8.0/monitoring_service.html).
+To install the operator with the IBM Common Services Operator follow the installation and configuration instructions within the IBM Knowledge Center.
 
-### Developer guide
+- If you are using the operator as part of an IBM Cloud Pak, see the documentation for that IBM Cloud Pak. For a list of IBM Cloud Paks, see [IBM Cloud Paks that use Common Services](http://ibm.biz/cpcs_cloudpaks).
+- If you are using the operator with an IBM Containerized Software, see the IBM Cloud Platform Common Services Knowledge Center [Installer documentation](http://ibm.biz/cpcs_opinstall).
 
-For general operator dev please refer [here](https://github.com/operator-framework/operator-sdk).
 
-Information about building and testing the operator.
-- Dev quick start
-- Debugging the operator
+## SecurityContextConstraints Requirements
+
+The ibm-monitoring-grafana-operator supports running under the OpenShift Container Platform default restricted security context constraints. The grafana runs under privileged security constraints.
+For more information about the OpenShift Container Platform Security Context Constraints, see [Managing Security Context Constraints](https://docs.openshift.com/container-platform/4.3/authentication/managing-security-context-constraints.html).
+
+## Developer guide
+
+As a developer, if you want to build and test this operator to try out and learn more about the operator and its capabilities, you can use the following developer guide. The guide provides commands for a quick installation and initial validation for running the operator.
+
+> **Important:** The following developer guide is provided as-is and only for trial and education purposes. IBM and IBM Support does not provide any support for the usage of the operator with this developer guide. For the official supported installation and usage guide for the operator, see the IBM Knowledge Center documentation for your IBM Cloud Pak or for IBM Cloud Platform Common Services.
+
+### End-to-End testing
+
+For more instructions on how to run end-to-end testing with the Operand Deployment Lifecycle Manager, see [ODLM guide](https://github.com/IBM/operand-deployment-lifecycle-manager/blob/master/docs/install/common-service-integration.md#end-to-end-test).
