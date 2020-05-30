@@ -342,7 +342,7 @@ spec:
                   value: quay.io/opencloudio/dashboard-controller@sha256:1ee93c6cb1bcad119b4d4397b689b4ddc3c7accb1784b09638c673bca552d7a8
                 - name: INIT_IMAGE
                   value: quay.io/opencloudio/icp-initcontainer@sha256:9aad9fd724ec9308bec711d7738b5f0ae0c37a72ffb19a26dbcf622f1a603e89
-                image: quay.io/opencloudio/ibm-monitoring-grafana-operator
+                image: quay.io/opencloudio/ibm-monitoring-grafana-operator@sha256:cc1410ec9cd0196ef9d0608fbe336e3d594ee6f14a5aa7e29e7b8df4802ef883
                 imagePullPolicy: Always
                 name: grafana
                 securityContext:
