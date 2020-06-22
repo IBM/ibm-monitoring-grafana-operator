@@ -30,7 +30,7 @@
 remote="$1"
 url="$2"
 
-python common/scripts/csv-protect.py
+python3 common/scripts/csv-protect.py
 if [ $? != 0 ];then
    exit 1
 fi

@@ -60,7 +60,7 @@ function push_csv() {
 }
 
 function protect_csv() {
-  python common/scripts/csv-protect.py
+  python3 common/scripts/csv-protect.py
   res=$?
   if [ $res != 0 ];then
      exit 1
