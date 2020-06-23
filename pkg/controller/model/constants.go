@@ -28,7 +28,6 @@ const (
 	GrafanaAdminSecretName                    = "grafana-secret"
 	GrafanaInitMounts                         = "grafana-init-mount"
 	GrafanaPlugins                            = "grafana-plugins"
-	GrafanaSecretsDir                         = "/etc/grafana-secrets/"
 	GrafanaConfigMapsDir                      = "/etc/grafana-configmaps/"
 	GrafanaServiceAccountName                 = "ibm-monitoring-grafana"
 	GrafanaDeploymentName                     = "ibm-monitoring-grafana"

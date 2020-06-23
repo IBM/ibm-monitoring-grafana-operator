@@ -37,8 +37,10 @@ replace github.com/docker/docker => github.com/moby/moby v0.7.3-0.20190826074503
 replace github.com/openshift/api => github.com/openshift/api v0.0.0-20190924102528-32369d4db2ad // Required until https://github.com/operator-framework/operator-lifecycle-manager/pull/1241 is resolved
 
 require (
+	github.com/golangci/golangci-lint v1.27.0 // indirect
 	github.com/spf13/pflag v1.0.5
 	github.ibm.com/IBMPrivateCloud/grafana-dashboard-crd v1.2.0
+	golang.org/x/tools v0.0.0-20200515220128-d3bf790afa53 // indirect
 	k8s.io/api v0.0.0
 	k8s.io/apimachinery v0.0.0
 	k8s.io/client-go v12.0.0+incompatible
