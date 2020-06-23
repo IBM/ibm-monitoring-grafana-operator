@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
+	dbv1 "github.ibm.com/IBMPrivateCloud/grafana-dashboard-crd/pkg/apis/monitoringcontroller/v1"
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
@@ -31,7 +32,6 @@ import (
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/dashboards"
 	utils "github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/model"
-	dbv1 "github.ibm.com/IBMPrivateCloud/grafana-dashboard-crd/pkg/apis/monitoringcontroller/v1"
 )
 
 var IsGrafanaRunning bool = false
@@ -162,7 +162,7 @@ func getPodStatus(r *ReconcileGrafana) corev1.PodPhase {
 
 	time.Sleep(30 * time.Second)
 	for {
-		r.client.List(r.ctx, podList, listOpts...)
+		_ = r.client.List(r.ctx, podList, listOpts...)
 		podPhase = podList.Items[0].Status.Phase
 		if podPhase == "Running" || podPhase == "Failed" {
 			log.Info(fmt.Sprintf("Grafana pod is %s.", podPhase))
@@ -186,7 +186,7 @@ func reconcileAllDashboards(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 		if phase == "Running" {
 			IsGrafanaRunning = true
 		} else {
-			return fmt.Errorf("Fail to start grafana pod.")
+			return fmt.Errorf("fail to start grafana pod")
 		}
 	}
 

@@ -5,6 +5,7 @@
 - The ibm-monitoring-grafana-operator installs the Grafana service. Use the Grafana service to present metrics dashboards that you can use for monitoring. You can also create your own metrics dashboards.
 
 ## Supported platforms
+
 Red Hat OpenShift Container Platform 4.x or newer installed on one of the following platforms:
 
 - Linux x86_64
@@ -18,20 +19,19 @@ Red Hat OpenShift Container Platform 4.x or newer installed on one of the follow
 - 1.9.0
 
 ## Prerequisites
+
 Before you install this operator, you need to first install the operator dependencies and prerequisites:
 
 - For the list of operator dependencies, see the IBM Knowledge Center [Common Services dependencies documentation](http://ibm.biz/cpcs_opdependencies).
 
 - For the list of prerequisites for installing the operator, see the IBM Knowledge Center [Preparing to install services documentation](http://ibm.biz/cpcs_opinstprereq).
 
-  
 ## Documentation
 
 To install the operator with the IBM Common Services Operator follow the installation and configuration instructions within the IBM Knowledge Center.
 
 - If you are using the operator as part of an IBM Cloud Pak, see the documentation for that IBM Cloud Pak. For a list of IBM Cloud Paks, see [IBM Cloud Paks that use Common Services](http://ibm.biz/cpcs_cloudpaks).
 - If you are using the operator with an IBM Containerized Software, see the IBM Cloud Platform Common Services Knowledge Center [Installer documentation](http://ibm.biz/cpcs_opinstall).
-
 
 ## SecurityContextConstraints Requirements
 

@@ -21,11 +21,11 @@ import (
 	"path/filepath"
 	"strings"
 
+	dbv1 "github.ibm.com/IBMPrivateCloud/grafana-dashboard-crd/pkg/apis/monitoringcontroller/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
-	dbv1 "github.ibm.com/IBMPrivateCloud/grafana-dashboard-crd/pkg/apis/monitoringcontroller/v1"
 )
 
 // DefaultDashboards store default dashboards
@@ -57,7 +57,7 @@ func CreateDashboard(namespace, name string, status bool) *dbv1.MonitoringDashbo
 			Labels:    labels,
 		},
 		Spec: dbv1.MonitoringDashboardSpec{
-			Data:    string(dashboardJSON),
+			Data:    dashboardJSON,
 			Enabled: status,
 		},
 	}
@@ -75,13 +75,12 @@ func ReconcileDashboardsStatus(cr *v1alpha1.Grafana) {
 		DefaultDBsStatus["mcm-clusters-monitoring"] = true
 	}
 
-	if newStatus != nil {
-		for dbName, status := range newStatus {
-			if _, ok := DefaultDBsStatus[dbName]; ok {
-				DefaultDBsStatus[dbName] = status
-			}
+	for dbName, status := range newStatus {
+		if _, ok := DefaultDBsStatus[dbName]; ok {
+			DefaultDBsStatus[dbName] = status
 		}
 	}
+
 }
 
 // Initialize DefaultDashboards, dashboardsData, DefaultDBsStatus

@@ -16,14 +16,14 @@
 package model
 
 import (
-	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
 
-	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
+
+	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
 )
 
 var memoryRequest int = 256
@@ -39,9 +39,10 @@ func mergeMaps(to, from map[string]string) {
 func imageName(defaultV string, overwrite string) string {
 	if strings.Contains(overwrite, imageDigestKey) {
 		return overwrite
-	} else {
-		return defaultV
 	}
+
+	return defaultV
+
 }
 func getContainerResource(cr *v1alpha1.Grafana, name string) corev1.ResourceRequirements {
 
@@ -144,46 +145,6 @@ func setupAdminEnv(username, password string) []corev1.EnvVar {
 	}
 }
 
-func getImage(component string, cr *v1alpha1.GrafanaSpec) string {
-
-	defaultImageMap := map[string]string{
-		"DefaultRouterImageTag":              DefaultRouterImageTag,
-		"DefaultRouterImage":                 DefaultRouterImage,
-		"DefaultBaseImage":                   DefaultBaseImage,
-		"DefaultBaseImageTag":                DefaultBaseImageTag,
-		"DefaultInitImage":                   DefaultInitImage,
-		"DefaultInitImageTag":                DefaultInitImageTag,
-		"DefaultDashboardControllerImage":    DefaultDashboardControllerImage,
-		"DefaultDashboardControllerImageTag": DefaultDashboardControllerImageTag,
-	}
-
-	imageHashField := component + "ImageSHA"
-	imageField := component + "Image"
-	imageTagFiled := component + "ImageTag"
-
-	defaultImageField := "Default" + component + "Image"
-	defaultImageTagField := "Default" + component + "ImageTag"
-	defaultImage := defaultImageMap[defaultImageField]
-	defaultImageTag := defaultImageMap[defaultImageTagField]
-
-	elements := reflect.ValueOf(cr).Elem()
-
-	imageHash := elements.FieldByName(imageHashField).String()
-	imageTag := elements.FieldByName(imageTagFiled).String()
-	image := elements.FieldByName(imageField).String()
-
-	if image != "" {
-		if imageHash != "" {
-			return fmt.Sprintf("%s@%s", image, imageHash)
-		}
-		if imageTag != "" {
-			return fmt.Sprintf("%s:%s", image, imageTag)
-		}
-	}
-
-	return fmt.Sprintf("%s:%s", defaultImage, defaultImageTag)
-
-}
 func appendCommonLabels(labels map[string]string) map[string]string {
 	labels["app.kubernetes.io/name"] = "ibm-monitoring"
 	labels["app.kubernetes.io/instance"] = "common-monitoring"
