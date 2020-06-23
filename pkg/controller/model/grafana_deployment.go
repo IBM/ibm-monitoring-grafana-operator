@@ -36,11 +36,10 @@ func getPersistentVolume(cr *v1alpha1.Grafana, name string) corev1.Volume {
 		VolumeSource: corev1.VolumeSource{
 			PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
 				ClaimName: cr.Spec.PersistentVolume.ClaimName,
-				ReadOnly:  true,
+				ReadOnly:  false,
 			},
 		},
 	}
-
 }
 
 func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
@@ -75,16 +74,17 @@ func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 		},
 	})
 
-	if cr.Spec.PersistentVolume != nil && cr.Spec.PersistentVolume.Enabled {
+	if cr.Spec.PersistentVolume != nil {
 		storageVol := getPersistentVolume(cr, "grafana-storage")
 		volumes = append(volumes, storageVol)
+	} else {
+		volumes = append(volumes, corev1.Volume{
+			Name: "grafana-storage",
+			VolumeSource: corev1.VolumeSource{
+				EmptyDir: &corev1.EmptyDirVolumeSource{},
+			},
+		})
 	}
-	volumes = append(volumes, corev1.Volume{
-		Name: "grafana-storage",
-		VolumeSource: corev1.VolumeSource{
-			EmptyDir: &corev1.EmptyDirVolumeSource{},
-		},
-	})
 
 	// configmap name also the volume name
 	volumes = append(volumes, createVolumeFromCM(GrafanaConfigName))

@@ -84,7 +84,6 @@ type GrafanaService struct {
 
 // GrafanaPersistentVolume setup persistent volumes.
 type GrafanaPersistentVolume struct {
-	Enabled   bool   `json:"enabled,omitempty"`
 	ClaimName string `json:"claimName,omitempty"`
 }
 
