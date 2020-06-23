@@ -20,7 +20,6 @@ import (
 	"time"
 
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
-	dbv1 "github.ibm.com/IBMPrivateCloud/grafana-dashboard-crd/pkg/apis/monitoringcontroller/v1"
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
@@ -195,35 +194,20 @@ func reconcileAllDashboards(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 		namespace = cr.Spec.DashboardsConfig.MainOrg
 	}
 
-	selector := func(name string) client.ObjectKey {
-		return client.ObjectKey{
-			Namespace: namespace,
-			Name:      name,
-		}
-	}
 	dashboards.ReconcileDashboardsStatus(cr)
 
 	// Reconcile all the dashboards
+	// Could not get the dashboard resource and workaround this.
 	for name, status := range dashboards.DefaultDBsStatus {
-		db := &dbv1.MonitoringDashboard{}
-		err := r.client.Get(r.ctx, selector(name), db)
+		db := dashboards.CreateDashboard(namespace, name, status)
+		err := r.client.Create(r.ctx, db)
 		if err != nil {
-			if errors.IsNotFound(err) {
-				createdDB := dashboards.CreateDashboard(namespace, name, status)
-				err = r.client.Create(r.ctx, createdDB)
-				if err != nil {
-					log.Error(err, fmt.Sprintf("Fail to create dashboard %s in %s", name, namespace))
-					return err
-				}
-				log.Info(fmt.Sprintf("Dashboard %s created.", name))
+			if errors.IsAlreadyExists(err) {
+				continue
+			} else {
+				log.Error(err, "fail to create dashboard", name)
+				return err
 			}
-			return err
-		}
-		// Found this db, update it.
-		err = r.client.Update(r.ctx, db)
-		if err != nil {
-			log.Error(err, fmt.Sprintf("Fail to update dashboard %s", name))
-			return err
 		}
 	}
 	return nil
