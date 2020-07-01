@@ -583,7 +583,7 @@
         "tableColumn": "",
         "targets": [
         {
-            "expr": "sum(container_memory_working_set_bytes{namespace=~\"$namespace\", pod=~\"$pod\",container!=\"POD\"})",
+            "expr": "sum(container_memory_working_set_bytes{namespace=~\"$namespace\", pod=~\"$pod\",container!=\"POD\", container!=\"\"})",
             "format": "time_series",
             "hide": false,
             "intervalFactor": 2,
@@ -646,7 +646,7 @@
         "steppedLine": false,
         "targets": [
         {
-            "expr": "avg by(container) (container_memory_working_set_bytes{pod=~\"$pod\", container=~\"$container\", container!=\"POD\"})",
+            "expr": "avg by(container) (container_memory_working_set_bytes{pod=~\"$pod\", container=~\"$container\", container!=\"POD\", container!=\"\"})",
             "format": "time_series",
             "interval": "10s",
             "intervalFactor": 1,
