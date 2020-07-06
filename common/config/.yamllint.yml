@@ -20,3 +20,5 @@ rules:
   trailing-spaces: disable
   octal-values: enable
   truthy: disable
+ignore:
+  deploy/olm-catalog/ibm-monitoring-grafana-operator/1.9.2/ibm-monitoring-grafana-operator.v1.9.2.clusterserviceversion.yaml
