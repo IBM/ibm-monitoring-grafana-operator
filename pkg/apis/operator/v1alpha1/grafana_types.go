@@ -68,9 +68,12 @@ type DashboardConfig struct {
 }
 
 type GrafanaResources struct {
-	Grafana   int `json:"grafana,omitempty"`
-	Dashboard int `json:"dashboard,omitempty"`
-	Router    int `json:"router,omitempty"`
+	Grafana           int                          `json:"grafana,omitempty"`
+	Dashboard         int                          `json:"dashboard,omitempty"`
+	Router            int                          `json:"router,omitempty"`
+	GrafanaResource   *corev1.ResourceRequirements `json:"grafanaResource,omitempty"`
+	DashboardResource *corev1.ResourceRequirements `json:"dashboardResource,omitempty"`
+	RouterResource    *corev1.ResourceRequirements `json:"routerResource,omitempty"`
 }
 
 // GrafanaService provides a means to configure the service

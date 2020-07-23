@@ -16,7 +16,6 @@
 package model
 
 import (
-	"reflect"
 	"strconv"
 	"strings"
 
@@ -30,6 +29,7 @@ var memoryRequest int = 256
 var cpuRequest int = 200
 var memoryLimit int = 512
 var cpuLimit int = 500
+var defaultGrafanaResource, defaultDashboardResource, defaultRouterResource corev1.ResourceRequirements
 
 func mergeMaps(to, from map[string]string) {
 	for key, val := range from {
@@ -44,23 +44,75 @@ func imageName(defaultV string, overwrite string) string {
 	return defaultV
 
 }
+
+func defaultResource(name string) corev1.ResourceRequirements {
+
+	resource := func(rc, rm, lc, lm string) corev1.ResourceRequirements {
+		return corev1.ResourceRequirements{
+			Requests: corev1.ResourceList{
+				corev1.ResourceMemory: resource.MustParse(rm),
+				corev1.ResourceCPU:    resource.MustParse(rc),
+			},
+			Limits: corev1.ResourceList{
+				corev1.ResourceMemory: resource.MustParse(lm),
+				corev1.ResourceCPU:    resource.MustParse(lc),
+			},
+		}
+	}
+
+	if name == "Grafana" {
+		defaultGrafanaResource = resource("256Mi", "200m", "512Mi", "500m")
+		return defaultGrafanaResource
+	} else if name == "Dashboard" {
+		defaultDashboardResource = resource("64Mi", "50m", "192Mi", "150m")
+		return defaultDashboardResource
+	} else if name == "Router" {
+		defaultRouterResource = resource("64Mi", "50m", "128Mi", "100m")
+		return defaultRouterResource
+	}
+
+	// Should not go here.
+	return corev1.ResourceRequirements{}
+
+}
+
 func getContainerResource(cr *v1alpha1.Grafana, name string) corev1.ResourceRequirements {
 
+	res := map[string]corev1.ResourceRequirements{}
 	var resources *v1alpha1.GrafanaResources
-	var times int
+
 	if cr.Spec.Resources != nil {
 		resources = cr.Spec.Resources
 	} else {
-		times = 1
+		return defaultResource(name)
 	}
 
-	if resources != nil {
-		r := reflect.ValueOf(resources)
-		value := reflect.Indirect(r).FieldByName(name)
-		times = int(value.Int())
+	if resources.GrafanaResource != nil {
+		res["Grafana"] = *resources.GrafanaResource
+	} else if resources.Grafana != 0 {
+		res["Grafana"] = getResource(resources.Grafana)
+	} else {
+		res["Grafana"] = defaultGrafanaResource
 	}
 
-	return getResource(times)
+	if resources.DashboardResource != nil {
+		res["Dashboard"] = *resources.DashboardResource
+	} else if resources.Dashboard != 0 {
+		res["Dashboard"] = getResource(resources.Dashboard)
+	} else {
+		res["Dashboard"] = defaultDashboardResource
+	}
+
+	if resources.RouterResource != nil {
+		res["Router"] = *resources.RouterResource
+	} else if resources.Router != 0 {
+		res["Router"] = getResource(resources.Router)
+	} else {
+		res["Router"] = defaultRouterResource
+	}
+
+	return res[name]
+
 }
 
 func getResource(times int) corev1.ResourceRequirements {

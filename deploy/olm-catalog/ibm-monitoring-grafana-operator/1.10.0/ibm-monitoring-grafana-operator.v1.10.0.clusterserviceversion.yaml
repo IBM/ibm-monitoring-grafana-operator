@@ -19,9 +19,36 @@ metadata:
             "ipVersion": "4",
             "isHub": false,
             "resources": {
-              "dashboard": 1,
-              "grafana": 2,
-              "router": 1
+              "dashboard": {
+                "requests": {
+                  "memory": "64Mi",
+                  "cpu": "100m"
+                },
+                "limits": {
+                  "memory": "256Mi",
+                  "cpu": "200m"
+                }
+              },
+              "grafana": {
+                "requests": {
+                  "memory": "256Mi",
+                  "cpu": "200m"
+                },
+                "limits": {
+                  "memory": "1024Mi",
+                  "cpu": "500m"
+                }
+              },
+              "router": {
+                "requests": {
+                  "memory": "64Mi",
+                  "cpu": "100m"
+                },
+                "limits": {
+                  "memory": "256Mi",
+                  "cpu": "200m"
+                }
+              }
             },
             "service": {
               "ports": [
