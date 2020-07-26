@@ -16,12 +16,43 @@ metadata:
             "name": "ibm-monitoring"
           },
           "spec": {
-            "ipVersion": "4",
-            "isHub": false,
-            "resources": {
-              "dashboard": 1,
-              "grafana": 2,
-              "router": 1
+            "grafanaConfig": {
+              "resources": {
+                "requests": {
+                  "memory": "512Mi",
+                  "cpu": "300m"
+                },
+                "limits": {
+                  "memory": "1024Mi",
+                  "cpu": "600m"
+                }
+              }
+            },
+            "dashboardConfig": {
+              "resources": {
+                "requests": {
+                  "memory": "64Mi",
+                  "cpu": "50m"
+                },
+                "limits": {
+                  "memory": "128Mi",
+                  "cpu": "100m"
+                }
+              },
+              "isHub": false,
+              "ipVersion": "IPv4"
+            },
+            "routerConfig": {
+              "resources":{
+                "requests": {
+                  "memory": "64Mi",
+                  "cpu": "50m"
+                },
+                "limits": {
+                  "memory": "128Mi",
+                  "cpu": "100m"
+                }
+              }
             },
             "service": {
               "ports": [
@@ -88,7 +119,7 @@ metadata:
             ]
           }
         }
-        ]
+      ]
     capabilities: Basic Install
     categories: Monitoring
     certified: 'false'
@@ -191,6 +222,15 @@ spec:
       - description: service as grafana service
         displayName: Service
         path: service
+      - description: config for grafana
+        displayName: GrafanaConfig
+        path: grafanaConfig
+      - description: config for dashboard controller
+        displayName: DashboardConfig
+        path: dashboardConfig
+      - description: config for router
+        displayName: RouterConfig
+        path: routerConfig
     - description: MonitoringDashboard is the Schema for Grafana Dashboard
       kind: MonitoringDashboard
       name: monitoringdashboards.monitoringcontroller.cloud.ibm.com

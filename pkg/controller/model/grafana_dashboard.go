@@ -70,13 +70,13 @@ func setupDashboardEnv(cr *v1alpha1.Grafana) []corev1.EnvVar {
 
 	envs := []corev1.EnvVar{}
 	envs = append(envs, setupAdminEnv("USER", "PASSWORD")...)
-	if cr.Spec.IsHub {
+	if cr.Spec.IsHub || (cr.Spec.DashboardsConfig != nil && cr.Spec.DashboardsConfig.IsHub) {
 		isHub = true
 	} else {
 		isHub = false
 	}
 
-	if cr.Spec.IPVersion != "" {
+	if cr.Spec.IPVersion != "" || (cr.Spec.DashboardsConfig != nil && cr.Spec.DashboardsConfig.IPVersion != "") {
 		version = cr.Spec.IPVersion
 	} else {
 		version = "IPv4"
@@ -127,13 +127,18 @@ func getDashboardSC() *corev1.SecurityContext {
 
 func createDashboardContainer(cr *v1alpha1.Grafana) corev1.Container {
 
+	var resources corev1.ResourceRequirements
 	image := imageName(os.Getenv(dashboardCtlImageEnv), cr.Spec.DashboardControllerImage)
-
+	if cr.Spec.DashboardsConfig != nil && cr.Spec.DashboardsConfig.Resources != nil {
+		resources = *cr.Spec.DashboardsConfig.Resources
+	} else {
+		resources = getContainerResource(cr, "Dashboard")
+	}
 	return corev1.Container{
 		Name:                     "dashboard-controller",
 		Image:                    image,
 		ImagePullPolicy:          "IfNotPresent",
-		Resources:                getContainerResource(cr, "Dashboard"),
+		Resources:                resources,
 		LivenessProbe:            getProbe(40, 30, 10),
 		ReadinessProbe:           getProbe(30, 30, 10),
 		SecurityContext:          getDashboardSC(),

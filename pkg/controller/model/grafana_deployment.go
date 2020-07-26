@@ -170,8 +170,14 @@ func getProbe(delay, timeout, failure int32) *corev1.Probe {
 
 func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 
+	var resources corev1.ResourceRequirements
 	containers := []corev1.Container{}
 	image := imageName(os.Getenv(grafanaImageEnv), cr.Spec.BaseImage)
+	if cr.Spec.GrafanaConfig != nil && cr.Spec.GrafanaConfig.Resources != nil {
+		resources = *cr.Spec.GrafanaConfig.Resources
+	} else {
+		resources = getContainerResource(cr, "Grafana")
+	}
 
 	containers = append(containers, corev1.Container{
 		Name:  "grafana",
@@ -184,7 +190,7 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 			},
 		},
 		SecurityContext:          getGrafanaSC(),
-		Resources:                getContainerResource(cr, "Grafana"),
+		Resources:                resources,
 		VolumeMounts:             getVolumeMounts(),
 		LivenessProbe:            getProbe(40, 35, 15),
 		ReadinessProbe:           getProbe(30, 30, 10),
