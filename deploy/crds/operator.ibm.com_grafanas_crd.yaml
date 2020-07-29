@@ -53,12 +53,8 @@ spec:
                   additionalProperties:
                     type: boolean
                   type: object
-                image:
-                  type: string
                 ipVersion:
                   type: string
-                isHub:
-                  type: boolean
                 mainOrg:
                   type: string
                 resources:
@@ -89,8 +85,6 @@ spec:
               type: string
             grafanaConfig:
               properties:
-                image:
-                  type: string
                 persistentVolumeClaim:
                   type: string
                 resources:
@@ -153,8 +147,6 @@ spec:
               type: object
             routerConfig:
               properties:
-                image:
-                  type: string
                 resources:
                   description: ResourceRequirements describes the compute resource
                     requirements.

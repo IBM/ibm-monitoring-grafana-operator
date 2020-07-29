@@ -39,7 +39,6 @@ metadata:
                   "cpu": "100m"
                 }
               },
-              "isHub": false,
               "ipVersion": "IPv4"
             },
             "routerConfig": {

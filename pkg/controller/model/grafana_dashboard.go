@@ -70,14 +70,16 @@ func setupDashboardEnv(cr *v1alpha1.Grafana) []corev1.EnvVar {
 
 	envs := []corev1.EnvVar{}
 	envs = append(envs, setupAdminEnv("USER", "PASSWORD")...)
-	if cr.Spec.IsHub || (cr.Spec.DashboardsConfig != nil && cr.Spec.DashboardsConfig.IsHub) {
+	if cr.Spec.IsHub {
 		isHub = true
 	} else {
 		isHub = false
 	}
 
-	if cr.Spec.IPVersion != "" || (cr.Spec.DashboardsConfig != nil && cr.Spec.DashboardsConfig.IPVersion != "") {
+	if cr.Spec.IPVersion != "" {
 		version = cr.Spec.IPVersion
+	} else if cr.Spec.DashboardsConfig != nil && cr.Spec.DashboardsConfig.IPVersion != "" {
+		version = cr.Spec.DashboardsConfig.IPVersion
 	} else {
 		version = "IPv4"
 	}

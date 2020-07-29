@@ -64,8 +64,6 @@ type GrafanaSpec struct {
 // DashboardsStatus to disable/enable dashboards by name
 // MainOrg to decide which org as the main org  for all dashboards
 type DashboardConfig struct {
-	IsHub            bool                         `json:"isHub,omitempty"`
-	Image            string                       `json:"image,omitempty"`
 	IPVersion        string                       `json:"ipVersion,omitempty"`
 	MainOrg          string                       `json:"mainOrg,omitempty"`
 	DashboardsStatus map[string]bool              `json:"dashboardsStatus,omitempty"`
@@ -88,14 +86,12 @@ type GrafanaService struct {
 }
 
 type GrafanaConfig struct {
-	Image                 string                       `json:"image,omitempty"`
 	StorageClass          string                       `json:"storageClass,omitempty"`
 	Resources             *corev1.ResourceRequirements `json:"resources,omitempty"`
 	PersistentVolumeClaim string                       `json:"persistentVolumeClaim,omitempty"`
 }
 
 type RouterConfig struct {
-	Image     string                       `json:"image,omitempty"`
 	Resources *corev1.ResourceRequirements `json:"resources,omitempty"`
 }
 
