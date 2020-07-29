@@ -27,17 +27,35 @@ import (
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
 )
 
-func getPersistentVolume(cr *v1alpha1.Grafana, name string) corev1.Volume {
-	return corev1.Volume{
-		Name: name,
-		VolumeSource: corev1.VolumeSource{
-			PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
-				ClaimName: cr.Spec.PersistentVolume.ClaimName,
-				ReadOnly:  true,
-			},
-		},
+func getPersistentVolume(cr *v1alpha1.Grafana) *corev1.Volume {
+
+	volumeName := "grafana-storage"
+	claimName := ""
+
+	if cr.Spec.GrafanaConfig != nil && cr.Spec.GrafanaConfig.PersistentVolumeClaim != "" {
+		claimName = cr.Spec.GrafanaConfig.PersistentVolumeClaim
+	} else if cr.Spec.PersistentVolume != nil {
+		claimName = cr.Spec.PersistentVolume.ClaimName
+	} else if cr.Spec.GrafanaConfig.StorageClass != "" {
+		// the pvc should be created from reconcile
+		claimName = "grafana-pvc"
+	} else {
+		return nil
 	}
 
+	if claimName != "" {
+		return &corev1.Volume{
+			Name: volumeName,
+			VolumeSource: corev1.VolumeSource{
+				PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
+					ClaimName: claimName,
+					ReadOnly:  false,
+				},
+			},
+		}
+	}
+
+	return nil
 }
 
 func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
@@ -71,9 +89,9 @@ func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 		},
 	)
 
-	if cr.Spec.PersistentVolume != nil && cr.Spec.PersistentVolume.Enabled {
-		storageVol := getPersistentVolume(cr, "grafana-storage")
-		volumes = append(volumes, storageVol)
+	// PV got higher priority
+	if pv := getPersistentVolume(cr); pv != nil {
+		volumes = append(volumes, *pv)
 	} else {
 		volumes = append(volumes, corev1.Volume{
 			Name: "grafana-storage",

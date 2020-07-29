@@ -87,8 +87,9 @@ type GrafanaService struct {
 
 type GrafanaConfig struct {
 	StorageClass          string                       `json:"storageClass,omitempty"`
-	Resources             *corev1.ResourceRequirements `json:"resources,omitempty"`
+	Volume                string                       `json:"volume,omitempty"`
 	PersistentVolumeClaim string                       `json:"persistentVolumeClaim,omitempty"`
+	Resources             *corev1.ResourceRequirements `json:"resources,omitempty"`
 }
 
 type RouterConfig struct {
