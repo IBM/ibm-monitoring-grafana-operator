@@ -24,6 +24,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	resourcev1 "k8s.io/apimachinery/pkg/api/resource"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
@@ -41,6 +42,11 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	if err != nil {
 		log.Error(err, "Fail to reconcile all the confimags.")
 		return err
+	}
+
+	err = reconcilePVC(r, cr)
+	if err != nil {
+		log.Error(err, "Fail to reconcile grafana pvc.")
 	}
 
 	err = reconcileGrafanaService(r, cr)
@@ -86,7 +92,7 @@ func reconcileAllConfigMaps(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	configmaps := utils.ReconcileConfigMaps(cr)
 	namespace, err := getCurrentNamespace()
 	if err != nil {
-		panic(err)
+		return err
 	}
 	selector := func(name string) client.ObjectKey {
 		return client.ObjectKey{
@@ -169,6 +175,80 @@ func getPodStatus(r *ReconcileGrafana) corev1.PodPhase {
 		}
 	}
 	return podPhase
+}
+
+func createPVC(scName, volume string) corev1.PersistentVolumeClaim {
+
+	claimName := "grafana-pvc"
+
+	spec := corev1.PersistentVolumeClaimSpec{
+		AccessModes:      []corev1.PersistentVolumeAccessMode{"ReadWriteOnce"},
+		StorageClassName: &scName,
+		Resources: corev1.ResourceRequirements{
+			Requests: corev1.ResourceList{
+				corev1.ResourceStorage: resourcev1.MustParse(volume),
+			},
+		},
+	}
+
+	labels := map[string]string{
+		"app":       "grafana",
+		"component": "grafana",
+	}
+	pvc := corev1.PersistentVolumeClaim{}
+	pvc.ObjectMeta.Name = claimName
+	pvc.ObjectMeta.Labels = labels
+	pvc.Spec = spec
+
+	return pvc
+
+}
+
+func reconcilePVC(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
+
+	if cr.Spec.GrafanaConfig == nil {
+		log.V(2).Info("storage class not used.")
+		return nil
+	}
+
+	if cr.Spec.GrafanaConfig.PersistentVolumeClaim == "" && cr.Spec.GrafanaConfig.StorageClass != "" {
+		scName := cr.Spec.GrafanaConfig.StorageClass
+		volume := ""
+		if cr.Spec.GrafanaConfig.Volume != "" {
+			volume = cr.Spec.GrafanaConfig.Volume
+		} else {
+			volume = "10Gi"
+		}
+
+		currentNs, _ := getCurrentNamespace()
+		selector := client.ObjectKey{
+			Namespace: currentNs,
+			Name:      "grafana-pvc",
+		}
+
+		pvc := corev1.PersistentVolumeClaim{}
+		err := r.client.Get(r.ctx, selector, &pvc)
+
+		if err != nil {
+			if errors.IsNotFound(err) {
+				pvc = createPVC(scName, volume)
+				pvc.ObjectMeta.Namespace = currentNs
+				err = r.client.Create(r.ctx, &pvc)
+				if err != nil {
+					return err
+				}
+				log.Info("grafana PVC created.")
+				return nil
+			}
+		}
+
+		log.Info("grafana PVC already exists.")
+		return nil
+
+	}
+
+	log.V(2).Info("storage class not used.")
+	return nil
 }
 
 func reconcileAllDashboards(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
