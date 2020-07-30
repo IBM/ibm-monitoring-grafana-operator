@@ -100,6 +100,13 @@ func getRouterProbe(delay, period int, iamNamespace string) *corev1.Probe {
 
 func createRouterContainer(cr *v1alpha1.Grafana) corev1.Container {
 
+	var resources corev1.ResourceRequirements
+	if cr.Spec.RouterConfig != nil && cr.Spec.RouterConfig.Resources != nil {
+		resources = *cr.Spec.RouterConfig.Resources
+	} else {
+		resources = getContainerResource(cr, "Router")
+	}
+
 	image := imageName(os.Getenv(routerImageEnv), cr.Spec.RouterImage)
 
 	return corev1.Container{
@@ -113,7 +120,7 @@ func createRouterContainer(cr *v1alpha1.Grafana) corev1.Container {
 				Protocol:      "TCP",
 			},
 		},
-		Resources:                getContainerResource(cr, "Router"),
+		Resources:                resources,
 		LivenessProbe:            getRouterProbe(30, 20, cr.Namespace),
 		ReadinessProbe:           getRouterProbe(32, 10, cr.Namespace),
 		SecurityContext:          getGrafanaRouterSC(),

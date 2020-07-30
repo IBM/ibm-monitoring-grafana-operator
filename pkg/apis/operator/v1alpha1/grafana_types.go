@@ -31,7 +31,6 @@ type GrafanaSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html
-	Containers                  []corev1.Container       `json:"containers,omitempty"`
 	Service                     *GrafanaService          `json:"service,omitempty"`
 	ServiceAccount              string                   `json:"serviceAccount,omitempty"`
 	ClusterPort                 int32                    `json:"clusterPort,omitempty"`
@@ -57,14 +56,18 @@ type GrafanaSpec struct {
 	TLSSecretName               string                   `json:"tlsSecretName,omitempty"`
 	TLSClientSecretName         string                   `json:"tlsClientSecretName,omitempty"`
 	DashboardsConfig            *DashboardConfig         `json:"dashboardConfig,omitempty"`
+	GrafanaConfig               *GrafanaConfig           `json:"grafanaConfig,omitempty"`
+	RouterConfig                *RouterConfig            `json:"routerConfig,omitempty"`
 }
 
 // DashboardConfig define dashboard config
 // DashboardsStatus to disable/enable dashboards by name
 // MainOrg to decide which org as the main org  for all dashboards
 type DashboardConfig struct {
-	DashboardsStatus map[string]bool `json:"dashboardsStatus,omitempty"`
-	MainOrg          string          `json:"mainOrg,omitempty"`
+	IPVersion        string                       `json:"ipVersion,omitempty"`
+	MainOrg          string                       `json:"mainOrg,omitempty"`
+	DashboardsStatus map[string]bool              `json:"dashboardsStatus,omitempty"`
+	Resources        *corev1.ResourceRequirements `json:"resources,omitempty"`
 }
 
 type GrafanaResources struct {
@@ -80,6 +83,16 @@ type GrafanaService struct {
 	Labels      map[string]string    `json:"labels,omitempty"`
 	Type        corev1.ServiceType   `json:"type,omitempty"`
 	Ports       []corev1.ServicePort `json:"ports,omitempty"`
+}
+
+type GrafanaConfig struct {
+	StorageClass          string                       `json:"storageClass,omitempty"`
+	Resources             *corev1.ResourceRequirements `json:"resources,omitempty"`
+	PersistentVolumeClaim string                       `json:"persistentVolumeClaim,omitempty"`
+}
+
+type RouterConfig struct {
+	Resources *corev1.ResourceRequirements `json:"resources,omitempty"`
 }
 
 // GrafanaPersistentVolume setup persistent volumes.
