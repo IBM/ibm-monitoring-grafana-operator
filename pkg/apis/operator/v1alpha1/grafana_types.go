@@ -18,6 +18,8 @@ package v1alpha1
 import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator"
 )
 
 // Status describe status message of grafana
@@ -55,9 +57,35 @@ type GrafanaSpec struct {
 	DashboardControllerImageSHA string                   `json:"dashboardCtlImageSHA,omitempty"`
 	TLSSecretName               string                   `json:"tlsSecretName,omitempty"`
 	TLSClientSecretName         string                   `json:"tlsClientSecretName,omitempty"`
+	Issuer                      string                   `json:"issuer,omitempty"`
+	IssuerType                  string                   `json:"issuerType,omitempty"`
 	DashboardsConfig            *DashboardConfig         `json:"dashboardConfig,omitempty"`
 	GrafanaConfig               *GrafanaConfig           `json:"grafanaConfig,omitempty"`
 	RouterConfig                *RouterConfig            `json:"routerConfig,omitempty"`
+	DataSourceConfig            *DataSourceConfig        `json:"datasourceConfig,omitempty"`
+}
+
+// DataSourceConfig defines Grafana datasource configurations
+// Datasource defined here should be Prometheus or 'as-is' prometheus like thanos-querier
+type DataSourceConfig struct {
+	Type            operator.DatasourceType      `json:"type"`
+	OCPDSConfig     *OCPDSConfig                 `json:"openshift,omitempty"`
+	BedrockDSConfig *BedrockDSConfig             `json:"bedrock,omitempty"`
+	ProxyResources  *corev1.ResourceRequirements `json:"proxyResources,omitempty"`
+}
+
+// OCPDSConfig defines openshift application monitoring datasource configurations
+type OCPDSConfig struct {
+	URL            string `json:"url,omitempty"`
+	StorageClass   string `json:"storageClass,omitempty"`
+	ScrapeInterval string `json:"scrapeInterval,omitempty"`
+	Retention      string `json:"retention,omitempty"`
+}
+
+// BedrockDSConfig defines bedrock prometheus datasource configurations
+type BedrockDSConfig struct {
+	ServiceName string `json:"serviceName,omitempty"`
+	ServicePort int32  `json:"servicePort,omitempty"`
 }
 
 // DashboardConfig define dashboard config

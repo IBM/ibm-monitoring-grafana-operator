@@ -96,6 +96,8 @@ func ReconciledGrafanaIngress(cr *v1alpha1.Grafana, current *v1beta1.Ingress) *v
 	reconciled := current.DeepCopy()
 	spec := getIngressSpec()
 	reconciled.Spec = spec
+	reconciled.Labels = GetIngressLabels(cr)
+	reconciled.Annotations = GetIngressAnnotations(cr)
 	return reconciled
 }
 

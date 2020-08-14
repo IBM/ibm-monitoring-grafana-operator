@@ -62,7 +62,7 @@ metadata:
                 }
               ]
             },
-            "tlsClientSecretName": "ibm-monitoring-client-certs",
+            "tlsClientSecretName": "ibm-monitoring-certs",
             "tlsSecretName": "ibm-monitoring-certs",
             "prometheusServiceName": "ibm-monitoring-prometheus",
             "prometheusServicePort": 9090
@@ -105,12 +105,6 @@ metadata:
                   },
                   {
                     "name": "ibm-commonui-operator"
-                  },
-                  {
-                    "name": "ibm-monitoring-exporters-operator"
-                  },
-                  {
-                    "name": "ibm-monitoring-prometheusext-operator"
                   }
                 ],
                 "registry":"common-service"
@@ -229,6 +223,9 @@ spec:
         path: dashboardConfig
       - description: config for router
         displayName: RouterConfig
+        path: routerConfig
+      - description: config for datasource
+        displayName: datasourceConfig
         path: routerConfig
     - description: MonitoringDashboard is the Schema for Grafana Dashboard
       kind: MonitoringDashboard

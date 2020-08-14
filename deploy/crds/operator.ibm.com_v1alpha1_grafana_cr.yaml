@@ -19,6 +19,8 @@ spec:
   ipVersion: "4"
   isHub: false
   tlsSecretName: ibm-monitoring-certs
-  tlsClientSecretName: ibm-monitoring-client-certs
+  tlsClientSecretName: ibm-monitoring-certs
   prometheusServiceName: ibm-monitoring-prometheus
   prometheusServicePort: 9090
+  # datasourceConfig:
+  #   type: "openshift"

@@ -17,18 +17,20 @@ package grafana
 
 import (
 	"fmt"
-	"time"
 
-	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
+	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator"
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
+	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/artifacts"
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/dashboards"
 	utils "github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/model"
 )
@@ -36,10 +38,25 @@ import (
 var IsGrafanaRunning bool = false
 
 func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-
 	err := reconcileAllConfigMaps(r, cr)
 	if err != nil {
 		log.Error(err, "Fail to reconcile all the confimags.")
+		return err
+	}
+
+	err = reconsileCert(r, cr)
+	if err != nil {
+		log.Error(err, "Fail to reconsile certificate")
+		return err
+	}
+	err = configOCPAppMonitor(r, cr)
+	if err != nil {
+		log.Error(err, "Fail to configure OCP Application monitoring")
+		return err
+	}
+	err = reconsileDSProxyConfigSecret(r, cr)
+	if err != nil {
+		log.Error(err, "Fail to reconsile datasource proxy configration secret.")
 		return err
 	}
 
@@ -73,24 +90,11 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	return nil
 }
 
-func getCurrentNamespace() (string, error) {
-	namespace, err := k8sutil.GetOperatorNamespace()
-	if err != nil {
-		log.Error(err, "Fail to get operator namespace")
-		return "", err
-	}
-	return namespace, nil
-}
-
 func reconcileAllConfigMaps(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	configmaps := utils.ReconcileConfigMaps(cr)
-	namespace, err := getCurrentNamespace()
-	if err != nil {
-		panic(err)
-	}
 	selector := func(name string) client.ObjectKey {
 		return client.ObjectKey{
-			Namespace: namespace,
+			Namespace: cr.Namespace,
 			Name:      name,
 		}
 	}
@@ -124,7 +128,8 @@ func reconcileAllConfigMaps(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	log.Info("Start to reconcile all the confimaps")
 	for _, cm := range configmaps {
 		name := cm.ObjectMeta.Name
-		err := r.client.Get(r.ctx, selector(name), cm)
+		ocm := v1.ConfigMap{}
+		err := r.client.Get(r.ctx, selector(name), &ocm)
 		if err != nil {
 			if errors.IsNotFound(err) {
 				err = create(cm)
@@ -146,48 +151,11 @@ func reconcileAllConfigMaps(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	return nil
 }
 
-func getPodStatus(r *ReconcileGrafana) corev1.PodPhase {
-	var podPhase corev1.PodPhase
-	namespace, err := getCurrentNamespace()
-	if err != nil {
-		panic(err)
-	}
-	podList := &corev1.PodList{}
-	listOpts := []client.ListOption{
-		client.InNamespace(namespace),
-		client.MatchingLabels(map[string]string{"app:": "grafana"}),
-	}
-	log.Info("Start to get grafana pods status")
-
-	time.Sleep(30 * time.Second)
-	for {
-		_ = r.client.List(r.ctx, podList, listOpts...)
-		podPhase = podList.Items[0].Status.Phase
-		if podPhase == "Running" || podPhase == "Failed" {
-			log.Info(fmt.Sprintf("Grafana pod is %s.", podPhase))
-			break
-		}
-	}
-	return podPhase
-}
-
 func reconcileAllDashboards(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
 	var namespace string = "kube-system"
-	var phase corev1.PodPhase
 
 	log.Info("Start to reconcile grafana dashboards")
-	// Get status of grafana pod before creating dshboarding
-	// if it is not  running.
-	if !IsGrafanaRunning {
-		phase = getPodStatus(r)
-
-		if phase == "Running" {
-			IsGrafanaRunning = true
-		} else {
-			return fmt.Errorf("fail to start grafana pod")
-		}
-	}
 
 	// Update the dashboards status
 	if cr.Spec.DashboardsConfig != nil && cr.Spec.DashboardsConfig.MainOrg != "" {
@@ -393,4 +361,118 @@ func handleSucess(r *ReconcileGrafana, cr *v1alpha1.Grafana) (reconcile.Result, 
 	log.Info("desired cluster state met")
 
 	return reconcile.Result{RequeueAfter: utils.RequeueDelay}, nil
+}
+
+func reconsileDSProxyConfigSecret(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
+	secret := &corev1.Secret{}
+	err := r.client.Get(r.ctx, client.ObjectKey{Namespace: cr.Namespace, Name: utils.DSProxyConfigSecName}, secret)
+	// create/update when datasource is not bedrock prometheus
+	if utils.DatasourceType(cr) != operator.DSTypeBedrock {
+		//craeate
+		if err != nil && errors.IsNotFound(err) {
+			if secret, err = utils.DSProxyConfigSecret(cr, nil); err != nil {
+				return err
+			}
+			if err = controllerutil.SetControllerReference(cr, secret, r.scheme); err != nil {
+				return err
+			}
+			if err = r.client.Create(r.ctx, secret); err != nil {
+				return err
+			}
+			log.Info("data source configuration secret is created")
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		//update
+		if secret, err = utils.DSProxyConfigSecret(cr, secret); err != nil {
+			return err
+		}
+		if err = controllerutil.SetControllerReference(cr, secret, r.scheme); err != nil {
+			return err
+		}
+		if err = r.client.Update(r.ctx, secret); err != nil {
+			return err
+		}
+		log.Info("data source configuration secret is updated")
+		return nil
+
+	}
+	// delete when datsource is bedrock prometheus
+	if err != nil && errors.IsNotFound(err) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	// ignore potential error for deleting
+	if err = r.client.Delete(r.ctx, secret); err != nil {
+		log.Info("fail to delete datasource configuration secret")
+	}
+	return nil
+
+}
+
+func configOCPAppMonitor(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
+	ocm := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{},
+	}
+
+	err := r.kclient.Get(r.ctx, client.ObjectKey{Namespace: "openshift-monitoring", Name: "cluster-monitoring-config"}, ocm)
+	//create
+	if err != nil && errors.IsNotFound(err) {
+		//TODO: we need to add more configuration when ocp application monitoring GA and has more information
+		ncm := &corev1.ConfigMap{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "cluster-monitoring-config",
+				Namespace: "openshift-monitoring",
+			},
+			Data: map[string]string{"config.yaml": artifacts.DefaultOCPAppMonitorConfig},
+		}
+		if err = r.client.Create(r.ctx, ncm); err != nil {
+			log.Error(err, "fail to create configmap openshift-monitoring/cluster-monitoring-config")
+			return err
+		}
+		log.Info("OCP application monitoring is enabled automatically when datasource type is " + string(cr.Spec.DataSourceConfig.Type))
+
+	}
+	if err != nil {
+		return err
+
+	}
+	//TODO: we need to update configuration when ocp application monitoring GA and has more information
+	//update
+	return nil
+}
+
+func reconsileCert(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
+	if utils.DatasourceType(cr) == operator.DSTypeBedrock {
+		return nil
+	}
+	certSecretName := "ibm-monitoring-certs"
+	if cr.Spec.TLSSecretName != "" {
+		certSecretName = cr.Spec.TLSSecretName
+	}
+	cert := utils.GetCertificate(certSecretName, cr)
+	if err := r.kclient.Get(r.ctx, client.ObjectKey{Name: cert.Name, Namespace: cert.Namespace}, cert); err != nil {
+		if errors.IsNotFound(err) {
+			//create cert
+			if err := controllerutil.SetControllerReference(cr, cert, r.scheme); err != nil {
+				log.Error(err, "fail to create certificate "+certSecretName)
+			}
+			if err := r.client.Create(r.ctx, cert); err != nil {
+				log.Error(err, "fail to create certificate "+certSecretName)
+				return err
+			}
+			log.Info("certificate " + certSecretName + " is created")
+			return nil
+		}
+		log.Error(err, "fail to get certificate: "+certSecretName)
+		return err
+
+	}
+	log.Info("certificate " + certSecretName + " exists already")
+
+	return nil
 }

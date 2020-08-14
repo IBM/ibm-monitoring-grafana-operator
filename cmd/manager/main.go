@@ -26,6 +26,8 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"k8s.io/client-go/rest"
 
+	certmgr "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1alpha1"
+
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis"
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller"
 	conf "github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/config"
@@ -131,6 +133,12 @@ func main() {
 
 	// Setup Scheme for all resources
 	if err := apis.AddToScheme(mgr.GetScheme()); err != nil {
+		log.Error(err, "")
+		os.Exit(1)
+	}
+
+	// Register cert managert schema
+	if err := certmgr.AddToScheme(mgr.GetScheme()); err != nil {
 		log.Error(err, "")
 		os.Exit(1)
 	}

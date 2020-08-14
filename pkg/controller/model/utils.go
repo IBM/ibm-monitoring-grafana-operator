@@ -23,6 +23,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 
+	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator"
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
 )
 
@@ -30,6 +31,41 @@ var memoryRequest int = 256
 var cpuRequest int = 200
 var memoryLimit int = 512
 var cpuLimit int = 500
+
+func DatasourceType(cr *v1alpha1.Grafana) operator.DatasourceType {
+	dsType := DefaultDSType
+	if cr.Spec.DataSourceConfig != nil && cr.Spec.DataSourceConfig.Type != "" {
+		dsType = cr.Spec.DataSourceConfig.Type
+	}
+	return dsType
+
+}
+func IssuerName(cr *v1alpha1.Grafana) string {
+	issuer := "cs-ca-clusterissuer"
+	if cr.Spec.Issuer != "" {
+		issuer = cr.Spec.Issuer
+
+	}
+	return issuer
+}
+func IssuerType(cr *v1alpha1.Grafana) string {
+	t := "ClusterIssuer"
+	if cr.Spec.IssuerType != "" {
+		t = cr.Spec.IssuerType
+
+	}
+	return t
+}
+func ThanosURL(cr *v1alpha1.Grafana) string {
+	thanosURL := DefaultThanosURL
+	if cr.Spec.DataSourceConfig != nil &&
+		cr.Spec.DataSourceConfig.OCPDSConfig != nil &&
+		cr.Spec.DataSourceConfig.OCPDSConfig.URL != "" {
+		thanosURL = cr.Spec.DataSourceConfig.OCPDSConfig.URL
+	}
+	return thanosURL
+
+}
 
 func mergeMaps(to, from map[string]string) {
 	for key, val := range from {
@@ -44,6 +80,7 @@ func imageName(defaultV string, overwrite string) string {
 	return defaultV
 
 }
+
 func getContainerResource(cr *v1alpha1.Grafana, name string) corev1.ResourceRequirements {
 
 	var resources *v1alpha1.GrafanaResources
@@ -148,6 +185,6 @@ func setupAdminEnv(username, password string) []corev1.EnvVar {
 func appendCommonLabels(labels map[string]string) map[string]string {
 	labels["app.kubernetes.io/name"] = "ibm-monitoring"
 	labels["app.kubernetes.io/instance"] = "common-monitoring"
-	labels["app.kubernetes.io/managed-by"] = "ibm-monitoring-exporters-operator"
+	labels["app.kubernetes.io/managed-by"] = "ibm-monitoring-grafana-operator"
 	return labels
 }
