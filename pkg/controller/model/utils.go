@@ -40,6 +40,37 @@ func DatasourceType(cr *v1alpha1.Grafana) operator.DatasourceType {
 	return dsType
 
 }
+func prometheusInfo(cr *v1alpha1.Grafana) (host string, port int32) {
+	host = PrometheusServiceName
+	if cr.Spec.PrometheusServiceName != "" {
+		host = cr.Spec.PrometheusServiceName
+	}
+	if cr.Spec.DataSourceConfig != nil &&
+		DatasourceType(cr) != operator.DSTypeBedrock {
+		host = "localhost"
+	} else if cr.Spec.DataSourceConfig != nil &&
+		cr.Spec.DataSourceConfig.BedrockDSConfig != nil &&
+		cr.Spec.DataSourceConfig.BedrockDSConfig.ServiceName != "" {
+		host = cr.Spec.DataSourceConfig.BedrockDSConfig.ServiceName
+
+	}
+
+	port = PrometheusPort
+	if cr.Spec.PrometheusServicePort != 0 {
+		port = cr.Spec.PrometheusServicePort
+	}
+	if cr.Spec.DataSourceConfig != nil &&
+		DatasourceType(cr) != operator.DSTypeBedrock {
+		port = 9096
+	} else if cr.Spec.DataSourceConfig != nil &&
+		cr.Spec.DataSourceConfig.BedrockDSConfig != nil &&
+		cr.Spec.DataSourceConfig.BedrockDSConfig.ServicePort != 0 {
+		port = cr.Spec.DataSourceConfig.BedrockDSConfig.ServicePort
+
+	}
+
+	return host, port
+}
 func IssuerName(cr *v1alpha1.Grafana) string {
 	issuer := "cs-ca-clusterissuer"
 	if cr.Spec.Issuer != "" {
