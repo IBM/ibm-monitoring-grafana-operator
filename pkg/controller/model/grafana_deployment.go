@@ -226,7 +226,6 @@ func getPodAnnotations(cr *v1alpha1.Grafana) map[string]string {
 		"clusterhealth.ibm.com/dependencies": "cert-manager, auth-idp, icp-management-ingress, common-web-ui, platform-header",
 		"productName":                        "IBM Cloud Platform Common Services",
 		"productID":                          "068a62892a1e4db39641342e592daa25",
-		"productVersion":                     "3.4.0",
 		"productMetric":                      "FREE",
 	}
 	if cr.Spec.Service != nil && cr.Spec.Service.Annotations != nil {
