@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/python3
 #
 # Copyright 2020 IBM Corporation
 #
@@ -91,8 +91,8 @@ def allCSVs(catalogDir):
 
 
 def validateExampleCR(csv, catalogDir):
-    print("valiate CR examples defined in csv: {0}".format(
-        str(pathlib.Path(csv).relative_to(catalogDir))))
+    print(("valiate CR examples defined in csv: {0}".format(
+        str(pathlib.Path(csv).relative_to(catalogDir)))))
     stream = open(csv, 'r')
     csvContent = yaml.load(stream, Loader=Loader)
     crs = csvContent["metadata"]["annotations"]["alm-examples"]
@@ -104,10 +104,10 @@ def validateExampleCR(csv, catalogDir):
 def main():
     print("start to check csv files")
     projectDir, catalogDir, packageFile = packagePathes()
-    print("project dir: {0}".format(projectDir))
+    print(("project dir: {0}".format(projectDir)))
     changedFiles = modifiedFiles(projectDir)
     devCSVName, devCSVPath, devCSVIsNew = devCSV(packageFile, catalogDir)
-    print("find dev csv: {0}".format(devCSVName))
+    print(("find dev csv: {0}".format(devCSVName)))
 
     if devCSVName == "":
         print("ERROR: dev channel is not defined")
@@ -117,14 +117,14 @@ def main():
         for changeFile in changedFiles:
             if csv == changeFile:
                 if csv == devCSVName and (not devCSVIsNew):
-                    print("ERROR: modifing csv: {0}".format(csv))
+                    print(("ERROR: modifing csv: {0}".format(csv)))
                     exit(1)
                 if csv != devCSVPath:
-                    print("ERROR: modifing csv: {0}".format(csv))
+                    print(("ERROR: modifing csv: {0}".format(csv)))
                     exit(1)
                 if not validateExampleCR(devCSVPath, catalogDir):
-                    print(
-                        "ERROR: failed to validate csv: {0}".format(devCSVPath))
+                    print((
+                        "ERROR: failed to validate csv: {0}".format(devCSVPath)))
                     exit(1)
     print("csv check passed")
 

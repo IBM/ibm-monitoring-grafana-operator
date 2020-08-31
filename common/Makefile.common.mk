@@ -1,16 +1,18 @@
-# Copyright 2019 The Kubernetes Authors.
+#
+# Copyright 2020 IBM Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
 
 ############################################################
 # install git hooks
@@ -24,6 +26,7 @@ INSTALL_HOOKS := $(shell find .git/hooks -type l -exec rm {} \; && \
 PROJECT ?= oceanic-guard-191815
 ZONE    ?= us-west1-a
 CLUSTER ?= prow
+tt3=$(shell which 2to3)
 
 activate-serviceaccount:
 ifdef GOOGLE_APPLICATION_CREDENTIALS
@@ -64,6 +67,10 @@ lint-go:
 	@${FINDFILES} -name '*.go' \( ! \( -name '*.gen.go' -o -name '*.pb.go' \) \) -print0 | ${XARGS} common/scripts/lint_go.sh
 
 lint-python:
+ifeq (${tt3},)
+	@apt update
+	@apt install -y 2to3
+endif
 	@${FINDFILES} -name '*.py' \( ! \( -name '*_pb2.py' \) \) -print0 | ${XARGS} autopep8 --max-line-length 160 --exit-code -d
 
 lint-markdown:

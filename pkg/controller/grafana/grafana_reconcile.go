@@ -20,7 +20,6 @@ import (
 
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -128,7 +127,7 @@ func reconcileAllConfigMaps(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	log.Info("Start to reconcile all the confimaps")
 	for _, cm := range configmaps {
 		name := cm.ObjectMeta.Name
-		ocm := v1.ConfigMap{}
+		ocm := corev1.ConfigMap{}
 		err := r.client.Get(r.ctx, selector(name), &ocm)
 		if err != nil {
 			if errors.IsNotFound(err) {
