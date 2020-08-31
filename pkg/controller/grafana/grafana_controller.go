@@ -53,7 +53,6 @@ func Add(mgr manager.Manager) error {
 // newReconciler returns a new reconcile.Reconciler
 func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 	context := context.Background()
-	mgr.GetAPIReader()
 	config := config.GetControllerConfig()
 	return &ReconcileGrafana{
 		client:  mgr.GetClient(),

@@ -43,9 +43,9 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 		return err
 	}
 
-	err = reconsileCert(r, cr)
+	err = reconcileCert(r, cr)
 	if err != nil {
-		log.Error(err, "Fail to reconsile certificate")
+		log.Error(err, "Fail to reconcile certificate")
 		return err
 	}
 	err = configOCPAppMonitor(r, cr)
@@ -53,9 +53,9 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 		log.Error(err, "Fail to configure OCP Application monitoring")
 		return err
 	}
-	err = reconsileDSProxyConfigSecret(r, cr)
+	err = reconcileDSProxyConfigSecret(r, cr)
 	if err != nil {
-		log.Error(err, "Fail to reconsile datasource proxy configration secret.")
+		log.Error(err, "Fail to reconcile datasource proxy configration secret.")
 		return err
 	}
 
@@ -362,7 +362,7 @@ func handleSucess(r *ReconcileGrafana, cr *v1alpha1.Grafana) (reconcile.Result, 
 	return reconcile.Result{RequeueAfter: utils.RequeueDelay}, nil
 }
 
-func reconsileDSProxyConfigSecret(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
+func reconcileDSProxyConfigSecret(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	secret := &corev1.Secret{}
 	err := r.client.Get(r.ctx, client.ObjectKey{Namespace: cr.Namespace, Name: utils.DSProxyConfigSecName}, secret)
 	// create/update when datasource is not bedrock prometheus
@@ -445,7 +445,7 @@ func configOCPAppMonitor(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	return nil
 }
 
-func reconsileCert(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
+func reconcileCert(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	if utils.DatasourceType(cr) == operator.DSTypeBedrock {
 		return nil
 	}
