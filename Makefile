@@ -194,7 +194,6 @@ push-image-s390x: $(CONFIG_DOCKER_TARGET) build-image-s390x
 ############################################################
 
 images: push-image-amd64 push-image-ppc64le push-image-s390x multiarch-image
-build-push-image: images
 
 multiarch-image:
 	@curl -L -o /tmp/manifest-tool https://github.com/estesp/manifest-tool/releases/download/v1.0.0/manifest-tool-linux-amd64
