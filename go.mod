@@ -3,6 +3,7 @@ module github.com/IBM/ibm-monitoring-grafana-operator
 go 1.13
 
 require (
+	github.com/jetstack/cert-manager v0.13.0
 	github.com/operator-framework/operator-sdk v0.15.1
 	sigs.k8s.io/controller-runtime v0.4.0
 )
@@ -36,11 +37,24 @@ replace github.com/docker/docker => github.com/moby/moby v0.7.3-0.20190826074503
 
 replace github.com/openshift/api => github.com/openshift/api v0.0.0-20190924102528-32369d4db2ad // Required until https://github.com/operator-framework/operator-lifecycle-manager/pull/1241 is resolved
 
+// pinned to cert manager v0.10
+replace (
+	github.com/Azure/go-autorest => github.com/Azure/go-autorest v13.3.4-0.20200207053602-7439e774c9e9+incompatible
+	github.com/jetstack/cert-manager => github.com/jetstack/cert-manager v0.10.0
+)
+
 require (
-	github.com/golangci/golangci-lint v1.27.0 // indirect
+	github.com/kr/text v0.2.0 // indirect
+	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
+	github.com/onsi/ginkgo v1.12.0 // indirect
+	github.com/onsi/gomega v1.9.0 // indirect
 	github.com/spf13/pflag v1.0.5
+	github.com/stretchr/testify v1.5.1 // indirect
 	github.ibm.com/IBMPrivateCloud/grafana-dashboard-crd v1.2.0
-	golang.org/x/tools v0.0.0-20200515220128-d3bf790afa53 // indirect
+	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b // indirect
+	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543 // indirect
+	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
+	gopkg.in/yaml.v2 v2.2.8 // indirect
 	k8s.io/api v0.0.0
 	k8s.io/apimachinery v0.0.0
 	k8s.io/client-go v12.0.0+incompatible

@@ -13,8 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-package version
 
-var (
-	Version = "1.10.1"
+package operator
+
+// DatasourceType defines datasource type of grafana
+type DatasourceType string
+
+const (
+	// DSTypeBedrock means data source is prometheus installed by bedrock service
+	DSTypeBedrock DatasourceType = "bedrock"
+	// DSTypeOpenshift means data source is OCP monitoring - application monitoring will be enabled if not yet
+	DSTypeOpenshift DatasourceType = "openshift"
 )

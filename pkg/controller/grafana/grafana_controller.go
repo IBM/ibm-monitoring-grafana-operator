@@ -55,10 +55,11 @@ func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 	context := context.Background()
 	config := config.GetControllerConfig()
 	return &ReconcileGrafana{
-		client: mgr.GetClient(),
-		scheme: mgr.GetScheme(),
-		ctx:    context,
-		config: config,
+		client:  mgr.GetClient(),
+		scheme:  mgr.GetScheme(),
+		ctx:     context,
+		config:  config,
+		kclient: mgr.GetAPIReader(),
 	}
 }
 
@@ -136,6 +137,8 @@ type ReconcileGrafana struct {
 	scheme *runtime.Scheme
 	ctx    context.Context
 	config *config.ControllerConfig
+	// This client reads objects from apiserver directly
+	kclient client.Reader
 }
 
 // Reconcile reads that state of the cluster for a Grafana object and makes changes based on the state read

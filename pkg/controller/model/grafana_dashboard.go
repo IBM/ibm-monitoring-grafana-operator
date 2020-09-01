@@ -56,17 +56,8 @@ func setupDashboardEnv(cr *v1alpha1.Grafana) []corev1.EnvVar {
 		clusterPort = DefaultClusterPort
 	}
 
-	if cr.Spec.PrometheusServiceName != "" {
-		prometheusHost = cr.Spec.PrometheusServiceName
-	} else {
-		prometheusHost = PrometheusServiceName
-	}
-
-	if cr.Spec.PrometheusServicePort != 0 {
-		prometheusPort = cr.Spec.PrometheusServicePort
-	} else {
-		prometheusPort = PrometheusPort
-	}
+	prometheusHost, prometheusPort = prometheusInfo(cr)
+	dsType := DatasourceType(cr)
 
 	envs := []corev1.EnvVar{}
 	envs = append(envs, setupAdminEnv("USER", "PASSWORD")...)
@@ -96,6 +87,9 @@ func setupDashboardEnv(cr *v1alpha1.Grafana) []corev1.EnvVar {
 	}, corev1.EnvVar{
 		Name:  "PROMETHEUS_PORT",
 		Value: strconv.FormatInt(int64(prometheusPort), 10),
+	}, corev1.EnvVar{
+		Name:  "DS_TYPE",
+		Value: string(dsType),
 	}, corev1.EnvVar{
 		Name:  "PORT",
 		Value: strconv.FormatInt(int64(clusterPort), 10),

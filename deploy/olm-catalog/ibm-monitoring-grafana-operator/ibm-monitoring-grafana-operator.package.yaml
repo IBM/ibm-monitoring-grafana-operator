@@ -3,7 +3,7 @@ channels:
   name: stable-v1
 - currentCSV: ibm-monitoring-grafana-operator.v1.9.2
   name: beta
-- currentCSV: ibm-monitoring-grafana-operator.v1.10.0
+- currentCSV: ibm-monitoring-grafana-operator.v1.10.1
   name: dev
 defaultChannel: stable-v1
 packageName: ibm-monitoring-grafana-operator-app

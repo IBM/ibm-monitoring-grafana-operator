@@ -13,8 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-package version
+package artifacts
 
-var (
-	Version = "1.10.1"
-)
+// This is the configuration file of proxy between grafana container and OCP thanos-quirier service
+const grafanaDSProxyConfig = `
+type: ibm-bedrock-iam
+paras:
+  uidURL: https://platform-identity-provider.{{ .Namespace }}.svc:4300
+  userInfoURL: https://platform-identity-management.{{ .Namespace }}.svc:4500
+`

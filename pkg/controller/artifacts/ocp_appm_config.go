@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-package version
+package artifacts
 
-var (
-	Version = "1.10.1"
-)
+const DefaultOCPAppMonitorConfig = `techPreviewUserWorkload:
+  enabled: true
+`

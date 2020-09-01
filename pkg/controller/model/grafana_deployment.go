@@ -24,6 +24,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator"
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
 )
 
@@ -101,13 +102,18 @@ func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 		clientCert = cr.Spec.TLSClientSecretName
 	} else {
 		cert = "ibm-monitoring-certs"
-		clientCert = "ibm-monitoring-client-certs"
+		clientCert = "ibm-monitoring-certs"
 	}
 
 	volumes = append(volumes, createVolumeFromSecret(cert, "ibm-monitoring-ca-certs"),
 		createVolumeFromSecret(cert, "ibm-monitoring-certs"),
 		createVolumeFromSecret(clientCert, "ibm-monitoring-client-certs"),
 	)
+
+	if DatasourceType(cr) != operator.DSTypeBedrock {
+		volumes = append(volumes, createVolumeFromSecret(DSProxyConfigSecName, DSProxyConfigSecName))
+
+	}
 
 	return volumes
 }
@@ -179,28 +185,32 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 		resources = getContainerResource(cr, "Grafana")
 	}
 
-	containers = append(containers, corev1.Container{
-		Name:  "grafana",
-		Image: image,
-		Ports: []corev1.ContainerPort{
-			{
-				Name:          "web",
-				ContainerPort: DefaultGrafanaPort,
-				Protocol:      "TCP",
+	containers = append(containers,
+		corev1.Container{
+			Name:  "grafana",
+			Image: image,
+			Ports: []corev1.ContainerPort{
+				{
+					Name:          "web",
+					ContainerPort: DefaultGrafanaPort,
+					Protocol:      "TCP",
+				},
 			},
+			SecurityContext:          getGrafanaSC(),
+			Resources:                resources,
+			VolumeMounts:             getVolumeMounts(),
+			LivenessProbe:            getProbe(40, 35, 15),
+			ReadinessProbe:           getProbe(30, 30, 10),
+			TerminationMessagePath:   "/dev/termination-log",
+			TerminationMessagePolicy: "File",
+			ImagePullPolicy:          "IfNotPresent",
 		},
-		SecurityContext:          getGrafanaSC(),
-		Resources:                resources,
-		VolumeMounts:             getVolumeMounts(),
-		LivenessProbe:            getProbe(40, 35, 15),
-		ReadinessProbe:           getProbe(30, 30, 10),
-		TerminationMessagePath:   "/dev/termination-log",
-		TerminationMessagePolicy: "File",
-		ImagePullPolicy:          "IfNotPresent",
-	},
 		createRouterContainer(cr),
 		createDashboardContainer(cr),
 	)
+	if DatasourceType(cr) != operator.DSTypeBedrock {
+		containers = append(containers, *dsProxyContainer(cr))
+	}
 
 	return containers
 }

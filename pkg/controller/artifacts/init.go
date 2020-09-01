@@ -43,6 +43,8 @@ var GrafanaConfig *template.Template
 // GrafanaDBConfig setup dashboard config
 var GrafanaDBConfig *template.Template
 
+var GrafanaDSProxyConfig *template.Template
+
 func init() {
 
 	GrafanaCRDEntry = template.Must(template.New("GE").Parse(crdEntry))
@@ -53,4 +55,5 @@ func init() {
 	Entrypoint = template.Must(template.New("ENT").Parse(entrypoint))
 	GrafanaConfig = template.Must(template.New("CONFIG").Parse(grafanaConfig))
 	GrafanaDBConfig = template.Must(template.New("DBC").Parse(grafanaDBConfig))
+	GrafanaDSProxyConfig = template.Must(template.New("DSPC").Parse(grafanaDSProxyConfig))
 }

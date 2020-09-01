@@ -52,6 +52,7 @@ type templateData struct {
 	ClusterDomain      string
 	GrafanaFullName    string
 	PrometheusFullName string
+	DSType             string
 	ClusterPort        int32
 	PrometheusPort     int32
 	GrafanaPort        int32
@@ -120,20 +121,17 @@ func ReconcileConfigMaps(cr *v1alpha1.Grafana) []*corev1.ConfigMap {
 	} else {
 		httpPort = DefaultClusterPort
 	}
+	prometheusFullName, prometheusPort = prometheusInfo(cr)
+	if cr.Spec.DataSourceConfig != nil &&
+		cr.Spec.DataSourceConfig.BedrockDSConfig != nil &&
+		cr.Spec.DataSourceConfig.BedrockDSConfig.ServicePort != 0 {
+		prometheusPort = cr.Spec.DataSourceConfig.BedrockDSConfig.ServicePort
 
-	if cr.Spec.PrometheusServiceName != "" {
-		prometheusFullName = cr.Spec.PrometheusServiceName
-	} else {
-		prometheusFullName = PrometheusServiceName
-	}
-
-	if cr.Spec.PrometheusServicePort != 0 {
-		prometheusPort = cr.Spec.PrometheusServicePort
-	} else {
-		prometheusPort = PrometheusPort
 	}
 	grafanaPort := DefaultGrafanaPort
 	grafanaFullName := GrafanaServiceName
+
+	dsType := DatasourceType(cr)
 
 	tplData := templateData{
 		Namespace:          namespace,
@@ -144,6 +142,7 @@ func ReconcileConfigMaps(cr *v1alpha1.Grafana) []*corev1.ConfigMap {
 		PrometheusPort:     prometheusPort,
 		GrafanaFullName:    grafanaFullName,
 		GrafanaPort:        grafanaPort,
+		DSType:             string(dsType),
 	}
 
 	for file, dValue := range FileKeys {

@@ -230,7 +230,7 @@ code-gen: ## Run the operator-sdk commands to generated code (k8s and openapi an
 	operator-sdk generate openapi
 	@echo Updating the CSV files with the changes in the CRD
 	operator-sdk generate csv --csv-version ${CSV_VERSION} --update-crds
-dev: clean code-tidy code-fmt code-vet code-gen local
+dev: clean code-tidy code-gen code-fmt code-vet local
 
 ############################################################
 # clean section

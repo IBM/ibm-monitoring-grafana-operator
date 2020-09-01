@@ -15,9 +15,15 @@
 //
 package model
 
-import "time"
+import (
+	"time"
+
+	api "github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator"
+)
 
 const (
+	DefaultDSType                             = api.DSTypeBedrock
+	DefaultThanosURL                          = "https://thanos-querier.openshift-monitoring.svc:9091"
 	GrafanaConfigName                         = "grafana-config"
 	GrafanaLogVolumes                         = "grafana-log"
 	GrafanaDataVolumes                        = "grafana-storage"
@@ -50,9 +56,11 @@ const (
 	DefaultBaseImageTag                       = "v6.5.2-build.2"
 	DefaultRouterImage                        = "quay.io/opencloudio/icp-management-ingress"
 	DefaultRouterImageTag                     = "2.5.1"
+	DSProxyConfigSecName                      = "grafana-ds-proxy-config"
 
 	grafanaImageEnv      = "GRAFANA_IMAGE"
 	routerImageEnv       = "ROUTER_IMAGE"
+	dsProxyImageEnv      = "DS_PROXY_IMAGE"
 	dashboardCtlImageEnv = "DASHBOARD_CTL_IMAGE"
 	imageDigestKey       = `sha256:`
 )
