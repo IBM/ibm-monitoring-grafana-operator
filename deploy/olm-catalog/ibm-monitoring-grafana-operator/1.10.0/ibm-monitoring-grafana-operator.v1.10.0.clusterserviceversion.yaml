@@ -5,6 +5,10 @@ metadata:
     app.kubernetes.io/name: ibm-monitoring
     app.kubernetes.io/instance: common-monitoring
     app.kubernetes.io/managed-by: ibm-monitoring-grafana-operator
+    operatorframework.io/arch.s390x: supported
+    operatorframework.io/os.linux: supported
+    operatorframework.io/arch.amd64: supported
+    operatorframework.io/arch.ppc64le: supported
   annotations:
     olm.skipRange: '>=1.8.0 <1.10.0'
     alm-examples: |-
@@ -62,7 +66,7 @@ metadata:
                 }
               ]
             },
-            "tlsClientSecretName": "ibm-monitoring-certs",
+            "tlsClientSecretName": "ibm-monitoring-client-certs",
             "tlsSecretName": "ibm-monitoring-certs",
             "prometheusServiceName": "ibm-monitoring-prometheus",
             "prometheusServicePort": 9090
@@ -105,6 +109,12 @@ metadata:
                   },
                   {
                     "name": "ibm-commonui-operator"
+                  },
+                  {
+                    "name": "ibm-monitoring-exporters-operator"
+                  },
+                  {
+                    "name": "ibm-monitoring-prometheusext-operator"
                   }
                 ],
                 "registry":"common-service"
@@ -223,9 +233,6 @@ spec:
         path: dashboardConfig
       - description: config for router
         displayName: RouterConfig
-        path: routerConfig
-      - description: config for datasource
-        displayName: datasourceConfig
         path: routerConfig
     - description: MonitoringDashboard is the Schema for Grafana Dashboard
       kind: MonitoringDashboard
@@ -377,8 +384,6 @@ spec:
                   value: quay.io/opencloudio/dashboard-controller@sha256:ba856f7fb107c5d757e66fe372d053034874266ee4155354bccec5146806e1ee
                 - name: INIT_IMAGE
                   value: quay.io/opencloudio/icp-initcontainer@sha256:d56a8bd8389757be3aa05a4026db5e33dada059d8e4112737d828a9440bdd7d7
-                - name: DS_PROXY_IMAGE
-                  value: quay.io/dybo/grafana-ocpthanos-proxy-amd64:v20200717-22d8ac4
                 image: quay.io/opencloudio/ibm-monitoring-grafana-operator
                 imagePullPolicy: Always
                 name: grafana
