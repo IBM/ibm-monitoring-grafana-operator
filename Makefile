@@ -194,6 +194,7 @@ push-image-s390x: $(CONFIG_DOCKER_TARGET) build-image-s390x
 ############################################################
 
 images: push-image-amd64 push-image-ppc64le push-image-s390x multiarch-image
+build-push-image: images
 
 multiarch-image:
 	@curl -L -o /tmp/manifest-tool https://github.com/estesp/manifest-tool/releases/download/v1.0.0/manifest-tool-linux-amd64
@@ -230,7 +231,7 @@ code-gen: ## Run the operator-sdk commands to generated code (k8s and openapi an
 	operator-sdk generate openapi
 	@echo Updating the CSV files with the changes in the CRD
 	operator-sdk generate csv --csv-version ${CSV_VERSION} --update-crds
-dev: clean code-tidy code-gen code-fmt code-vet local
+dev: clean code-tidy code-fmt code-vet code-gen local
 
 ############################################################
 # clean section
