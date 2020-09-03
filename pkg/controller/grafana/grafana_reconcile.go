@@ -414,6 +414,11 @@ func reconcileDSProxyConfigSecret(r *ReconcileGrafana, cr *v1alpha1.Grafana) err
 }
 
 func configOCPAppMonitor(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
+	//do nothing when datasource type is bedrock prometheus
+	//we do not disable application monitoring too - leave it to user for data integration consideration
+	if utils.DatasourceType(cr) == operator.DSTypeBedrock {
+		return nil
+	}
 	ocm := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{},
 	}
