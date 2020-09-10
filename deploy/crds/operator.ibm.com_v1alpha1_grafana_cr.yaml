@@ -12,32 +12,31 @@ spec:
       - name: ibm-monitoring-grafana
         protocol: TCP
         port: 3000
-  resources:
-    grafanaConfig:
-      resources:
-        requests:
-          cpu: 300m
-          memory: 512Mi
-        limits:
-          cpu: 600m
-          memory: 1024Mi
-    dashboardConfig:
-      resources:
-        requests:
-          cpu: 50m
-          memory: 64Mi
-        limits:
-          cpu: 100m
-          memory: 128Mi
-      ipVersion: "IPv4"
-    routerConfig:
-      resources:
-        requests:
-          cpu: 50m
-          memory: 64Mi
-        limits:
-          cpu: 100m
-          memory: 128Mi
+  grafanaConfig:
+    resources:
+      requests:
+        cpu: 300m
+        memory: 512Mi
+      limits:
+        cpu: 600m
+        memory: 1024Mi
+  dashboardConfig:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
+    ipVersion: "IPv4"
+  routerConfig:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
   isHub: false
   tlsSecretName: ibm-monitoring-certs
   tlsClientSecretName: ibm-monitoring-certs
