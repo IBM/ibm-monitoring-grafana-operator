@@ -84,4 +84,4 @@ spec:
             - name: INIT_IMAGE
               value: quay.io/opencloudio/icp-initcontainer@sha256:78c7914777de08064511033fc1065f3b1d0f593f59b8147230cd2f9c2405abd0
             - name: DS_PROXY_IMAGE
-              value: quay.io/opencloudio/grafana-ocpthanos-proxy@sha256:aa72696b0b74de459bd737e0e5b4d04fde2fe91f1eab4cf011a38210ffa1cf91
+              value: quay.io/opencloudio/grafana-ocpthanos-proxy@sha256:755278d5c1f4766dc4ab33449c9a6b49a7ab0b2be93532b9759590671b40082b
