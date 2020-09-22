@@ -71,6 +71,18 @@ func prometheusInfo(cr *v1alpha1.Grafana) (host string, port int32) {
 
 	return host, port
 }
+
+func getSysdigInfo(cr *v1alpha1.Grafana) (string, string) {
+
+	if cr.Spec.DataSourceConfig.SysdigDSConfig != nil {
+		if cr.Spec.DataSourceConfig.SysdigDSConfig.SysdigURL != "" &&
+			cr.Spec.DataSourceConfig.SysdigDSConfig.SysdigAPIToken != "" {
+			return cr.Spec.DataSourceConfig.SysdigDSConfig.SysdigURL, cr.Spec.DataSourceConfig.SysdigDSConfig.SysdigAPIToken
+		}
+	}
+	return "", ""
+}
+
 func IssuerName(cr *v1alpha1.Grafana) string {
 	issuer := "cs-ca-clusterissuer"
 	if cr.Spec.Issuer != "" {

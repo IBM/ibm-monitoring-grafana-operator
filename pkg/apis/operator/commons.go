@@ -24,4 +24,6 @@ const (
 	DSTypeBedrock DatasourceType = "bedrock"
 	// DSTypeOpenshift means data source is OCP monitoring - application monitoring will be enabled if not yet
 	DSTypeOpenshift DatasourceType = "openshift"
+	// DSTypeSysdig means data source is sysdig
+	DSTypeSysdig DatasourceType = "sysdig"
 )

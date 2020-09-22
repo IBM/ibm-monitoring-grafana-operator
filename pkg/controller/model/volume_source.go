@@ -52,6 +52,8 @@ type templateData struct {
 	ClusterDomain      string
 	GrafanaFullName    string
 	PrometheusFullName string
+	SysdigURL          string
+	SysdigAPIToken     string
 	DSType             string
 	ClusterPort        int32
 	PrometheusPort     int32
@@ -114,24 +116,29 @@ func ReconcileConfigMaps(cr *v1alpha1.Grafana) []*corev1.ConfigMap {
 	configmaps := []*corev1.ConfigMap{}
 	namespace := cr.Namespace
 	var prometheusPort, httpPort int32
-	var prometheusFullName string
+	var prometheusFullName, sysdigURL, sysdigAPIToken string
 
 	if cr.Spec.ClusterPort != 0 {
 		httpPort = cr.Spec.ClusterPort
 	} else {
 		httpPort = DefaultClusterPort
 	}
-	prometheusFullName, prometheusPort = prometheusInfo(cr)
-	if cr.Spec.DataSourceConfig != nil &&
-		cr.Spec.DataSourceConfig.BedrockDSConfig != nil &&
-		cr.Spec.DataSourceConfig.BedrockDSConfig.ServicePort != 0 {
-		prometheusPort = cr.Spec.DataSourceConfig.BedrockDSConfig.ServicePort
 
+	dsType := DatasourceType(cr)
+
+	if string(dsType) == "sysdig" {
+		sysdigURL, sysdigAPIToken = getSysdigInfo(cr)
+	} else {
+		prometheusFullName, prometheusPort = prometheusInfo(cr)
+		if cr.Spec.DataSourceConfig != nil &&
+			cr.Spec.DataSourceConfig.BedrockDSConfig != nil &&
+			cr.Spec.DataSourceConfig.BedrockDSConfig.ServicePort != 0 {
+			prometheusPort = cr.Spec.DataSourceConfig.BedrockDSConfig.ServicePort
+
+		}
 	}
 	grafanaPort := DefaultGrafanaPort
 	grafanaFullName := GrafanaServiceName
-
-	dsType := DatasourceType(cr)
 
 	tplData := templateData{
 		Namespace:          namespace,
@@ -143,6 +150,8 @@ func ReconcileConfigMaps(cr *v1alpha1.Grafana) []*corev1.ConfigMap {
 		GrafanaFullName:    grafanaFullName,
 		GrafanaPort:        grafanaPort,
 		DSType:             string(dsType),
+		SysdigURL:          sysdigURL,
+		SysdigAPIToken:     sysdigAPIToken,
 	}
 
 	for file, dValue := range FileKeys {

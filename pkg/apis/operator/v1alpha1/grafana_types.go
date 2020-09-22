@@ -71,6 +71,7 @@ type DataSourceConfig struct {
 	Type            operator.DatasourceType      `json:"type"`
 	OCPDSConfig     *OCPDSConfig                 `json:"openshift,omitempty"`
 	BedrockDSConfig *BedrockDSConfig             `json:"bedrock,omitempty"`
+	SysdigDSConfig  *SysdigDSConfig              `json:"sysdig,omitempty"`
 	ProxyResources  *corev1.ResourceRequirements `json:"proxyResources,omitempty"`
 }
 
@@ -86,6 +87,12 @@ type OCPDSConfig struct {
 type BedrockDSConfig struct {
 	ServiceName string `json:"serviceName,omitempty"`
 	ServicePort int32  `json:"servicePort,omitempty"`
+}
+
+// SysdigDSConfig provides config for sysdig monitoring
+type SysdigDSConfig struct {
+	SysdigURL      string `json:"sysdigURL,omitempty"`
+	SysdigAPIToken string `json:"sysdigAPIToken,omitempty"`
 }
 
 // DashboardConfig define dashboard config

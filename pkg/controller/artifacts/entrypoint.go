@@ -34,7 +34,10 @@ datasources:
   {{- if eq .DSType "openshift" }}
   url: http://127.0.0.1:9096
   {{- end }}
-  
+  {{- if eq .DSType "sysdig" }}
+  url: {{ .SysdigURL }}
+  {{- end }}
+
   isDefault: true
   jsonData:
     keepCookies:
@@ -47,6 +50,14 @@ datasources:
     tlsClientCert: "$CERT"
     tlsClientKey: "$KEY"
   {{- end}}
+
+  {{- if eq .DSType "sysdig" }}
+  jsonData:
+    httpHeaderName1: "Authorization"
+  secureJsonData:
+    httpHeaderValue1: "Bearer {{ .SysdigAPIToken }}"
+  {{- end }}
+
 EOF
 
 `
