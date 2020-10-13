@@ -180,6 +180,10 @@ spec:
               type: string
             issuerType:
               type: string
+            nodeSelector:
+              additionalProperties:
+                type: string
+              type: object
             persistentVolume:
               description: GrafanaPersistentVolume setup persistent volumes.
               properties:
