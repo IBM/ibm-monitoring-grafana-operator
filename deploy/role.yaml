@@ -1,5 +1,77 @@
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: ibm-monitoring
+    app.kubernetes.io/instance: common-monitoring
+    app.kubernetes.io/managed-by: ibm-monitoring-grafana-operator
+  creationTimestamp: null
+  name: ibm-monitoring-grafana-scc
+rules:
+- apiGroups:
+  - security.openshift.io
+  resourceNames:
+  - ibm-monitoring-grafana-scc
+  resources:
+  - securitycontextconstraints
+  verbs:
+  - use
+- apiGroups:
+  - security.openshift.io
+  resources:
+  - securitycontextconstraints
+  verbs:
+  - create
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: ibm-monitoring
+    app.kubernetes.io/instance: common-monitoring
+    app.kubernetes.io/managed-by: ibm-monitoring-grafana-operator
+  creationTimestamp: null
+  name: ibm-monitoring-grafana-dashboard
+rules:
+- apiGroups:
+  - monitoringcontroller.cloud.ibm.com
+  resources:
+  - monitoringdashboards
+  verbs:
+  - '*'
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: ibm-monitoring
+    app.kubernetes.io/instance: common-monitoring
+    app.kubernetes.io/managed-by: ibm-monitoring-grafana-operator
+  creationTimestamp: null
+  name: ibm-monitoring-grafana-operator
+rules:
+- nonResourceURLs: ["/metrics"]
+  verbs:
+  - get
+- apiGroups:
+  - certmanager.k8s.io
+  resources:
+  - clusterissuers
+  verbs:
+  - use
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
 metadata:
   labels:
     app.kubernetes.io/name: ibm-monitoring
@@ -35,12 +107,6 @@ rules:
   verbs:
   - '*'
 - apiGroups:
-  - certmanager.k8s.io
-  resources:
-  - clusterissuers
-  verbs:
-  - use
-- apiGroups:
   - operator.ibm.com
   resources:
   - grafanas
@@ -54,15 +120,9 @@ rules:
   - ingresses
   verbs:
   - '*'
-- apiGroups:
-  - monitoringcontroller.cloud.ibm.com
-  resources:
-  - monitoringdashboards
-  verbs:
-  - '*'
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
+kind: Role
 metadata:
   labels:
     app.kubernetes.io/name: ibm-monitoring
@@ -80,25 +140,7 @@ rules:
   - endpoints
   - pods
   - configmaps
-  - namespaces
   verbs:
   - get
   - list
   - watch
-- nonResourceURLs: ["/metrics"]
-  verbs:
-  - get
-- apiGroups:
-  - security.openshift.io
-  resourceNames:
-  - privileged
-  resources:
-  - securitycontextconstraints
-  verbs:
-  - use
-- apiGroups:
-  - monitoringcontroller.cloud.ibm.com
-  resources:
-  - monitoringdashboards
-  verbs:
-  - '*'
