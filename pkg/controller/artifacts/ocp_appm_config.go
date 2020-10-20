@@ -15,6 +15,5 @@
 //
 package artifacts
 
-const DefaultOCPAppMonitorConfig = `techPreviewUserWorkload:
-  enabled: true
+const DefaultOCPAppMonitorConfig = `enableUserWorkload: true
 `

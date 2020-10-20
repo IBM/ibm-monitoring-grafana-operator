@@ -102,12 +102,6 @@ spec:
                   description: OCPDSConfig defines openshift application monitoring
                     datasource configurations
                   properties:
-                    retention:
-                      type: string
-                    scrapeInterval:
-                      type: string
-                    storageClass:
-                      type: string
                     url:
                       type: string
                   type: object
