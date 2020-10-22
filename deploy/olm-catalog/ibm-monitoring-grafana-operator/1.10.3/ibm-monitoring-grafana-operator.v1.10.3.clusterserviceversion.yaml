@@ -362,15 +362,7 @@ spec:
               - create
               - update
               - patch
-              - delete
-            - apiGroups:
-              - ""
-              resources:
-              - namespaces
-              verbs:
-              - get
-              - list
-              - watch    
+              - delete   
           serviceAccountName: ibm-monitoring-grafana-operator
         - rules:
             - apiGroups:

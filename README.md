@@ -35,7 +35,55 @@ To install the operator with the IBM Common Services Operator follow the install
 
 ## SecurityContextConstraints Requirements
 
-The ibm-monitoring-grafana-operator supports running under the OpenShift Container Platform default restricted security context constraints. The grafana runs under privileged security constraints.
+The ibm-monitoring-grafana-operator runs under OpenShift Container Platform default restricted security context constraints. Grafana operands runs under custom security constraints.
+```
+kind: SecurityContextConstraints
+apiVersion: security.openshift.io/v1
+metadata:
+  annotations:
+    kubernetes.io/description: 'ibm-monitoring-grafana-scc is based on restricted SCC to add some capabilities like CHOWN and allow run as any user'
+  creationTimestamp: null
+  name: ibm-monitoring-grafana-scc
+allowHostDirVolumePlugin: false
+allowHostIPC: false
+allowHostNetwork: false
+allowHostPID: false
+allowHostPorts: false
+allowPrivilegeEscalation: true
+allowPrivilegedContainer: false
+allowedCapabilities:
+- CHOWN
+- SETUID
+- SETGID
+- NET_ADMIN
+- NET_RAW
+- LEASE
+defaultAddCapabilities: null
+fsGroup:
+  type: MustRunAs
+groups:
+- system:authenticated
+priority: null
+readOnlyRootFilesystem: false
+requiredDropCapabilities:
+- KILL
+- MKNOD
+runAsUser:
+  type: RunAsAny
+seLinuxContext:
+  type: MustRunAs
+supplementalGroups:
+  type: RunAsAny
+users: []
+volumes:
+- configMap
+- downwardAPI
+- emptyDir
+- persistentVolumeClaim
+- projected
+- secret
+
+```
 For more information about the OpenShift Container Platform Security Context Constraints, see [Managing Security Context Constraints](https://docs.openshift.com/container-platform/4.3/authentication/managing-security-context-constraints.html).
 
 ## Developer guide
