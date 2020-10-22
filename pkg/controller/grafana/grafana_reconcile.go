@@ -41,6 +41,7 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	err := utils.CreateOrUpdateSCC(r.secClient)
 	if err != nil {
 		log.Error(err, "Fail to reconsile SCC")
+		return err
 	}
 	log.Info("SCC is reconciled")
 
