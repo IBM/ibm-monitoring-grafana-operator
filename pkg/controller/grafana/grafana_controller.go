@@ -18,6 +18,7 @@ package grafana
 import (
 	"context"
 
+	secv1client "github.com/openshift/client-go/security/clientset/versioned/typed/security/v1"
 	dbv1 "github.ibm.com/IBMPrivateCloud/grafana-dashboard-crd/pkg/apis/monitoringcontroller/v1"
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -55,11 +56,12 @@ func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 	context := context.Background()
 	config := config.GetControllerConfig()
 	return &ReconcileGrafana{
-		client:  mgr.GetClient(),
-		scheme:  mgr.GetScheme(),
-		ctx:     context,
-		config:  config,
-		kclient: mgr.GetAPIReader(),
+		client:    mgr.GetClient(),
+		scheme:    mgr.GetScheme(),
+		ctx:       context,
+		config:    config,
+		kclient:   mgr.GetAPIReader(),
+		secClient: secv1client.NewForConfigOrDie(mgr.GetConfig()),
 	}
 }
 
@@ -139,6 +141,8 @@ type ReconcileGrafana struct {
 	config *config.ControllerConfig
 	// This client reads objects from apiserver directly
 	kclient client.Reader
+	// This client is for SCC creation
+	secClient secv1client.SecurityV1Interface
 }
 
 // Reconcile reads that state of the cluster for a Grafana object and makes changes based on the state read

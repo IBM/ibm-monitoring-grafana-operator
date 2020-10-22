@@ -4,6 +4,8 @@ go 1.13
 
 require (
 	github.com/jetstack/cert-manager v0.13.0
+	github.com/openshift/api v3.9.1-0.20190924102528-32369d4db2ad+incompatible
+	github.com/openshift/client-go v0.0.0-20190923180330-3b6373338c9b
 	github.com/operator-framework/operator-sdk v0.15.1
 	sigs.k8s.io/controller-runtime v0.4.0
 )
