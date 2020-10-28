@@ -63,6 +63,7 @@ type GrafanaSpec struct {
 	GrafanaConfig               *GrafanaConfig           `json:"grafanaConfig,omitempty"`
 	RouterConfig                *RouterConfig            `json:"routerConfig,omitempty"`
 	DataSourceConfig            *DataSourceConfig        `json:"datasourceConfig,omitempty"`
+	NodeSelector                map[string]string        `json:"nodeSelector,omitempty"`
 }
 
 // DataSourceConfig defines Grafana datasource configurations

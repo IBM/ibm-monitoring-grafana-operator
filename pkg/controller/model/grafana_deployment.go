@@ -368,6 +368,7 @@ func getDeploymentSpec(cr *v1alpha1.Grafana) appv1.DeploymentSpec {
 				Volumes:            getVolumes(cr),
 				Containers:         getContainers(cr),
 				ServiceAccountName: serviceAccount,
+				NodeSelector:       cr.Spec.NodeSelector,
 			},
 		},
 	}
