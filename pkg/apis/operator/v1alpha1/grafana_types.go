@@ -77,10 +77,7 @@ type DataSourceConfig struct {
 
 // OCPDSConfig defines openshift application monitoring datasource configurations
 type OCPDSConfig struct {
-	URL            string `json:"url,omitempty"`
-	StorageClass   string `json:"storageClass,omitempty"`
-	ScrapeInterval string `json:"scrapeInterval,omitempty"`
-	Retention      string `json:"retention,omitempty"`
+	URL string `json:"url,omitempty"`
 }
 
 // CommonServiceDSConfig defines common service prometheus datasource configurations

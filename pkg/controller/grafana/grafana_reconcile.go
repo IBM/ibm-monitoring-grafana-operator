@@ -26,6 +26,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"sigs.k8s.io/yaml"
 
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator"
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
@@ -439,11 +440,35 @@ func configOCPAppMonitor(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 			return err
 		}
 		log.Info("OCP application monitoring is enabled automatically when datasource type is " + string(cr.Spec.DataSourceConfig.Type))
-
+		return nil
 	}
 	if err != nil {
 		return err
+	}
 
+	data := make(map[string]interface{})
+	config := ocm.Data["config.yaml"]
+	err = yaml.Unmarshal([]byte(config), data)
+	if err != nil {
+		log.Error(err, "fail to parse config.yaml in openshift-monitoring/cluster-monitoring-config.")
+		return err
+	}
+
+	enabled, ok := data["enableUserWorkload"]
+
+	if !ok || !enabled.(bool) {
+		data["enableUserWorkload"] = true
+		updateConfig, err := yaml.Marshal(data)
+		if err != nil {
+			log.Error(err, "fail to parse updated data.")
+			return err
+		}
+		ocm.Data["config.yaml"] = string(updateConfig)
+		err = r.client.Update(r.ctx, ocm)
+		if err != nil {
+			log.Error(err, "fail to update configmap openshift-monitoring/cluster-monitoring-config")
+			return err
+		}
 	}
 	//TODO: we need to update configuration when ocp application monitoring GA and has more information
 	//update
