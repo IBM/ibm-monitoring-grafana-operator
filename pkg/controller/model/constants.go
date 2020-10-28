@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	DefaultDSType                             = api.DSTypeBedrock
+	DefaultDSType                             = api.DSTypeCommonService
 	DefaultThanosURL                          = "https://thanos-querier.openshift-monitoring.svc:9091"
 	GrafanaConfigName                         = "grafana-config"
 	GrafanaLogVolumes                         = "grafana-log"

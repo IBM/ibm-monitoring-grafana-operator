@@ -20,8 +20,8 @@ package operator
 type DatasourceType string
 
 const (
-	// DSTypeBedrock means data source is prometheus installed by bedrock service
-	DSTypeBedrock DatasourceType = "bedrock"
+	// DSTypeCommonService means data source is prometheus installed by common service
+	DSTypeCommonService DatasourceType = "common-service"
 	// DSTypeOpenshift means data source is OCP monitoring - application monitoring will be enabled if not yet
 	DSTypeOpenshift DatasourceType = "openshift"
 )

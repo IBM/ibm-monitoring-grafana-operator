@@ -46,12 +46,12 @@ func prometheusInfo(cr *v1alpha1.Grafana) (host string, port int32) {
 		host = cr.Spec.PrometheusServiceName
 	}
 	if cr.Spec.DataSourceConfig != nil &&
-		DatasourceType(cr) != operator.DSTypeBedrock {
+		DatasourceType(cr) != operator.DSTypeCommonService {
 		host = "localhost"
 	} else if cr.Spec.DataSourceConfig != nil &&
-		cr.Spec.DataSourceConfig.BedrockDSConfig != nil &&
-		cr.Spec.DataSourceConfig.BedrockDSConfig.ServiceName != "" {
-		host = cr.Spec.DataSourceConfig.BedrockDSConfig.ServiceName
+		cr.Spec.DataSourceConfig.CommonServiceDSConfig != nil &&
+		cr.Spec.DataSourceConfig.CommonServiceDSConfig.ServiceName != "" {
+		host = cr.Spec.DataSourceConfig.CommonServiceDSConfig.ServiceName
 
 	}
 
@@ -60,12 +60,12 @@ func prometheusInfo(cr *v1alpha1.Grafana) (host string, port int32) {
 		port = cr.Spec.PrometheusServicePort
 	}
 	if cr.Spec.DataSourceConfig != nil &&
-		DatasourceType(cr) != operator.DSTypeBedrock {
+		DatasourceType(cr) != operator.DSTypeCommonService {
 		port = 9096
 	} else if cr.Spec.DataSourceConfig != nil &&
-		cr.Spec.DataSourceConfig.BedrockDSConfig != nil &&
-		cr.Spec.DataSourceConfig.BedrockDSConfig.ServicePort != 0 {
-		port = cr.Spec.DataSourceConfig.BedrockDSConfig.ServicePort
+		cr.Spec.DataSourceConfig.CommonServiceDSConfig != nil &&
+		cr.Spec.DataSourceConfig.CommonServiceDSConfig.ServicePort != 0 {
+		port = cr.Spec.DataSourceConfig.CommonServiceDSConfig.ServicePort
 
 	}
 

@@ -365,8 +365,8 @@ func handleSucess(r *ReconcileGrafana, cr *v1alpha1.Grafana) (reconcile.Result, 
 func reconcileDSProxyConfigSecret(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	secret := &corev1.Secret{}
 	err := r.client.Get(r.ctx, client.ObjectKey{Namespace: cr.Namespace, Name: utils.DSProxyConfigSecName}, secret)
-	// create/update when datasource is not bedrock prometheus
-	if utils.DatasourceType(cr) != operator.DSTypeBedrock {
+	// create/update when datasource is not common service prometheus
+	if utils.DatasourceType(cr) != operator.DSTypeCommonService {
 		//craeate
 		if err != nil && errors.IsNotFound(err) {
 			if secret, err = utils.DSProxyConfigSecret(cr, nil); err != nil {
@@ -398,7 +398,7 @@ func reconcileDSProxyConfigSecret(r *ReconcileGrafana, cr *v1alpha1.Grafana) err
 		return nil
 
 	}
-	// delete when datsource is bedrock prometheus
+	// delete when datsource is common service prometheus
 	if err != nil && errors.IsNotFound(err) {
 		return nil
 	}
@@ -414,9 +414,9 @@ func reconcileDSProxyConfigSecret(r *ReconcileGrafana, cr *v1alpha1.Grafana) err
 }
 
 func configOCPAppMonitor(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	//do nothing when datasource type is bedrock prometheus
+	//do nothing when datasource type is common service prometheus
 	//we do not disable application monitoring too - leave it to user for data integration consideration
-	if utils.DatasourceType(cr) == operator.DSTypeBedrock {
+	if utils.DatasourceType(cr) == operator.DSTypeCommonService {
 		return nil
 	}
 	ocm := &corev1.ConfigMap{
@@ -451,7 +451,7 @@ func configOCPAppMonitor(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 }
 
 func reconcileCert(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	if utils.DatasourceType(cr) == operator.DSTypeBedrock {
+	if utils.DatasourceType(cr) == operator.DSTypeCommonService {
 		return nil
 	}
 	certSecretName := "ibm-monitoring-certs"

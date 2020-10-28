@@ -88,9 +88,9 @@ spec:
                 Datasource defined here should be Prometheus or 'as-is' prometheus
                 like thanos-querier
               properties:
-                bedrock:
-                  description: BedrockDSConfig defines bedrock prometheus datasource
-                    configurations
+                commonService:
+                  description: CommonServiceDSConfig defines common service prometheus
+                    datasource configurations
                   properties:
                     serviceName:
                       type: string
