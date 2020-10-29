@@ -88,9 +88,9 @@ spec:
                 Datasource defined here should be Prometheus or 'as-is' prometheus
                 like thanos-querier
               properties:
-                bedrock:
-                  description: BedrockDSConfig defines bedrock prometheus datasource
-                    configurations
+                commonService:
+                  description: CommonServiceDSConfig defines common service prometheus
+                    datasource configurations
                   properties:
                     serviceName:
                       type: string
@@ -102,12 +102,6 @@ spec:
                   description: OCPDSConfig defines openshift application monitoring
                     datasource configurations
                   properties:
-                    retention:
-                      type: string
-                    scrapeInterval:
-                      type: string
-                    storageClass:
-                      type: string
                     url:
                       type: string
                   type: object
@@ -180,6 +174,10 @@ spec:
               type: string
             issuerType:
               type: string
+            nodeSelector:
+              additionalProperties:
+                type: string
+              type: object
             persistentVolume:
               description: GrafanaPersistentVolume setup persistent volumes.
               properties:

@@ -17,7 +17,7 @@ package artifacts
 
 // This is the configuration file of proxy between grafana container and OCP thanos-quirier service
 const grafanaDSProxyConfig = `
-type: ibm-bedrock-iam
+type: ibm-cs-iam
 paras:
   uidURL: https://platform-identity-provider.{{ .Namespace }}.svc:4300
   userInfoURL: https://platform-identity-management.{{ .Namespace }}.svc:4500

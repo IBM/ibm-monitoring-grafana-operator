@@ -63,27 +63,25 @@ type GrafanaSpec struct {
 	GrafanaConfig               *GrafanaConfig           `json:"grafanaConfig,omitempty"`
 	RouterConfig                *RouterConfig            `json:"routerConfig,omitempty"`
 	DataSourceConfig            *DataSourceConfig        `json:"datasourceConfig,omitempty"`
+	NodeSelector                map[string]string        `json:"nodeSelector,omitempty"`
 }
 
 // DataSourceConfig defines Grafana datasource configurations
 // Datasource defined here should be Prometheus or 'as-is' prometheus like thanos-querier
 type DataSourceConfig struct {
-	Type            operator.DatasourceType      `json:"type"`
-	OCPDSConfig     *OCPDSConfig                 `json:"openshift,omitempty"`
-	BedrockDSConfig *BedrockDSConfig             `json:"bedrock,omitempty"`
-	ProxyResources  *corev1.ResourceRequirements `json:"proxyResources,omitempty"`
+	Type                  operator.DatasourceType      `json:"type"`
+	OCPDSConfig           *OCPDSConfig                 `json:"openshift,omitempty"`
+	CommonServiceDSConfig *CommonServiceDSConfig       `json:"commonService,omitempty"`
+	ProxyResources        *corev1.ResourceRequirements `json:"proxyResources,omitempty"`
 }
 
 // OCPDSConfig defines openshift application monitoring datasource configurations
 type OCPDSConfig struct {
-	URL            string `json:"url,omitempty"`
-	StorageClass   string `json:"storageClass,omitempty"`
-	ScrapeInterval string `json:"scrapeInterval,omitempty"`
-	Retention      string `json:"retention,omitempty"`
+	URL string `json:"url,omitempty"`
 }
 
-// BedrockDSConfig defines bedrock prometheus datasource configurations
-type BedrockDSConfig struct {
+// CommonServiceDSConfig defines common service prometheus datasource configurations
+type CommonServiceDSConfig struct {
 	ServiceName string `json:"serviceName,omitempty"`
 	ServicePort int32  `json:"servicePort,omitempty"`
 }

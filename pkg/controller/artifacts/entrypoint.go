@@ -28,7 +28,7 @@ datasources:
 - name: prometheus
   type: prometheus
   access: proxy
-  {{- if eq .DSType "bedrock" }}
+  {{- if eq .DSType "common-service" }}
   url: https://{{ .PrometheusFullName }}:{{ .PrometheusPort }}
   {{- end }}
   {{- if eq .DSType "openshift" }}
@@ -39,7 +39,7 @@ datasources:
   jsonData:
     keepCookies:
       - cfc-access-token-cookie
-  {{- if eq .DSType "bedrock" }}
+  {{- if eq .DSType "common-service" }}
     tlsAuth: true
     tlsAuthWithCACert: true
   secureJsonData:

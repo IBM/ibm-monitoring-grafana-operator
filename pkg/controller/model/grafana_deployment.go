@@ -110,7 +110,7 @@ func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 		createVolumeFromSecret(clientCert, "ibm-monitoring-client-certs"),
 	)
 
-	if DatasourceType(cr) != operator.DSTypeBedrock {
+	if DatasourceType(cr) != operator.DSTypeCommonService {
 		volumes = append(volumes, createVolumeFromSecret(DSProxyConfigSecName, DSProxyConfigSecName))
 
 	}
@@ -207,7 +207,7 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 		createRouterContainer(cr),
 		createDashboardContainer(cr),
 	)
-	if DatasourceType(cr) != operator.DSTypeBedrock {
+	if DatasourceType(cr) != operator.DSTypeCommonService {
 		containers = append(containers, *dsProxyContainer(cr))
 	}
 
@@ -337,6 +337,7 @@ func getDeploymentSpec(cr *v1alpha1.Grafana) appv1.DeploymentSpec {
 				Volumes:            getVolumes(cr),
 				Containers:         getContainers(cr),
 				ServiceAccountName: serviceAccount,
+				NodeSelector:       cr.Spec.NodeSelector,
 			},
 		},
 	}
