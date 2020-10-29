@@ -36,6 +36,7 @@ To install the operator with the IBM Common Services Operator follow the install
 ## SecurityContextConstraints Requirements
 
 The ibm-monitoring-grafana-operator runs under OpenShift Container Platform default restricted security context constraints. Grafana operands runs under custom security constraints.
+
 ```
 kind: SecurityContextConstraints
 apiVersion: security.openshift.io/v1
@@ -84,6 +85,7 @@ volumes:
 - secret
 
 ```
+
 For more information about the OpenShift Container Platform Security Context Constraints, see [Managing Security Context Constraints](https://docs.openshift.com/container-platform/4.3/authentication/managing-security-context-constraints.html).
 
 ## Developer guide

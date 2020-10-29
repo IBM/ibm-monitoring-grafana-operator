@@ -21,10 +21,8 @@ import (
 )
 
 var (
-	IAMNamespaceName    = "iam-namespace"
-	IAMServicePortName  = "iam-service-port"
-	IAMServicePort      = "4300"
-	DefaultIamNamespace = "ibm-common-services"
+	IAMServicePortName = "iam-service-port"
+	IAMServicePort     = "4300"
 )
 
 type ControllerConfig struct {
