@@ -57,7 +57,7 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 		log.Error(err, "Fail to reconcile certificate")
 		return err
 	}
-	err = configOCPAppMonitor(r, cr)
+	// err = configOCPAppMonitor(r, cr)
 	if err != nil {
 		log.Error(err, "Fail to configure OCP Application monitoring")
 		return err
