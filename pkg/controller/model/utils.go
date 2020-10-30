@@ -72,7 +72,7 @@ func prometheusInfo(cr *v1alpha1.Grafana) (host string, port int32) {
 	return host, port
 }
 func IssuerName(cr *v1alpha1.Grafana) string {
-	issuer := "cs-ca-clusterissuer"
+	issuer := "cs-ca-issuer"
 	if cr.Spec.Issuer != "" {
 		issuer = cr.Spec.Issuer
 
@@ -80,7 +80,7 @@ func IssuerName(cr *v1alpha1.Grafana) string {
 	return issuer
 }
 func IssuerType(cr *v1alpha1.Grafana) string {
-	t := "ClusterIssuer"
+	t := "Issuer"
 	if cr.Spec.IssuerType != "" {
 		t = cr.Spec.IssuerType
 

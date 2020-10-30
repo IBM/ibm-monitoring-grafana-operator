@@ -386,14 +386,6 @@ spec:
               - list
               - watch    
           serviceAccountName: ibm-monitoring-grafana
-        - rules:
-            - apiGroups:
-              - certmanager.k8s.io
-              resources:
-              - clusterissuers
-              verbs:
-              - use
-          serviceAccountName: ibm-monitoring-grafana-operator
       deployments:
         - name: ibm-monitoring-grafana-operator
           spec:
