@@ -68,6 +68,12 @@ metadata:
   name: ibm-monitoring-grafana-operator
 rules:
 - apiGroups:
+  - certmanager.k8s.io
+  resources:
+  - clusterissuers
+  verbs:
+  - use
+- apiGroups:
   - ""
   resources:
   - pods

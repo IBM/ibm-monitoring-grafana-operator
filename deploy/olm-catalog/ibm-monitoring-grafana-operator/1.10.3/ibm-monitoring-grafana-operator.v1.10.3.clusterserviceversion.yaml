@@ -315,6 +315,12 @@ spec:
               - update
               - patch
               - delete
+            - apiGroups:
+              - certmanager.k8s.io
+              resources:
+              - clusterissuers
+              verbs:
+              - use
           serviceAccountName: ibm-monitoring-grafana-operator
         - rules:
             - apiGroups:
