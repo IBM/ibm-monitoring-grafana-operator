@@ -1,4 +1,5 @@
-kind: ClusterRoleBinding
+---
+kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   labels:
@@ -11,8 +12,25 @@ subjects:
   name: ibm-monitoring-grafana-operator
   namespace: ibm-common-services
 roleRef:
-  kind: ClusterRole
+  kind: Role
   name: ibm-monitoring-grafana-operator
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  labels:
+    app.kubernetes.io/name: ibm-monitoring
+    app.kubernetes.io/instance: grafana
+    app.kubernetes.io/managed-by: ibm-monitoring-grafana-operator
+  name: ibm-monitoring-grafana
+subjects:
+- kind: ServiceAccount
+  name: ibm-monitoring-grafana
+  namespace: ibm-common-services
+roleRef:
+  kind: Role
+  name: ibm-monitoring-grafana
   apiGroup: rbac.authorization.k8s.io
 ---
 kind: ClusterRoleBinding
@@ -22,12 +40,35 @@ metadata:
     app.kubernetes.io/name: ibm-monitoring
     app.kubernetes.io/instance: grafana
     app.kubernetes.io/managed-by: ibm-monitoring-grafana-operator
-  name: ibm-monitoring-grafana
+  name: ibm-monitoring-grafana-dashboard
 subjects:
+- kind: ServiceAccount
+  name: ibm-monitoring-grafana-operator
+  namespace: ibm-common-services
 - kind: ServiceAccount
   name: ibm-monitoring-grafana
   namespace: ibm-common-services
 roleRef:
   kind: ClusterRole
+  name: ibm-monitoring-grafana-dashboard
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  labels:
+    app.kubernetes.io/name: ibm-monitoring
+    app.kubernetes.io/instance: grafana
+    app.kubernetes.io/managed-by: ibm-monitoring-grafana-operator
+  name: ibm-monitoring-grafana-scc
+subjects:
+- kind: ServiceAccount
+  name: ibm-monitoring-grafana-operator
+  namespace: ibm-common-services
+- kind: ServiceAccount
   name: ibm-monitoring-grafana
+  namespace: ibm-common-services
+roleRef:
+  kind: ClusterRole
+  name: ibm-monitoring-grafana-scc
   apiGroup: rbac.authorization.k8s.io

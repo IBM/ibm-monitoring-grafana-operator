@@ -49,7 +49,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
 )
 
-var iamNamespace string
 var iamServicePort string
 
 // Change below variables to serve metrics on different host or port.
@@ -76,7 +75,6 @@ func init() {
 	// Add flags registered by imported packages (e.g. glog and
 	// controller-runtime)
 	flagSet.AddGoFlagSet(flag.CommandLine)
-	flag.StringVar(&iamNamespace, "iam-namespace", conf.DefaultIamNamespace, "Set iam namespace.")
 	flag.StringVar(&iamServicePort, "iam-service-port", conf.IAMServicePort, "Set iam service port")
 	pflag.Parse()
 
@@ -102,7 +100,6 @@ func main() {
 	}
 
 	newConfig := conf.GetControllerConfig()
-	newConfig.AddConfigItem(conf.IAMNamespaceName, iamNamespace)
 	newConfig.AddConfigItem(conf.IAMServicePortName, iamServicePort)
 	// Get a config to talk to the apiserver
 	cfg, err := config.GetConfig()

@@ -32,13 +32,21 @@ import (
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/artifacts"
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/dashboards"
+
 	utils "github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/model"
 )
 
 var IsGrafanaRunning bool = false
 
 func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	err := reconcileAllConfigMaps(r, cr)
+	err := utils.CreateOrUpdateSCC(r.secClient)
+	if err != nil {
+		log.Error(err, "Fail to reconsile SCC")
+		return err
+	}
+	log.Info("SCC is reconciled")
+
+	err = reconcileAllConfigMaps(r, cr)
 	if err != nil {
 		log.Error(err, "Fail to reconcile all the confimags.")
 		return err
@@ -49,7 +57,7 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 		log.Error(err, "Fail to reconcile certificate")
 		return err
 	}
-	err = configOCPAppMonitor(r, cr)
+	// err = configOCPAppMonitor(r, cr)
 	if err != nil {
 		log.Error(err, "Fail to configure OCP Application monitoring")
 		return err

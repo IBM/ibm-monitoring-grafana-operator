@@ -196,7 +196,6 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 					Protocol:      "TCP",
 				},
 			},
-			SecurityContext:          getGrafanaSC(),
 			Resources:                resources,
 			VolumeMounts:             getVolumeMounts(),
 			LivenessProbe:            getProbe(40, 35, 15),
@@ -245,22 +244,6 @@ func getPodAnnotations(cr *v1alpha1.Grafana) map[string]string {
 	return annotations
 }
 
-// hardcode the setting
-func getGrafanaSC() *corev1.SecurityContext {
-	True := true
-	return &corev1.SecurityContext{
-		Capabilities: &corev1.Capabilities{
-			Drop: []corev1.Capability{"ALL"},
-			Add: []corev1.Capability{"CHOWN", "NET_ADMIN",
-				"NET_RAW", "LEASE",
-				"SETGID", "SETUID"},
-		},
-		Privileged:               &True,
-		AllowPrivilegeEscalation: &True,
-	}
-
-}
-
 func getImagePullSecrets(cr *v1alpha1.Grafana) []corev1.LocalObjectReference {
 
 	secrets := []corev1.LocalObjectReference{}
@@ -277,8 +260,6 @@ func getImagePullSecrets(cr *v1alpha1.Grafana) []corev1.LocalObjectReference {
 func getInitContainers(cr *v1alpha1.Grafana) []corev1.Container {
 
 	image := imageName(os.Getenv(routerImageEnv), cr.Spec.InitImage)
-
-	False := false
 
 	volumeMounts := []corev1.VolumeMount{}
 	volumeMounts = append(volumeMounts,
@@ -308,23 +289,12 @@ func getInitContainers(cr *v1alpha1.Grafana) []corev1.Container {
 		},
 	)
 
-	SC := corev1.SecurityContext{
-		Capabilities: &corev1.Capabilities{
-			Drop: []corev1.Capability{
-				"ALL",
-			},
-		},
-		AllowPrivilegeEscalation: &False,
-		Privileged:               &False,
-	}
-
 	return []corev1.Container{
 		{
 			Name:            InitContainerName,
 			Image:           image,
 			Command:         []string{"/opt/entry/entrypoint.sh"},
 			Resources:       corev1.ResourceRequirements{},
-			SecurityContext: &SC,
 			VolumeMounts:    volumeMounts,
 			ImagePullPolicy: "IfNotPresent",
 		},
@@ -359,7 +329,6 @@ func getDeploymentSpec(cr *v1alpha1.Grafana) appv1.DeploymentSpec {
 				Annotations: getPodAnnotations(cr),
 			},
 			Spec: corev1.PodSpec{
-				//PriorityClassName:  "system-cluster-critical",
 				ImagePullSecrets:   getImagePullSecrets(cr),
 				InitContainers:     getInitContainers(cr),
 				HostPID:            false,

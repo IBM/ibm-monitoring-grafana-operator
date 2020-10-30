@@ -243,102 +243,155 @@ spec:
       mediatype: image/png
   install:
     spec:
+      Permissions:
+        - rules:
+            - apiGroups:
+              - ""
+              resources:
+              - pods
+              - services
+              - endpoints
+              - persistentvolumeclaims
+              - events
+              - configmaps
+              - secrets
+              verbs:
+              - get
+              - list
+              - watch
+              - create
+              - update
+              - patch
+              - delete
+            - apiGroups:
+              - apps
+              resources:
+              - deployments
+              - statefulsets
+              - replicasets
+              verbs:
+              - get
+              - list
+              - watch
+              - create
+              - update
+              - patch
+              - delete
+            - apiGroups:
+              - certmanager.k8s.io
+              resources:
+              - certificates
+              verbs:
+              - get
+              - list
+              - watch
+              - create
+              - update
+              - patch
+              - delete
+            - apiGroups:
+              - operator.ibm.com
+              resources:
+              - grafanas
+              - grafanas/finalizers
+              - grafanas/status
+              verbs:
+              - get
+              - list
+              - watch
+              - create
+              - update
+              - patch
+              - delete
+            - apiGroups:
+              - extensions
+              resources:
+              - ingresses
+              verbs:
+              - get
+              - list
+              - watch
+              - create
+              - update
+              - patch
+              - delete
+            - apiGroups:
+              - certmanager.k8s.io
+              resources:
+              - clusterissuers
+              verbs:
+              - use
+          serviceAccountName: ibm-monitoring-grafana-operator
+        - rules:
+            - apiGroups:
+              - ""
+              resources:
+              - services
+              - endpoints
+              - pods
+              - configmaps
+              verbs:
+              - get
+              - list
+              - watch
+          serviceAccountName: ibm-monitoring-grafana
       clusterPermissions:
         - rules:
             - apiGroups:
-                - ""
-              resources:
-                - services
-                - nodes
-                - nodes/proxy
-                - endpoints
-                - pods
-                - configmaps
-                - namespaces
-              verbs:
-                - get
-                - list
-                - watch
-            - nonResourceURLs:
-                - /metrics
-              verbs:
-                - get
-            - apiGroups:
-                - security.openshift.io
+              - security.openshift.io
               resourceNames:
-                - privileged
+              - ibm-monitoring-grafana-scc
               resources:
-                - securitycontextconstraints
+              - securitycontextconstraints
               verbs:
-                - use
-            - apiGroups:
-                - monitoringcontroller.cloud.ibm.com
-              resources:
-                - monitoringdashboards
-              verbs:
-                - "*"
+              - use
           serviceAccountName: ibm-monitoring-grafana
         - rules:
             - apiGroups:
-                - ""
+              - security.openshift.io
               resources:
-                - pods
-                - services
-                - endpoints
-                - persistentvolumeclaims
-                - events
-                - configmaps
-                - secrets
+              - securitycontextconstraints
               verbs:
-                - "*"
+              - create
+              - update
+              - get
+          serviceAccountName: ibm-monitoring-grafana-operator 
+        - rules:
             - apiGroups:
-                - apps
+              - monitoringcontroller.cloud.ibm.com
               resources:
-                - deployments
-                - statefulsets
-                - replicasets
+              - monitoringdashboards
               verbs:
-                - "*"
-            - apiGroups:
-                - certmanager.k8s.io
-              resources:
-                - certificates
-              verbs:
-                - "*"
-            - apiGroups:
-                - certmanager.k8s.io
-              resources:
-                - clusterissuers
-              verbs:
-                - use
-            - apiGroups:
-                - operator.ibm.com
-              resources:
-                - grafanas
-                - grafanas/finalizers
-                - grafanas/status
-              verbs:
-                - "*"
-            - apiGroups:
-                - extensions
-              resources:
-                - ingresses
-              verbs:
-                - "*"
-            - apiGroups:
-                - monitoringcontroller.cloud.ibm.com
-              resources:
-                - monitoringdashboards
-              verbs:
-                - "*"
-            - apiGroups:
-                - monitoring.coreos.com
-              resources:
-                - servicemonitors
-              verbs:
-                - get
-                - create
+              - get
+              - list
+              - watch
+              - create
+              - update
+              - patch
+              - delete   
           serviceAccountName: ibm-monitoring-grafana-operator
+        - rules:
+            - apiGroups:
+              - monitoringcontroller.cloud.ibm.com
+              resources:
+              - monitoringdashboards
+              verbs:
+              - get
+              - list
+              - watch
+              - create
+              - update
+              - patch
+              - delete
+            - apiGroups:
+              - ""
+              resources:
+              - namespaces
+              verbs:
+              - get
+              - list
+              - watch    
+          serviceAccountName: ibm-monitoring-grafana
       deployments:
         - name: ibm-monitoring-grafana-operator
           spec:
@@ -424,7 +477,7 @@ spec:
       type: SingleNamespace
     - supported: false
       type: MultiNamespace
-    - supported: true
+    - supported: false
       type: AllNamespaces
   maturity: alpha
   links:

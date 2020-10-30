@@ -107,20 +107,6 @@ func setupDashboardEnv(cr *v1alpha1.Grafana) []corev1.EnvVar {
 	return envs
 }
 
-func getDashboardSC() *corev1.SecurityContext {
-	False := false
-	return &corev1.SecurityContext{
-		Capabilities: &corev1.Capabilities{
-			Drop: []corev1.Capability{"ALL"},
-			Add: []corev1.Capability{"CHOWN", "NET_ADMIN",
-				"NET_RAW", "LEASE",
-				"SETGID", "SETUID"},
-		},
-		Privileged:               &False,
-		AllowPrivilegeEscalation: &False,
-	}
-}
-
 func createDashboardContainer(cr *v1alpha1.Grafana) corev1.Container {
 
 	var resources corev1.ResourceRequirements
@@ -137,7 +123,6 @@ func createDashboardContainer(cr *v1alpha1.Grafana) corev1.Container {
 		Resources:                resources,
 		LivenessProbe:            getProbe(40, 30, 10),
 		ReadinessProbe:           getProbe(30, 30, 10),
-		SecurityContext:          getDashboardSC(),
 		Command:                  []string{"/grafana/entry/run.sh"},
 		Env:                      setupDashboardEnv(cr),
 		VolumeMounts:             setVolumeMountsForDashboard(),
