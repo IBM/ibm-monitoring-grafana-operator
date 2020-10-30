@@ -393,14 +393,6 @@ spec:
               - clusterissuers
               verbs:
               - use
-            - apiGroups:
-              - ""
-              resources:
-              - configmaps
-              verbs:
-              - get
-              - create
-              - update
           serviceAccountName: ibm-monitoring-grafana-operator
       deployments:
         - name: ibm-monitoring-grafana-operator
