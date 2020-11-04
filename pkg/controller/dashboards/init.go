@@ -115,7 +115,6 @@ func init() {
 	DefaultDBsStatus["etcd-monitoring"] = false
 	DefaultDBsStatus["cs-rook-ceph-monitoring"] = false
 
-	DefaultDashboards["helm-release-monitoring.json"] = dashboardsData["helm-release-monitoring"]
 	DefaultDashboards["mcm-clusters-monitoring.json"] = dashboardsData["mcm-clusters-monitoring"]
 	DefaultDashboards["kubernetes-pod-overview.json"] = dashboardsData["kubernetes-pod-overview"]
 }

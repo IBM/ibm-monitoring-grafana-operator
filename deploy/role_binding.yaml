@@ -43,9 +43,6 @@ metadata:
   name: ibm-monitoring-grafana-dashboard
 subjects:
 - kind: ServiceAccount
-  name: ibm-monitoring-grafana-operator
-  namespace: ibm-common-services
-- kind: ServiceAccount
   name: ibm-monitoring-grafana
   namespace: ibm-common-services
 roleRef:
