@@ -70,7 +70,7 @@ const utilLuaScript = `
             --- if request host is "monitoring-prometheus:9090" or "monitoring-grafana:3000" skip the rbac check
             ngx.log(ngx.DEBUG, "host header is ",host_header)
             if host_header == "{{ .PrometheusFullName }}:{{ .PrometheusPort }}" or host_header == "{{ .GrafanaFullName }}:{{ .GrafanaPort }}" then
-                ngx.log(ngx.NOTICE, "skip rbac check for request from kube-{{ .Namespace }}")
+                ngx.log(ngx.NOTICE, "skip rbac check for request from { .Namespace }}")
             else
                 ngx.log(ngx.ERR, "No auth token in request.")
                 return nil, exit_401()
