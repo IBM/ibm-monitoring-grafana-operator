@@ -161,7 +161,7 @@ func reconcileAllConfigMaps(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
 func reconcileAllDashboards(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
-	var namespace string = "kube-system"
+	var namespace string = cr.Namespace
 
 	log.Info("Start to reconcile grafana dashboards")
 
@@ -176,6 +176,7 @@ func reconcileAllDashboards(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	// Could not get the dashboard resource and workaround this.
 	for name, status := range dashboards.DefaultDBsStatus {
 		db := dashboards.CreateDashboard(namespace, name, status)
+		controllerutil.SetControllerReference(cr, db, r.scheme)
 		err := r.client.Create(r.ctx, db)
 		if err != nil {
 			if errors.IsAlreadyExists(err) {

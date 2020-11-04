@@ -70,7 +70,7 @@ rules:
 - apiGroups:
   - certmanager.k8s.io
   resources:
-  - clusterissuers
+  - issuers
   verbs:
   - use
 - apiGroups:
@@ -135,6 +135,18 @@ rules:
   - extensions
   resources:
   - ingresses
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - monitoringcontroller.cloud.ibm.com
+  resources:
+  - monitoringdashboards
   verbs:
   - get
   - list

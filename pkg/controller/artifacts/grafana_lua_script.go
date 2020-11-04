@@ -183,7 +183,7 @@ const grafanaLuaScript = `
     end
 
     local function get_org_by_name(org_name)
-        if org_name == "kube-system" then
+        if org_name == "{{ .Namespace }}" then
             return "1"
         end
         local httpc = http.new()
@@ -268,7 +268,7 @@ const grafanaLuaScript = `
             if entry.namespaceId == switch_org then
                 find_switch_org = true
             end
-            if entry.namespaceId == "kube-system" then
+            if entry.namespaceId == "{{ .Namespace }}" then
                 entry.namespaceId = "Main Org."
             end
             if entry.highestRole ~= nil then
