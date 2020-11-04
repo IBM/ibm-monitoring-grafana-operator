@@ -68,7 +68,12 @@ spec:
             - name: WATCH_NAMESPACE
               valueFrom:
                 fieldRef:
-                  fieldPath: metadata.namespace
+                  fieldPath: metadata.annotations['olm.targetNamespaces'
+            - name: DASH_NAMESPACES
+              valueFrom:
+                configMapKeyRef:
+                  name: namespace-scope
+                  key: namespaces
             - name: POD_NAME
               valueFrom:
                 fieldRef:
@@ -80,7 +85,7 @@ spec:
             - name: ROUTER_IMAGE
               value: quay.io/opencloudio/icp-management-ingress@sha256:0070e99691123f2437f5d5b1422f9d0b8eec5746f72e656d1fc9e7947a56e00e
             - name: DASHBOARD_CTL_IMAGE
-              value: quay.io/opencloudio/dashboard-controller@sha256:ba856f7fb107c5d757e66fe372d053034874266ee4155354bccec5146806e1ee
+              value: quay.io/opencloudio/dashboard-controller@sha256:13a75115bb7fb872f0b8e3598cead6532776501a6a238e3cb2b7507350f57ab8
             - name: INIT_IMAGE
               value: quay.io/opencloudio/icp-initcontainer@sha256:78c7914777de08064511033fc1065f3b1d0f593f59b8147230cd2f9c2405abd0
             - name: DS_PROXY_IMAGE

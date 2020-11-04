@@ -16,6 +16,7 @@
 package model
 
 import (
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -31,6 +32,7 @@ var memoryRequest int = 256
 var cpuRequest int = 200
 var memoryLimit int = 512
 var cpuLimit int = 500
+var dashNamespaces string
 
 func DatasourceType(cr *v1alpha1.Grafana) operator.DatasourceType {
 	dsType := DefaultDSType
@@ -38,6 +40,16 @@ func DatasourceType(cr *v1alpha1.Grafana) operator.DatasourceType {
 		dsType = cr.Spec.DataSourceConfig.Type
 	}
 	return dsType
+
+}
+func getDashNamespaces(cr *v1alpha1.Grafana) string {
+	namespaces := strings.Split(dashNamespaces, ",")
+	for _, ns := range namespaces {
+		if ns == cr.Namespace {
+			return dashNamespaces
+		}
+	}
+	return dashNamespaces + "," + cr.Namespace
 
 }
 func prometheusInfo(cr *v1alpha1.Grafana) (host string, port int32) {
@@ -218,4 +230,8 @@ func appendCommonLabels(labels map[string]string) map[string]string {
 	labels["app.kubernetes.io/instance"] = "common-monitoring"
 	labels["app.kubernetes.io/managed-by"] = "ibm-monitoring-grafana-operator"
 	return labels
+}
+
+func init() {
+	dashNamespaces = os.Getenv("DASH_NAMESPACES")
 }

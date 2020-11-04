@@ -102,6 +102,9 @@ func setupDashboardEnv(cr *v1alpha1.Grafana) []corev1.EnvVar {
 	}, corev1.EnvVar{
 		Name:  "NAMESPACE",
 		Value: cr.Namespace,
+	}, corev1.EnvVar{
+		Name:  "DASH_NAMESPACES",
+		Value: getDashNamespaces(cr),
 	})
 
 	return envs
