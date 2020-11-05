@@ -427,7 +427,7 @@ spec:
                       - name: ROUTER_IMAGE
                         value: quay.io/opencloudio/icp-management-ingress@sha256:0070e99691123f2437f5d5b1422f9d0b8eec5746f72e656d1fc9e7947a56e00e
                       - name: DASHBOARD_CTL_IMAGE
-                        value: quay.io/opencloudio/dashboard-controller@sha256:bb51d8c40e8104f4304bc4cf04af7fa62e4d7875fcf7a8a53a00528e54647983
+                        value: quay.io/opencloudio/dashboard-controller@sha256:3287bf09f5669b9eccce8de9176782add5822817f52eb19fa76e9a6d93e25f49
                       - name: INIT_IMAGE
                         value: quay.io/opencloudio/icp-initcontainer@sha256:78c7914777de08064511033fc1065f3b1d0f593f59b8147230cd2f9c2405abd0
                       - name: DS_PROXY_IMAGE
