@@ -410,7 +410,7 @@ spec:
                       - name: WATCH_NAMESPACE
                         valueFrom:
                           fieldRef:
-                            fieldPath: metadata.annotations['olm.targetNamespaces'
+                            fieldPath: metadata.annotations['olm.targetNamespaces']
                       - name: DASH_NAMESPACES
                         valueFrom:
                           configMapKeyRef:
