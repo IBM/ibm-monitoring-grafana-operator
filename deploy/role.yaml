@@ -37,6 +37,23 @@ metadata:
   name: ibm-monitoring-grafana-dashboard
 rules:
 - apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/name: ibm-monitoring
+    app.kubernetes.io/instance: common-monitoring
+    app.kubernetes.io/managed-by: ibm-monitoring-grafana-operator
+  creationTimestamp: null
+  name: ibm-monitoring-grafana-dashboard
+rules:
+- apiGroups:
   - monitoringcontroller.cloud.ibm.com
   resources:
   - monitoringdashboards
@@ -48,14 +65,6 @@ rules:
   - update
   - patch
   - delete
-- apiGroups:
-  - ""
-  resources:
-  - namespaces
-  verbs:
-  - get
-  - list
-  - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role

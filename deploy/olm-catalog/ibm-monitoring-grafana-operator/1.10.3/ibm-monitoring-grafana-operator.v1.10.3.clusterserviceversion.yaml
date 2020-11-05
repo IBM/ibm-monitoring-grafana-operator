@@ -349,7 +349,29 @@ spec:
               - patch
               - delete   
           serviceAccountName: ibm-monitoring-grafana-operator
+        - rules:
+            - apiGroups:
+              - monitoringcontroller.cloud.ibm.com
+              resources:
+              - monitoringdashboards
+              verbs:
+              - get
+              - list
+              - watch
+              - create
+              - update
+              - patch
+              - delete    
+          serviceAccountName: ibm-monitoring-grafana
       clusterPermissions:
+        - rules:
+            - apiGroups:
+              - ""
+              resources:
+              - namespaces
+              verbs:
+              - get
+          serviceAccountName: ibm-monitoring-grafana
         - rules:
             - apiGroups:
               - security.openshift.io
@@ -370,28 +392,6 @@ spec:
               - update
               - get
           serviceAccountName: ibm-monitoring-grafana-operator 
-        - rules:
-            - apiGroups:
-              - monitoringcontroller.cloud.ibm.com
-              resources:
-              - monitoringdashboards
-              verbs:
-              - get
-              - list
-              - watch
-              - create
-              - update
-              - patch
-              - delete
-            - apiGroups:
-              - ""
-              resources:
-              - namespaces
-              verbs:
-              - get
-              - list
-              - watch    
-          serviceAccountName: ibm-monitoring-grafana
       deployments:
         - name: ibm-monitoring-grafana-operator
           spec:
