@@ -11,14 +11,6 @@ metadata:
 rules:
 - apiGroups:
   - security.openshift.io
-  resourceNames:
-  - ibm-monitoring-grafana-scc
-  resources:
-  - securitycontextconstraints
-  verbs:
-  - use
-- apiGroups:
-  - security.openshift.io
   resources:
   - securitycontextconstraints
   verbs:
