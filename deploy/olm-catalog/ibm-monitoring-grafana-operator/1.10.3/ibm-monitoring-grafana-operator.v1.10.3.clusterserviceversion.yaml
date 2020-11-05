@@ -349,17 +349,6 @@ spec:
               - patch
               - delete   
           serviceAccountName: ibm-monitoring-grafana-operator
-      clusterPermissions:
-        - rules:
-            - apiGroups:
-              - security.openshift.io
-              resources:
-              - securitycontextconstraints
-              verbs:
-              - create
-              - update
-              - get
-          serviceAccountName: ibm-monitoring-grafana-operator 
         - rules:
             - apiGroups:
               - monitoringcontroller.cloud.ibm.com
@@ -372,16 +361,27 @@ spec:
               - create
               - update
               - patch
-              - delete
+              - delete    
+          serviceAccountName: ibm-monitoring-grafana
+      clusterPermissions:
+        - rules:
             - apiGroups:
               - ""
               resources:
               - namespaces
               verbs:
               - get
-              - list
-              - watch    
           serviceAccountName: ibm-monitoring-grafana
+        - rules:
+            - apiGroups:
+              - security.openshift.io
+              resources:
+              - securitycontextconstraints
+              verbs:
+              - create
+              - update
+              - get
+          serviceAccountName: ibm-monitoring-grafana-operator 
       deployments:
         - name: ibm-monitoring-grafana-operator
           spec:
@@ -397,6 +397,7 @@ spec:
                   app.kubernetes.io/instance: common-monitoring
                   app.kubernetes.io/managed-by: ibm-monitoring-grafana-operator
                   name: ibm-monitoring-grafana-operator
+                  intent: projected
                 annotations:
                   productName: IBM Cloud Platform Common Services
                   productID: "068a62892a1e4db39641342e592daa25"
@@ -410,6 +411,11 @@ spec:
                         valueFrom:
                           fieldRef:
                             fieldPath: metadata.annotations['olm.targetNamespaces']
+                      - name: DASH_NAMESPACES
+                        valueFrom:
+                          configMapKeyRef:
+                            name: namespace-scope
+                            key: namespaces
                       - name: POD_NAME
                         valueFrom:
                           fieldRef:
@@ -421,7 +427,7 @@ spec:
                       - name: ROUTER_IMAGE
                         value: quay.io/opencloudio/icp-management-ingress@sha256:0070e99691123f2437f5d5b1422f9d0b8eec5746f72e656d1fc9e7947a56e00e
                       - name: DASHBOARD_CTL_IMAGE
-                        value: quay.io/opencloudio/dashboard-controller@sha256:13a75115bb7fb872f0b8e3598cead6532776501a6a238e3cb2b7507350f57ab8
+                        value: quay.io/opencloudio/dashboard-controller@sha256:3287bf09f5669b9eccce8de9176782add5822817f52eb19fa76e9a6d93e25f49
                       - name: INIT_IMAGE
                         value: quay.io/opencloudio/icp-initcontainer@sha256:78c7914777de08064511033fc1065f3b1d0f593f59b8147230cd2f9c2405abd0
                       - name: DS_PROXY_IMAGE
