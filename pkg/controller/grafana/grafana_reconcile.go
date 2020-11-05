@@ -22,15 +22,12 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"sigs.k8s.io/yaml"
 
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator"
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
-	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/artifacts"
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/dashboards"
 
 	utils "github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/model"
@@ -39,7 +36,7 @@ import (
 var IsGrafanaRunning bool = false
 
 func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	err := utils.CreateOrUpdateSCC(r.secClient)
+	err := utils.CreateOrUpdateSCC(r.secClient, cr.Namespace)
 	if err != nil {
 		log.Error(err, "Fail to reconsile SCC")
 		return err
@@ -57,11 +54,7 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 		log.Error(err, "Fail to reconcile certificate")
 		return err
 	}
-	// err = configOCPAppMonitor(r, cr)
-	if err != nil {
-		log.Error(err, "Fail to configure OCP Application monitoring")
-		return err
-	}
+
 	err = reconcileDSProxyConfigSecret(r, cr)
 	if err != nil {
 		log.Error(err, "Fail to reconcile datasource proxy configration secret.")
@@ -176,7 +169,7 @@ func reconcileAllDashboards(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	// Could not get the dashboard resource and workaround this.
 	for name, status := range dashboards.DefaultDBsStatus {
 		db := dashboards.CreateDashboard(namespace, name, status)
-		controllerutil.SetControllerReference(cr, db, r.scheme)
+		_ = controllerutil.SetControllerReference(cr, db, r.scheme)
 		err := r.client.Create(r.ctx, db)
 		if err != nil {
 			if errors.IsAlreadyExists(err) {
@@ -421,67 +414,6 @@ func reconcileDSProxyConfigSecret(r *ReconcileGrafana, cr *v1alpha1.Grafana) err
 	}
 	return nil
 
-}
-
-func configOCPAppMonitor(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	//do nothing when datasource type is common service prometheus
-	//we do not disable application monitoring too - leave it to user for data integration consideration
-	if utils.DatasourceType(cr) == operator.DSTypeCommonService {
-		return nil
-	}
-	ocm := &corev1.ConfigMap{
-		ObjectMeta: metav1.ObjectMeta{},
-	}
-
-	err := r.kclient.Get(r.ctx, client.ObjectKey{Namespace: "openshift-monitoring", Name: "cluster-monitoring-config"}, ocm)
-	//create
-	if err != nil && errors.IsNotFound(err) {
-		//TODO: we need to add more configuration when ocp application monitoring GA and has more information
-		ncm := &corev1.ConfigMap{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      "cluster-monitoring-config",
-				Namespace: "openshift-monitoring",
-			},
-			Data: map[string]string{"config.yaml": artifacts.DefaultOCPAppMonitorConfig},
-		}
-		if err = r.client.Create(r.ctx, ncm); err != nil {
-			log.Error(err, "fail to create configmap openshift-monitoring/cluster-monitoring-config")
-			return err
-		}
-		log.Info("OCP application monitoring is enabled automatically when datasource type is " + string(cr.Spec.DataSourceConfig.Type))
-		return nil
-	}
-	if err != nil {
-		return err
-	}
-
-	data := make(map[string]interface{})
-	config := ocm.Data["config.yaml"]
-	err = yaml.Unmarshal([]byte(config), data)
-	if err != nil {
-		log.Error(err, "fail to parse config.yaml in openshift-monitoring/cluster-monitoring-config.")
-		return err
-	}
-
-	enabled, ok := data["enableUserWorkload"]
-
-	if !ok || !enabled.(bool) {
-		data["enableUserWorkload"] = true
-		updateConfig, err := yaml.Marshal(data)
-		if err != nil {
-			log.Error(err, "fail to parse updated data.")
-			return err
-		}
-		ocm.Data["config.yaml"] = string(updateConfig)
-		err = r.client.Update(r.ctx, ocm)
-		if err != nil {
-			log.Error(err, "fail to update configmap openshift-monitoring/cluster-monitoring-config")
-			return err
-		}
-	}
-	//TODO: we need to update configuration when ocp application monitoring GA and has more information
-	//update
-	return nil
 }
 
 func reconcileCert(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
