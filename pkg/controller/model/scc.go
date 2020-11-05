@@ -24,11 +24,11 @@ import (
 )
 
 //CreateOrUpdateSCC creates SCC if it does not needed or updates SCC if it exists
-func CreateOrUpdateSCC(secClient secv1client.SecurityV1Interface) error {
+func CreateOrUpdateSCC(secClient secv1client.SecurityV1Interface, userNamespace string) error {
 	scc := blankSCC()
 	found, err := secClient.SecurityContextConstraints().Get(scc.Name, metav1.GetOptions{})
 	if err != nil && errors.IsNotFound(err) {
-		setSCC(scc)
+		setSCC(scc, userNamespace)
 		_, err := secClient.SecurityContextConstraints().Create(scc)
 		if err != nil {
 			return err
@@ -38,7 +38,7 @@ func CreateOrUpdateSCC(secClient secv1client.SecurityV1Interface) error {
 	if err != nil {
 		return err
 	}
-	setSCC(found)
+	setSCC(found, userNamespace)
 	_, err = secClient.SecurityContextConstraints().Update(found)
 	if err != nil {
 		return err
@@ -56,7 +56,7 @@ func blankSCC() *secv1.SecurityContextConstraints {
 	scc.Name = "ibm-monitoring-grafana-scc"
 	return scc
 }
-func setSCC(scc *secv1.SecurityContextConstraints) {
+func setSCC(scc *secv1.SecurityContextConstraints, userNamespace string) {
 
 	scc.AllowHostDirVolumePlugin = false
 	scc.AllowHostIPC = false
@@ -92,4 +92,7 @@ func setSCC(scc *secv1.SecurityContextConstraints) {
 		secv1.FSTypeSecret,
 	}
 
+	scc.Users = []string{
+		"system:serviceaccount:" + userNamespace + ":ibm-monitoring-grafana",
+	}
 }
