@@ -219,6 +219,7 @@ func getPodLabels(cr *v1alpha1.Grafana) map[string]string {
 	labels := map[string]string{
 		"app":       "grafana",
 		"component": "grafana",
+		"intent":    "projected",
 	}
 	labels = appendCommonLabels(labels)
 	if cr.Spec.Service != nil && cr.Spec.Service.Labels != nil {
