@@ -321,6 +321,18 @@ spec:
               - issuers
               verbs:
               - use
+            - apiGroups:
+              - monitoringcontroller.cloud.ibm.com
+              resources:
+              - monitoringdashboards
+              verbs:
+              - get
+              - list
+              - watch
+              - create
+              - update
+              - patch
+              - delete 
           serviceAccountName: ibm-monitoring-grafana-operator
         - rules:
             - apiGroups:
@@ -334,22 +346,6 @@ spec:
               - get
               - list
               - watch
-          serviceAccountName: ibm-monitoring-grafana
-        - rules:
-            - apiGroups:
-              - monitoringcontroller.cloud.ibm.com
-              resources:
-              - monitoringdashboards
-              verbs:
-              - get
-              - list
-              - watch
-              - create
-              - update
-              - patch
-              - delete   
-          serviceAccountName: ibm-monitoring-grafana-operator
-        - rules:
             - apiGroups:
               - monitoringcontroller.cloud.ibm.com
               resources:
