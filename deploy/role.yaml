@@ -7,25 +7,6 @@ metadata:
     app.kubernetes.io/instance: common-monitoring
     app.kubernetes.io/managed-by: ibm-monitoring-grafana-operator
   creationTimestamp: null
-  name: ibm-monitoring-grafana-scc
-rules:
-- apiGroups:
-  - security.openshift.io
-  resources:
-  - securitycontextconstraints
-  verbs:
-  - create
-  - update
-  - get
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  labels:
-    app.kubernetes.io/name: ibm-monitoring
-    app.kubernetes.io/instance: common-monitoring
-    app.kubernetes.io/managed-by: ibm-monitoring-grafana-operator
-  creationTimestamp: null
   name: ibm-monitoring-grafana-dashboard
 rules:
 - apiGroups:

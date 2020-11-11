@@ -41,6 +41,7 @@ var (
 	grafanaCRD              string = "grafana-crd-entry"
 	dsConfig                string = "grafana-ds-entry-config"
 	grafanaConfig           string = "grafana-config"
+	grafanaCredentialStr    string = "YWRtaW46YWRtaW4="
 )
 
 type fileKeys map[string]map[string]*template.Template
@@ -53,6 +54,7 @@ type templateData struct {
 	GrafanaFullName    string
 	PrometheusFullName string
 	DSType             string
+	GrafanaCredential  string
 	ClusterPort        int32
 	PrometheusPort     int32
 	GrafanaPort        int32
@@ -65,7 +67,7 @@ func init() {
 	FileKeys = make(fileKeys)
 	FileKeys[grafanaLua] = map[string]*template.Template{"grafana.lua": tpls.GrafanaLuaScript}
 	FileKeys[utilLua] = map[string]*template.Template{"monitoring-util.lua": tpls.UtilLuaScript}
-	FileKeys[routerConfig] = map[string]*template.Template{"nginx.conf": tpls.RouterConfig}
+	FileKeys[routerConfig] = map[string]*template.Template{"nginx.conf.monitoring": tpls.RouterConfig}
 	FileKeys[routerEntry] = map[string]*template.Template{"entrypoint.sh": tpls.RouterEntry}
 	FileKeys[grafanaCRD] = map[string]*template.Template{"run.sh": tpls.GrafanaCRDEntry}
 	FileKeys[dsConfig] = map[string]*template.Template{"entrypoint.sh": tpls.Entrypoint}
@@ -143,6 +145,7 @@ func ReconcileConfigMaps(cr *v1alpha1.Grafana) []*corev1.ConfigMap {
 		GrafanaFullName:    grafanaFullName,
 		GrafanaPort:        grafanaPort,
 		DSType:             string(dsType),
+		GrafanaCredential:  grafanaCredentialStr,
 	}
 
 	for file, dValue := range FileKeys {

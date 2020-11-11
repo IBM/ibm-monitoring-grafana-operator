@@ -28,7 +28,8 @@ func getVolumeMountsForRouter() []corev1.VolumeMount {
 	return []corev1.VolumeMount{
 		{
 			Name:      routerConfig,
-			MountPath: "/opt/ibm/router/conf",
+			MountPath: "/opt/ibm/router/nginx/conf/nginx.conf.monitoring",
+			SubPath:   "nginx.conf.monitoring",
 		},
 		{
 			Name:      routerEntry,
@@ -49,7 +50,8 @@ func getVolumeMountsForRouter() []corev1.VolumeMount {
 		},
 		{
 			Name:      grafanaLua,
-			MountPath: "/opt/lua-scripts",
+			MountPath: "/opt/ibm/router/nginx/conf/grafana.lua",
+			SubPath:   "grafana.lua",
 		},
 		{
 			Name:      utilLua,
@@ -57,24 +59,6 @@ func getVolumeMountsForRouter() []corev1.VolumeMount {
 			SubPath:   "monitoring-util.lua",
 		},
 	}
-}
-
-// hardcode the setting
-func getGrafanaRouterSC() *corev1.SecurityContext {
-
-	False := false
-	return &corev1.SecurityContext{
-		Capabilities: &corev1.Capabilities{
-			Drop: []corev1.Capability{"ALL"},
-			Add: []corev1.Capability{"CHOWN", "NET_ADMIN",
-				"NET_RAW", "LEASE",
-				"SETGID", "SETUID"},
-		},
-		Privileged:               &False,
-		AllowPrivilegeEscalation: &False,
-		ReadOnlyRootFilesystem:   &False,
-	}
-
 }
 
 func getRouterProbe(delay, period int, iamNamespace string) *corev1.Probe {
@@ -123,7 +107,6 @@ func createRouterContainer(cr *v1alpha1.Grafana) corev1.Container {
 		Resources:                resources,
 		LivenessProbe:            getRouterProbe(30, 20, cr.Namespace),
 		ReadinessProbe:           getRouterProbe(32, 10, cr.Namespace),
-		SecurityContext:          getGrafanaRouterSC(),
 		VolumeMounts:             getVolumeMountsForRouter(),
 		Env:                      setupAdminEnv("GF_SECURITY_ADMIN_USER", "GF_SECURITY_ADMIN_PASSWORD"),
 		TerminationMessagePath:   "/dev/termination-log",

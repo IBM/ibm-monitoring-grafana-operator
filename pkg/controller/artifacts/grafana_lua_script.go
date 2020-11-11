@@ -20,7 +20,7 @@ const grafanaLuaScript = `
     local cjson = require "cjson"
     local util = require "monitoring-util"
     local http = require "lib.resty.http"
-    local GRAFANA_CREDENTIAL = "{GRAFANA_CRED_STR}"
+    local GRAFANA_CREDENTIAL = "{{ .GrafanaCredential }}"
 
     local function create_grafana_user(name)
         local httpc = http.new()

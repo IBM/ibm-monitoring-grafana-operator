@@ -36,14 +36,7 @@ import (
 var IsGrafanaRunning bool = false
 
 func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	err := utils.CreateOrUpdateSCC(r.secClient, cr.Namespace)
-	if err != nil {
-		log.Error(err, "Fail to reconsile SCC")
-		return err
-	}
-	log.Info("SCC is reconciled")
-
-	err = reconcileAllConfigMaps(r, cr)
+	err := reconcileAllConfigMaps(r, cr)
 	if err != nil {
 		log.Error(err, "Fail to reconcile all the confimags.")
 		return err
