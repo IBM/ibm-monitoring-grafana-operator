@@ -26,7 +26,7 @@ const routerConfig = `
     http {
         access_log off;
 
-        include mime.types;
+        include /opt/ibm/router/nginx/conf/mime.types;
         default_type application/octet-stream;
         sendfile on;
         keepalive_timeout 65;
@@ -50,15 +50,15 @@ const routerConfig = `
             grafana = require "grafana"
         ';
       {{- if eq .Environment "openshift" -}}
-        resolver {OPENSHIFT_RESOLVER};
+        resolver local=on;
       {{- else -}}
         resolver kube-dns;
       {{- end -}}
 
         server {
             listen 8445 ssl default_server;
-            ssl_certificate server.crt;
-            ssl_certificate_key server.key;
+            ssl_certificate /opt/ibm/router/certs/tls.crt;
+            ssl_certificate_key /opt/ibm/router/certs/tls.key;
             ssl_client_certificate /opt/ibm/router/ca-certs/ca.crt;
             ssl_verify_client on;
             ssl_protocols TLSv1.2;
@@ -80,10 +80,10 @@ const routerConfig = `
               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
               proxy_set_header Host $http_host;
               proxy_pass https://grafana/public;
-              proxy_ssl_certificate     /opt/ibm/router/nginx/conf/server.crt;
-              proxy_ssl_certificate_key /opt/ibm/router/nginx/conf/server.key;
+              proxy_ssl_certificate     /opt/ibm/router/certs/tls.crt;
+              proxy_ssl_certificate_key /opt/ibm/router/certs/tls.key;
               header_filter_by_lua_block {
-                  ngx.header.Authorization = "Basic {GRAFANA_CRED_STR}"
+                  ngx.header.Authorization = "Basic {{ .GrafanaCredential }}"
                   ngx.header["Cache-control"] = "no-cache, no-store, must-revalidate"
                   ngx.header["Pragma"] = "no-cache"
                   ngx.header["Access-Control-Allow-Credentials"] = "false"
@@ -100,8 +100,8 @@ const routerConfig = `
               }
               rewrite_by_lua 'grafana.rewrite_grafana_header()';
               proxy_pass https://grafana/;
-              proxy_ssl_certificate     /opt/ibm/router/nginx/conf/server.crt;
-              proxy_ssl_certificate_key /opt/ibm/router/nginx/conf/server.key;
+              proxy_ssl_certificate     /opt/ibm/router/certs/tls.crt;
+              proxy_ssl_certificate_key /opt/ibm/router/certs/tls.key;
             }
 
             location /index.html {
