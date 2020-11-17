@@ -58,14 +58,6 @@
   "id": null,
   "links": [
     {
-      "icon": "external link",
-      "tags": [],
-      "targetBlank": true,
-      "title": "Kibana",
-      "type": "link",
-      "url": "https://127.0.0.1:8443/kibana"
-    },
-    {
       "asDropdown": true,
       "icon": "external link",
       "includeVars": false,
