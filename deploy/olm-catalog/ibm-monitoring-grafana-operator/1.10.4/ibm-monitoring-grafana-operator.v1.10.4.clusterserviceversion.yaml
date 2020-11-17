@@ -364,6 +364,16 @@ spec:
             - apiGroups:
               - ""
               resources:
+              - configmaps
+              resourceNames:
+              - cluster-monitoring-config
+              verbs:
+              - get
+          serviceAccountName: ibm-monitoring-grafana-operator
+        - rules:
+            - apiGroups:
+              - ""
+              resources:
               - namespaces
               verbs:
               - get

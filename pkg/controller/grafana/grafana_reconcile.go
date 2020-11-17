@@ -20,11 +20,13 @@ import (
 
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"sigs.k8s.io/yaml"
 
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator"
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
@@ -36,7 +38,13 @@ import (
 var IsGrafanaRunning bool = false
 
 func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	err := reconcileAllConfigMaps(r, cr)
+
+	err := checkApplicationMonitoring(r, cr)
+	if err != nil {
+		log.Error(err, "Fail to check OCP application monitoring status")
+		return err
+	}
+	err = reconcileAllConfigMaps(r, cr)
 	if err != nil {
 		log.Error(err, "Fail to reconcile all the confimags.")
 		return err
@@ -438,4 +446,55 @@ func reconcileCert(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	log.Info("certificate " + certSecretName + " exists already")
 
 	return nil
+}
+func checkApplicationMonitoring(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
+	if utils.DatasourceType(cr) != operator.DSTypeOpenshift {
+		return nil
+	}
+	enabled, err := doCheckApplicationMonitoring(r)
+	if err != nil {
+		log.Error(err, "Failed to get application monitoring status")
+		return err
+	}
+	if enabled {
+		r.recorder.Eventf(cr, corev1.EventTypeNormal, "OCP application monitoring is enabled", "OCP application monitoring is enabled")
+
+	} else {
+		r.recorder.Eventf(cr, corev1.EventTypeWarning,
+			"OCP application monitoring is not enabled", "OCP application monitoring is not enabled. IBM application metrics can not be collected and related dashboards will not work")
+
+	}
+
+	return nil
+
+}
+func doCheckApplicationMonitoring(r *ReconcileGrafana) (bool, error) {
+	key := client.ObjectKey{Name: "cluster-monitoring-config", Namespace: "openshift-monitoring"}
+	cm := &v1.ConfigMap{}
+	err := r.kclient.Get(r.ctx, key, cm)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return false, nil
+		} else {
+			return false, err
+		}
+	}
+	configStr, exist := cm.Data["config.yaml"]
+	if !exist || configStr == "" {
+		return false, nil
+	}
+	configObj := make(map[string]interface{})
+	if err = yaml.Unmarshal([]byte(configStr), &configObj); err != nil {
+		return false, err
+	}
+	enabled, exist := configObj["enableUserWorkload"]
+	if !exist {
+		return false, nil
+
+	}
+	if enabled.(bool) {
+		return true, nil
+	}
+	return false, nil
+
 }
