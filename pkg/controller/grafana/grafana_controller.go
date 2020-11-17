@@ -25,6 +25,7 @@ import (
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
@@ -62,6 +63,7 @@ func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 		config:    config,
 		kclient:   mgr.GetAPIReader(),
 		secClient: secv1client.NewForConfigOrDie(mgr.GetConfig()),
+		recorder:  mgr.GetEventRecorderFor("ibm-monitoring-grafana"),
 	}
 }
 
@@ -143,6 +145,7 @@ type ReconcileGrafana struct {
 	kclient client.Reader
 	// This client is for SCC creation
 	secClient secv1client.SecurityV1Interface
+	recorder  record.EventRecorder
 }
 
 // Reconcile reads that state of the cluster for a Grafana object and makes changes based on the state read
