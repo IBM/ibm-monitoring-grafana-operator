@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.2-349
+FROM registry.access.redhat.com/ubi8/ubi-minimal
 
 RUN microdnf -y update && microdnf clean all
 
