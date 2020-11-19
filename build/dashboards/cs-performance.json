@@ -456,7 +456,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "sum (rate (container_cpu_usage_seconds_total{id=\"/\"}[15m])) / sum (machine_cpu_cores) * 100",
+              "expr": "sum (rate (container_cpu_usage_seconds_total{id=\"/\"}[15m])) / sum (kube_node_status_capacity_cpu_cores) * 100",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
@@ -537,13 +537,13 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "avg(machine_cpu_cores)",
+              "expr": "avg(kube_node_status_capacity_cpu_cores)",
               "format": "time_series",
               "hide": false,
               "interval": "1s",
               "intervalFactor": 1,
               "legendFormat": "",
-              "metric": "machine_cpu_cores",
+              "metric": "kube_node_status_capacity_cpu_cores",
               "refId": "A",
               "step": 30
             }
@@ -1067,12 +1067,12 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "sum(kubelet_running_pod_count) ",
+              "expr": "sum(kubelet_running_pods) ",
               "format": "time_series",
               "hide": false,
               "interval": "10s",
               "intervalFactor": 1,
-              "metric": "kubelet_running_pod_count",
+              "metric": "kubelet_running_pods",
               "refId": "A",
               "step": 30
             }
