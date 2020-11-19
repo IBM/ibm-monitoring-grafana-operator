@@ -1204,6 +1204,30 @@
           "span": 2,
           "styles": [
             {
+              "pattern": "container",
+              "type": "hidden"
+            },
+            {
+              "pattern": "endpoint",
+              "type": "hidden"
+            },
+            {
+              "pattern": "namespace",
+              "type": "hidden"
+            },
+            {
+              "pattern": "pod",
+              "type": "hidden"
+            },
+            {
+              "pattern": "prometheus",
+              "type": "hidden"
+            },
+            {
+              "pattern": "service",
+              "type": "hidden"
+            },
+            {
               "alias": "Time",
               "dateFormat": "YYYY-MM-DD HH:mm:ss",
               "pattern": "Time",
