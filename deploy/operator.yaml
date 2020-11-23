@@ -84,7 +84,7 @@ spec:
             - name: GRAFANA_IMAGE
               value: quay.io/opencloudio/grafana@sha256:549a19168d90fc44e95a5a7c56de90e9fab5d4c4aff661c2c38a84773d284c37
             - name: ROUTER_IMAGE
-              value: quay.io/opencloudio/icp-management-ingress@sha256:fa6650cd65f943d5d3c8c6fd84ae97abdd51396bed9b2ffaae2895b484435e26
+              value: quay.io/opencloudio/icp-management-ingress@sha256:58fdc4b437827e8865ecd667f40a71dffdd056298b33b787a4da980928960a05
             - name: DASHBOARD_CTL_IMAGE
               value: quay.io/opencloudio/dashboard-controller@sha256:056239f0a4d85eece2947bc3d5427cf647ea236e6e35100505978cdbc584409e
             - name: INIT_IMAGE
