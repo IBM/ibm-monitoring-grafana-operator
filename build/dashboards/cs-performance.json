@@ -1208,6 +1208,26 @@
               "type": "hidden"
             },
             {
+              "pattern": "app_kubernetes_io_instance",
+              "type": "hidden"
+            },
+            {
+              "pattern": "app_kubernetes_io_managed_by",
+              "type": "hidden"
+            },
+            {
+              "pattern": "app_kubernetes_io_name",
+              "type": "hidden"
+            },
+            {
+              "pattern": "cs_app",
+              "type": "hidden"
+            },
+            {
+              "pattern": "operator_ibm_com_opreq_control",
+              "type": "hidden"
+            },
+            {
               "pattern": "endpoint",
               "type": "hidden"
             },
