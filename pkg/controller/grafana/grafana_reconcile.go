@@ -20,7 +20,6 @@ import (
 
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -470,7 +469,7 @@ func checkApplicationMonitoring(r *ReconcileGrafana, cr *v1alpha1.Grafana) error
 }
 func doCheckApplicationMonitoring(r *ReconcileGrafana) (bool, error) {
 	key := client.ObjectKey{Name: "cluster-monitoring-config", Namespace: "openshift-monitoring"}
-	cm := &v1.ConfigMap{}
+	cm := &corev1.ConfigMap{}
 	err := r.kclient.Get(r.ctx, key, cm)
 	if err != nil {
 		if errors.IsNotFound(err) {
