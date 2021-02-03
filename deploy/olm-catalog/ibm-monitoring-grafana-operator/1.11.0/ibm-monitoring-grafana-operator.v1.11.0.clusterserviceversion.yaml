@@ -419,15 +419,15 @@ spec:
                       - name: OPERATOR_NAME
                         value: ibm-monitoring-grafana-operator
                       - name: GRAFANA_IMAGE
-                        value: quay.io/opencloudio/grafana@sha256:549a19168d90fc44e95a5a7c56de90e9fab5d4c4aff661c2c38a84773d284c37
+                        value: quay.io/opencloudio/grafana@sha256:80cc3936dbd03db742a765057a9e95300f7fbf61948bb9959f656e058a81e14e
                       - name: ROUTER_IMAGE
                         value: quay.io/opencloudio/icp-management-ingress@sha256:fedfb66a2c552d6bf1a741dbe42b74aaf0775f8a0618b1f39815474ebc811b7b
                       - name: DASHBOARD_CTL_IMAGE
-                        value: quay.io/opencloudio/dashboard-controller@sha256:056239f0a4d85eece2947bc3d5427cf647ea236e6e35100505978cdbc584409e
+                        value: quay.io/opencloudio/dashboard-controller@sha256:9151b08956713f66241ae0bbc29e885a1506c7df7c47b6d7f9a312159260b5fb
                       - name: INIT_IMAGE
                         value: quay.io/opencloudio/icp-initcontainer@sha256:c0820a378fe87f79e0d553e3ff0bc4dc3d2d3312b7b6ae0c788f9bfe8a632966
                       - name: DS_PROXY_IMAGE
-                        value: quay.io/opencloudio/grafana-ocpthanos-proxy@sha256:d365ac2b5a246a5440cfaf4a97a6d64607f5a61b3daa4e9b5f6c3613f2c659a9
+                        value: quay.io/opencloudio/grafana-ocpthanos-proxy@sha256:570da0bccd634773d46b53f9dc9e1a1a9a3329bd45481ae96ae03b41647394c5
                     image: quay.io/opencloudio/ibm-monitoring-grafana-operator
                     imagePullPolicy: Always
                     name: grafana
