@@ -88,6 +88,6 @@ spec:
             - name: DASHBOARD_CTL_IMAGE
               value: quay.io/opencloudio/dashboard-controller@sha256:9151b08956713f66241ae0bbc29e885a1506c7df7c47b6d7f9a312159260b5fb
             - name: INIT_IMAGE
-              value: quay.io/opencloudio/icp-initcontainer@sha256:c0820a378fe87f79e0d553e3ff0bc4dc3d2d3312b7b6ae0c788f9bfe8a632966
+              value: quay.io/opencloudio/icp-initcontainer@sha256:87b30476a024b7a3870cd6b68c0f859cd29b908e9c99f07375f3dfb29d00b963
             - name: DS_PROXY_IMAGE
               value: quay.io/opencloudio/grafana-ocpthanos-proxy@sha256:570da0bccd634773d46b53f9dc9e1a1a9a3329bd45481ae96ae03b41647394c5
