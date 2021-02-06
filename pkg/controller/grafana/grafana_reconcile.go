@@ -475,9 +475,8 @@ func doCheckApplicationMonitoring(r *ReconcileGrafana) (bool, error) {
 	if err != nil {
 		if errors.IsNotFound(err) {
 			return false, nil
-		} else {
-			return false, err
 		}
+		return false, err
 	}
 	configStr, exist := cm.Data["config.yaml"]
 	if !exist || configStr == "" {
