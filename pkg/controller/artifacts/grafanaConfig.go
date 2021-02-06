@@ -29,6 +29,9 @@ const grafanaConfig = `
     cert_file = /opt/ibm/monitoring/certs/tls.crt
     cert_key = /opt/ibm/monitoring/certs/tls.key
 
+    [analytics]
+    reporting_enabled = false
+
     [users]
     default_theme = light
 
