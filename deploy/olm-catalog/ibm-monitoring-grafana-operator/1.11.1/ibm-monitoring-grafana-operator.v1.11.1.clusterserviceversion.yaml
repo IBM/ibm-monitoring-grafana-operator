@@ -10,7 +10,7 @@ metadata:
     operatorframework.io/arch.amd64: supported
     operatorframework.io/arch.ppc64le: supported
   annotations:
-    olm.skipRange: "<1.11.0"
+    olm.skipRange: "<1.11.1"
     alm-examples: |-
       [
         {
@@ -125,7 +125,7 @@ metadata:
     description: Provision Grafana with TLS enabled and multi-tenancy
     repository: https://github.com/IBM/ibm-monitoring-grafana-operator
     containerImage: quay.io/opencloudio/ibm-monitoring-grafana-operator
-  name: ibm-monitoring-grafana-operator.v1.11.0
+  name: ibm-monitoring-grafana-operator.v1.11.1
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -480,4 +480,4 @@ spec:
       name: Dong Wang
   provider:
     name: IBM
-  version: 1.11.0
+  version: 1.11.1
