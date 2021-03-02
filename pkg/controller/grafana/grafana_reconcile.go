@@ -229,6 +229,17 @@ func reconcileGrafanaDeployment(r *ReconcileGrafana, cr *v1alpha1.Grafana) error
 	}
 
 	toUpdate := utils.ReconciledGrafanaDeployment(cr, deployment)
+
+	certmanagerLabel := "certmanager.k8s.io/time-restarted"
+	// Preserve cert-manager added labels in metadata
+	if val, ok := deployment.ObjectMeta.Labels[certmanagerLabel]; ok {
+		toUpdate.ObjectMeta.Labels[certmanagerLabel] = val
+	}
+
+	// Preserve cert-manager added labels in spec
+	if val, ok := deployment.Spec.Template.ObjectMeta.Labels[certmanagerLabel]; ok {
+		toUpdate.Spec.Template.ObjectMeta.Labels[certmanagerLabel] = val
+	}
 	err = r.client.Update(r.ctx, toUpdate)
 	if err != nil {
 		log.Error(err, "Fail to update grafana deployment.")
