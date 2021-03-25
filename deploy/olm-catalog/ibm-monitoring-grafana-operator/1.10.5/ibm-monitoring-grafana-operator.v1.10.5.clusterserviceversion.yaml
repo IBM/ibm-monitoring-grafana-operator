@@ -125,7 +125,7 @@ metadata:
     description: Provision Grafana with TLS enabled and multi-tenancy
     repository: https://github.com/IBM/ibm-monitoring-grafana-operator
     containerImage: quay.io/opencloudio/ibm-monitoring-grafana-operator
-  name: ibm-monitoring-grafana-operator.v1.10.4
+  name: ibm-monitoring-grafana-operator.v1.10.5
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
