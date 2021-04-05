@@ -68,8 +68,6 @@ metadata:
             },
             "tlsClientSecretName": "ibm-monitoring-certs",
             "tlsSecretName": "ibm-monitoring-certs",
-            "prometheusServiceName": "ibm-monitoring-prometheus",
-            "prometheusServicePort": 9090
           }
         },
         {
@@ -192,12 +190,6 @@ spec:
           - description: isHub as it is hub cluster or not.
             displayName: IS HUB
             path: isHub
-          - description: prometheusServiceName as prometheus service name
-            displayName: Prometheus Service Name
-            path: prometheusServiceName
-          - description: prometheusServicePort as prometheus service port
-            displayName: Prometheus Service Port
-            path: prometheusServicePort
           - description: resources as time of the base resource unit of components
             displayName: Resources
             path: resources

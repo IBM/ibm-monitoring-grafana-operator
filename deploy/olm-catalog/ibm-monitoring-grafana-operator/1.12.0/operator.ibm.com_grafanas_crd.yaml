@@ -88,23 +88,6 @@ spec:
                 Datasource defined here should be Prometheus or 'as-is' prometheus
                 like thanos-querier
               properties:
-                commonService:
-                  description: CommonServiceDSConfig defines common service prometheus
-                    datasource configurations
-                  properties:
-                    serviceName:
-                      type: string
-                    servicePort:
-                      format: int32
-                      type: integer
-                  type: object
-                openshift:
-                  description: OCPDSConfig defines openshift application monitoring
-                    datasource configurations
-                  properties:
-                    url:
-                      type: string
-                  type: object
                 proxyResources:
                   description: ResourceRequirements describes the compute resource
                     requirements.
@@ -186,11 +169,6 @@ spec:
                 enabled:
                   type: boolean
               type: object
-            prometheusServiceName:
-              type: string
-            prometheusServicePort:
-              format: int32
-              type: integer
             resources:
               properties:
                 dashboard:

@@ -25,11 +25,7 @@ import (
 func GetCertificate(name string, cr *v1alpha1.Grafana) *cert.Certificate {
 	dnsNames := []string{}
 	dnsNames = append(dnsNames,
-		cr.Spec.PrometheusServiceName,
-		"ibm-monitoring-alertmanager",
 		GrafanaServiceName,
-		cr.Spec.PrometheusServiceName+"."+cr.Namespace,
-		"ibm-monitoring-alertmanager"+"."+cr.Namespace,
 		GrafanaServiceName+"."+cr.Namespace,
 		"*."+cr.Namespace,
 		"*."+cr.Namespace+".svc")

@@ -27,7 +27,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/yaml"
 
-	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator"
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/controller/dashboards"
 
@@ -380,57 +379,39 @@ func reconcileDSProxyConfigSecret(r *ReconcileGrafana, cr *v1alpha1.Grafana) err
 	secret := &corev1.Secret{}
 	err := r.client.Get(r.ctx, client.ObjectKey{Namespace: cr.Namespace, Name: utils.DSProxyConfigSecName}, secret)
 	// create/update when datasource is not common service prometheus
-	if utils.DatasourceType(cr) != operator.DSTypeCommonService {
-		//craeate
-		if err != nil && errors.IsNotFound(err) {
-			if secret, err = utils.DSProxyConfigSecret(cr, nil); err != nil {
-				return err
-			}
-			if err = controllerutil.SetControllerReference(cr, secret, r.scheme); err != nil {
-				return err
-			}
-			if err = r.client.Create(r.ctx, secret); err != nil {
-				return err
-			}
-			log.Info("data source configuration secret is created")
-			return nil
-		}
-		if err != nil {
-			return err
-		}
-		//update
-		if secret, err = utils.DSProxyConfigSecret(cr, secret); err != nil {
+	//craeate
+	if err != nil && errors.IsNotFound(err) {
+		if secret, err = utils.DSProxyConfigSecret(cr, nil); err != nil {
 			return err
 		}
 		if err = controllerutil.SetControllerReference(cr, secret, r.scheme); err != nil {
 			return err
 		}
-		if err = r.client.Update(r.ctx, secret); err != nil {
+		if err = r.client.Create(r.ctx, secret); err != nil {
 			return err
 		}
-		log.Info("data source configuration secret is updated")
-		return nil
-
-	}
-	// delete when datsource is common service prometheus
-	if err != nil && errors.IsNotFound(err) {
+		log.Info("data source configuration secret is created")
 		return nil
 	}
 	if err != nil {
 		return err
 	}
-	// ignore potential error for deleting
-	if err = r.client.Delete(r.ctx, secret); err != nil {
-		log.Info("fail to delete datasource configuration secret")
+	//update
+	if secret, err = utils.DSProxyConfigSecret(cr, secret); err != nil {
+		return err
 	}
+	if err = controllerutil.SetControllerReference(cr, secret, r.scheme); err != nil {
+		return err
+	}
+	if err = r.client.Update(r.ctx, secret); err != nil {
+		return err
+	}
+	log.Info("data source configuration secret is updated")
 	return nil
 
 }
 
 func reconcileCert(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	if utils.DatasourceType(cr) == operator.DSTypeCommonService {
-		return nil
-	}
 	certSecretName := "ibm-monitoring-certs"
 	if cr.Spec.TLSSecretName != "" {
 		certSecretName = cr.Spec.TLSSecretName
@@ -458,9 +439,6 @@ func reconcileCert(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	return nil
 }
 func checkApplicationMonitoring(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
-	if utils.DatasourceType(cr) != operator.DSTypeOpenshift {
-		return nil
-	}
 	enabled, err := doCheckApplicationMonitoring(r)
 	if err != nil {
 		log.Error(err, "Failed to get application monitoring status")
