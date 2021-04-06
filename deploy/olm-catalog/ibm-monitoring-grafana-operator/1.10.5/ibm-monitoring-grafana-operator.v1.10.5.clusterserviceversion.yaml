@@ -316,12 +316,6 @@ spec:
               - patch
               - delete
             - apiGroups:
-              - certmanager.k8s.io
-              resources:
-              - issuers
-              verbs:
-              - use
-            - apiGroups:
               - monitoringcontroller.cloud.ibm.com
               resources:
               - monitoringdashboards
