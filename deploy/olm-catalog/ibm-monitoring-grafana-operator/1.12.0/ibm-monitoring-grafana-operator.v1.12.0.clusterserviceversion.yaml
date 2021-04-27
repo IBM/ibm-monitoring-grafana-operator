@@ -189,7 +189,7 @@ spec:
           - description: ipVersion as IP version, IPv4 or IPv6
             displayName: IP Version
             path: ipVersion
-          - description: isHub as it is hub cluster or not.
+          - description: isHub as it is hub cluster or not
             displayName: IS HUB
             path: isHub
           - description: prometheusServiceName as prometheus service name
