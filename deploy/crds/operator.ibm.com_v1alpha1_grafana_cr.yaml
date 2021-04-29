@@ -40,7 +40,7 @@ spec:
   isHub: false
   tlsSecretName: ibm-monitoring-certs
   tlsClientSecretName: ibm-monitoring-certs
-  # prometheusServiceName: ibm-monitoring-prometheus
-  # prometheusServicePort: 9090
+  prometheusServiceName: ibm-monitoring-prometheus
+  prometheusServicePort: 9090
   # datasourceConfig:
   #   type: "openshift"
