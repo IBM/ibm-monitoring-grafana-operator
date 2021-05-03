@@ -24,7 +24,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator"
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
 )
 
@@ -108,12 +107,8 @@ func getVolumes(cr *v1alpha1.Grafana) []corev1.Volume {
 	volumes = append(volumes, createVolumeFromSecret(cert, "ibm-monitoring-ca-certs"),
 		createVolumeFromSecret(cert, "ibm-monitoring-certs"),
 		createVolumeFromSecret(clientCert, "ibm-monitoring-client-certs"),
+		createVolumeFromSecret(DSProxyConfigSecName, DSProxyConfigSecName),
 	)
-
-	if DatasourceType(cr) != operator.DSTypeCommonService {
-		volumes = append(volumes, createVolumeFromSecret(DSProxyConfigSecName, DSProxyConfigSecName))
-
-	}
 
 	return volumes
 }
@@ -206,11 +201,8 @@ func getContainers(cr *v1alpha1.Grafana) []corev1.Container {
 		},
 		createRouterContainer(cr),
 		createDashboardContainer(cr),
+		*dsProxyContainer(cr),
 	)
-	if DatasourceType(cr) != operator.DSTypeCommonService {
-		containers = append(containers, *dsProxyContainer(cr))
-	}
-
 	return containers
 }
 

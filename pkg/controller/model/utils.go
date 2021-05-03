@@ -24,7 +24,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 
-	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator"
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
 )
 
@@ -34,14 +33,6 @@ var memoryLimit int = 512
 var cpuLimit int = 500
 var dashNamespaces string
 
-func DatasourceType(cr *v1alpha1.Grafana) operator.DatasourceType {
-	dsType := DefaultDSType
-	if cr.Spec.DataSourceConfig != nil && cr.Spec.DataSourceConfig.Type != "" {
-		dsType = cr.Spec.DataSourceConfig.Type
-	}
-	return dsType
-
-}
 func getDashNamespaces(cr *v1alpha1.Grafana) string {
 	namespaces := strings.Split(dashNamespaces, ",")
 	for _, ns := range namespaces {
@@ -53,33 +44,9 @@ func getDashNamespaces(cr *v1alpha1.Grafana) string {
 
 }
 func prometheusInfo(cr *v1alpha1.Grafana) (host string, port int32) {
-	host = PrometheusServiceName
-	if cr.Spec.PrometheusServiceName != "" {
-		host = cr.Spec.PrometheusServiceName
-	}
-	if cr.Spec.DataSourceConfig != nil &&
-		DatasourceType(cr) != operator.DSTypeCommonService {
-		host = "localhost"
-	} else if cr.Spec.DataSourceConfig != nil &&
-		cr.Spec.DataSourceConfig.CommonServiceDSConfig != nil &&
-		cr.Spec.DataSourceConfig.CommonServiceDSConfig.ServiceName != "" {
-		host = cr.Spec.DataSourceConfig.CommonServiceDSConfig.ServiceName
-
-	}
-
-	port = PrometheusPort
-	if cr.Spec.PrometheusServicePort != 0 {
-		port = cr.Spec.PrometheusServicePort
-	}
-	if cr.Spec.DataSourceConfig != nil &&
-		DatasourceType(cr) != operator.DSTypeCommonService {
-		port = 9096
-	} else if cr.Spec.DataSourceConfig != nil &&
-		cr.Spec.DataSourceConfig.CommonServiceDSConfig != nil &&
-		cr.Spec.DataSourceConfig.CommonServiceDSConfig.ServicePort != 0 {
-		port = cr.Spec.DataSourceConfig.CommonServiceDSConfig.ServicePort
-
-	}
+	// return OCP prometheus host and ports
+	host = "localhost"
+	port = 9096
 
 	return host, port
 }
