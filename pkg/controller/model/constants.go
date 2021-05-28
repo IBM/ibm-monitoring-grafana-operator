@@ -58,4 +58,13 @@ const (
 	dsProxyImageEnv      = "GRAFANA_OCPTHANOS_PROXY_IMAGE"
 	dashboardCtlImageEnv = "DASHBOARD_CONTROLLER_IMAGE"
 	imageDigestKey       = `sha256:`
+
+	//CS Monitoring resources to be cleanedup
+	CollectdDeploymentName           = "ibm-monitoring-collectd"
+	KubestateDeploymentName          = "ibm-monitoring-kube-state"
+	McmCtlDeploymentName             = "ibm-monitoring-mcm-ctl"
+	NodeExporterDaemonSetName        = "ibm-monitoring-nodeexporter"
+	PrometheusOperatorDeploymentName = "ibm-monitoring-prometheus-operator"
+	PrometheusStatefulSetName        = "prometheus-ibm-monitoring-prometheus"
+	AlertManagerStatefulsetName      = "alertmanager-ibm-monitoring-alertmanager"
 )

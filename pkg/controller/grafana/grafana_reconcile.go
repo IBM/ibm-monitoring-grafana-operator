@@ -87,6 +87,13 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 		return err
 	}
 
+	err = cleanupCSMonitoring(r, cr)
+	if err != nil {
+		// no need to return error here as its just cleanup and no impact if it fails
+		log.Info("Fail to cleanup one or more old CS Monitoring resources.")
+		return nil
+	}
+
 	return nil
 }
 
@@ -484,4 +491,50 @@ func doCheckApplicationMonitoring(r *ReconcileGrafana) (bool, error) {
 	}
 	return false, nil
 
+}
+
+func cleanupCSMonitoring(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
+
+	collectdDep := utils.CollectdDeployment(cr)
+	err := r.client.Delete(r.ctx, collectdDep)
+	if err != nil {
+		log.Info("Failed to clean old Collectd deployment or its already cleaned")
+	}
+
+	kubestateDep := utils.KubestateDeployment(cr)
+	err = r.client.Delete(r.ctx, kubestateDep)
+	if err != nil {
+		log.Info("Failed to clean old kube-state deployment or its already cleaned")
+	}
+
+	nodeExporter := utils.NodeExporterDaemonSet(cr)
+	err = r.client.Delete(r.ctx, nodeExporter)
+	if err != nil {
+		log.Info("Failed to clean old Node exporter daemonset or its already cleaned")
+	}
+
+	promOpr := utils.PrometheusOperatorDeployment(cr)
+	err = r.client.Delete(r.ctx, promOpr)
+	if err != nil {
+		log.Info("Failed to clean old Prometheus operator deployment or its already cleaned")
+	}
+
+	promStatefulset := utils.PrometheusStatefulSet(cr)
+	err = r.client.Delete(r.ctx, promStatefulset)
+	if err != nil {
+		log.Info("Failed to clean old prometheus statefulset or its already cleaned")
+	}
+
+	alertmngrStatefulset := utils.AlertManagerStatefulset(cr)
+	err = r.client.Delete(r.ctx, alertmngrStatefulset)
+	if err != nil {
+		log.Info("Failed to clean old alert-manager statefulset or its already cleaned")
+	}
+
+	mcmCtlDep := utils.McmCtlDeployment(cr)
+	err = r.client.Delete(r.ctx, mcmCtlDep)
+	if err != nil {
+		log.Info("Failed to clean old mcmCtl deployment or its already cleaned")
+	}
+	return err
 }
