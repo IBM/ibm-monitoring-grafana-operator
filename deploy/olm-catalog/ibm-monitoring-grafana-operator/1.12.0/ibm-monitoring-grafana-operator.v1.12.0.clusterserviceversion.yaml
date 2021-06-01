@@ -278,6 +278,12 @@ spec:
                 - patch
                 - delete
             - apiGroups:
+                - apps
+              resources:
+                - daemonsets
+              verbs:
+                - delete
+            - apiGroups:
                 - certmanager.k8s.io
               resources:
                 - certificates
