@@ -15,9 +15,10 @@ limitations under the License.
 package model
 
 import (
-	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
 	appv1 "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
 )
 
 func CollectdDeployment(cr *v1alpha1.Grafana) *appv1.Deployment {

@@ -91,6 +91,7 @@ func reconcileGrafana(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 	if err != nil {
 		// no need to return error here as its just cleanup and no impact if it fails
 		log.Info("Fail to cleanup one or more old CS Monitoring resources.")
+		r.recorder.Eventf(cr, corev1.EventTypeNormal, "If some of old CS monitoring resources are not cleanedup", "Refer the doc for manual cleanup")
 		return nil
 	}
 
@@ -495,46 +496,62 @@ func doCheckApplicationMonitoring(r *ReconcileGrafana) (bool, error) {
 
 func cleanupCSMonitoring(r *ReconcileGrafana, cr *v1alpha1.Grafana) error {
 
+	log.Info("Starting to cleanup old CS Monitoring resources.")
+
 	collectdDep := utils.CollectdDeployment(cr)
 	err := r.client.Delete(r.ctx, collectdDep)
 	if err != nil {
 		log.Info("Failed to clean old Collectd deployment or its already cleaned")
+	} else {
+		log.Info("old Collectd deployment is cleaned successfully")
 	}
 
 	kubestateDep := utils.KubestateDeployment(cr)
 	err = r.client.Delete(r.ctx, kubestateDep)
 	if err != nil {
 		log.Info("Failed to clean old kube-state deployment or its already cleaned")
+	} else {
+		log.Info("old kube-state deployment is cleaned successfully")
 	}
 
 	nodeExporter := utils.NodeExporterDaemonSet(cr)
 	err = r.client.Delete(r.ctx, nodeExporter)
 	if err != nil {
 		log.Info("Failed to clean old Node exporter daemonset or its already cleaned")
+	} else {
+		log.Info("old nodeexporter daemonset is cleaned successfully")
 	}
 
 	promOpr := utils.PrometheusOperatorDeployment(cr)
 	err = r.client.Delete(r.ctx, promOpr)
 	if err != nil {
 		log.Info("Failed to clean old Prometheus operator deployment or its already cleaned")
+	} else {
+		log.Info("old prometheus operator deployment is cleaned successfully")
 	}
 
 	promStatefulset := utils.PrometheusStatefulSet(cr)
 	err = r.client.Delete(r.ctx, promStatefulset)
 	if err != nil {
 		log.Info("Failed to clean old prometheus statefulset or its already cleaned")
+	} else {
+		log.Info("old prometheus statefulset is cleaned successfully")
 	}
 
 	alertmngrStatefulset := utils.AlertManagerStatefulset(cr)
 	err = r.client.Delete(r.ctx, alertmngrStatefulset)
 	if err != nil {
 		log.Info("Failed to clean old alert-manager statefulset or its already cleaned")
+	} else {
+		log.Info("old alert-manager statefulset is cleaned successfully")
 	}
 
 	mcmCtlDep := utils.McmCtlDeployment(cr)
 	err = r.client.Delete(r.ctx, mcmCtlDep)
 	if err != nil {
 		log.Info("Failed to clean old mcmCtl deployment or its already cleaned")
+	} else {
+		log.Info("old mcmCtl deployment is cleaned successfully")
 	}
 	return err
 }
