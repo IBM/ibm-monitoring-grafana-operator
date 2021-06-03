@@ -128,6 +128,19 @@ metadata:
   name: ibm-monitoring-grafana-operator.v1.12.0
   namespace: placeholder
 spec:
+  relatedImages:
+    - name: GRAFANA_IMAGE
+      image: quay.io/opencloudio/grafana:v7.1.5-build.4
+    - name: ICP_MANAGEMENT_INGRESS_IMAGE
+      image: quay.io/opencloudio/icp-management-ingress:2.5.11
+    - name: DASHBOARD_CONTROLLER_IMAGE
+      image: quay.io/opencloudio/dashboard-controller:v1.2.2-build.4
+    - name: ICP_INITCONTAINER_IMAGE
+      image: quay.io/opencloudio/icp-initcontainer:1.0.0-build.10
+    - name: GRAFANA_OCPTHANOS_PROXY_IMAGE
+      image: quay.io/opencloudio/grafana-ocpthanos-proxy:1.0.5
+    - name: ibm-monitoring-grafana-operator
+      image: quay.io/opencloudio/ibm-monitoring-grafana-operator
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
