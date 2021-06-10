@@ -107,7 +107,7 @@ func createRouterContainer(cr *v1alpha1.Grafana) corev1.Container {
 		},
 		Resources:                resources,
 		LivenessProbe:            getRouterProbe(30, 20, 10, cr.Namespace),
-		ReadinessProbe:           getRouterProbe(30, 20, 10, cr.Namespace),
+		ReadinessProbe:           getRouterProbe(32, 20, 10, cr.Namespace),
 		VolumeMounts:             getVolumeMountsForRouter(),
 		Env:                      setupAdminEnv("GF_SECURITY_ADMIN_USER", "GF_SECURITY_ADMIN_PASSWORD"),
 		TerminationMessagePath:   "/dev/termination-log",
