@@ -485,7 +485,7 @@ spec:
     - supported: false
       type: AllNamespaces
   maturity: alpha
-  minKubeVersion: 1.19.0
+  minKubeVersion: "1.19.0"
   links:
     - name: IBM Monitoring Grafana Operator
       url: https://github.com/IBM/ibm-monitoring-grafana-operator
