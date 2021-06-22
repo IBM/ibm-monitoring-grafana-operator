@@ -38,6 +38,8 @@ spec:
                 description: 'json string of grafana dashboard'
               enabled:
                 type: boolean
+            type: object
+        type: object
     additionalPrinterColumns:
     - name: Enabled
       type: boolean
@@ -45,3 +47,5 @@ spec:
     - name: Age
       type: date
       jsonPath: .metadata.creationTimestamp
+    served: true
+    storage: true
