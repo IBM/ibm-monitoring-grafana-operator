@@ -54,6 +54,7 @@ func GetIngressAnnotations(cr *v1alpha1.Grafana) map[string]string {
 }
 
 func getIngressSpec() ingressv1.IngressSpec {
+	pathType := ingressv1.PathType("ImplementationSpecific")
 	return ingressv1.IngressSpec{
 		Rules: []ingressv1.IngressRule{
 			{
@@ -61,12 +62,12 @@ func getIngressSpec() ingressv1.IngressSpec {
 					HTTP: &ingressv1.HTTPIngressRuleValue{
 						Paths: []ingressv1.HTTPIngressPath{
 							{
-								Path: "/grafana",
+								Path:     "/grafana",
+								PathType: &pathType,
 								Backend: ingressv1.IngressBackend{
 									Service: &ingressv1.IngressServiceBackend{
 										Name: GrafanaServiceName,
 										Port: ingressv1.ServiceBackendPort{
-											Name:   "grafana-port",
 											Number: DefaultGrafanaPort,
 										},
 									},
@@ -95,6 +96,7 @@ func GrafanaIngress(cr *v1alpha1.Grafana) *ingressv1.Ingress {
 func ReconciledGrafanaIngress(cr *v1alpha1.Grafana, current *ingressv1.Ingress) *ingressv1.Ingress {
 
 	reconciled := current.DeepCopy()
+	reconciled.APIVersion = current.APIVersion
 	spec := getIngressSpec()
 	reconciled.Spec = spec
 	reconciled.Labels = GetIngressLabels(cr)
