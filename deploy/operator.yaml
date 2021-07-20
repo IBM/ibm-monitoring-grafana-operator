@@ -82,7 +82,7 @@ spec:
             - name: OPERATOR_NAME
               value: ibm-monitoring-grafana-operator
             - name: GRAFANA_IMAGE
-              value: quay.io/opencloudio/grafana:v7.1.5-build.5
+              value: quay.io/opencloudio/grafana:v7.1.5-build.6
             - name: ICP_MANAGEMENT_INGRESS_IMAGE
               value: quay.io/opencloudio/icp-management-ingress:2.5.12
             - name: DASHBOARD_CONTROLLER_IMAGE

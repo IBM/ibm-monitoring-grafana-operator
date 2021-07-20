@@ -10,7 +10,7 @@ metadata:
     operatorframework.io/arch.amd64: supported
     operatorframework.io/arch.ppc64le: supported
   annotations:
-    olm.skipRange: "<1.13.0"
+    olm.skipRange: "<1.14.0"
     alm-examples: |-
       [
         {
@@ -120,12 +120,11 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Monitoring
     certified: "false"
-    createdAt: 2021-01-26 12:00:00
     support: IBM
     description: Provision Grafana with TLS enabled and multi-tenancy
     repository: https://github.com/IBM/ibm-monitoring-grafana-operator
     containerImage: quay.io/opencloudio/ibm-monitoring-grafana-operator
-  name: ibm-monitoring-grafana-operator.v1.13.0
+  name: ibm-monitoring-grafana-operator.v1.14.0
   namespace: placeholder
 spec:
   relatedImages:
@@ -335,18 +334,6 @@ spec:
                 - patch
                 - delete
             - apiGroups:
-                - networking.k8s.io
-              resources:
-                - ingresses
-              verbs:
-                - get
-                - list
-                - watch
-                - create
-                - update
-                - patch
-                - delete
-            - apiGroups:
                 - monitoringcontroller.cloud.ibm.com
               resources:
                 - monitoringdashboards
@@ -502,9 +489,11 @@ spec:
     - name: IBM Monitoring Grafana Operator
       url: https://github.com/IBM/ibm-monitoring-grafana-operator
   maintainers:
-    - email: dongdwdw@cn.ibm.com
-      name: Dong Wang
+    - email: tmannaru@in.ibm.com
+      name: Tirumala Mannaru
+    - email: tamilanban.rajendran@ibm.com
+      name: Tamilanban Rajendran
   provider:
     name: IBM
-  replaces: ibm-monitoring-grafana-operator.v1.12.0
-  version: 1.13.0
+  replaces: ibm-monitoring-grafana-operator.v1.13.0
+  version: 1.14.0
