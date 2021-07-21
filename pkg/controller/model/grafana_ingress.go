@@ -96,7 +96,6 @@ func GrafanaIngress(cr *v1alpha1.Grafana) *ingressv1.Ingress {
 func ReconciledGrafanaIngress(cr *v1alpha1.Grafana, current *ingressv1.Ingress) *ingressv1.Ingress {
 
 	reconciled := current.DeepCopy()
-	reconciled.APIVersion = current.APIVersion
 	spec := getIngressSpec()
 	reconciled.Spec = spec
 	reconciled.Labels = GetIngressLabels(cr)
