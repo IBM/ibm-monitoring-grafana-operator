@@ -23,7 +23,7 @@ RUN chmod +x /qemu-s390x-static
 #Using sha to reference image so that we get the actual architecture image since this build occurrs
 #on amd and using the fat manifest only pulls amd
 #FROM registry.access.redhat.com/ubi8/ubi-minimal:8.1-398
-FROM registry.access.redhat.com/ubi8/ubi-minimal
+FROM hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com/build-images/ubi8-minimal:latest-s390x
 
 RUN microdnf -y update && microdnf clean all
 
