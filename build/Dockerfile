@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-FROM hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com/build-images/ubi8-minimal:latest-amd64
+FROM hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com/build-images/ubi8-minimal
 
 RUN microdnf -y update && microdnf clean all
 
