@@ -453,7 +453,7 @@ spec:
                       - name: GRAFANA_OCPTHANOS_PROXY_IMAGE
                         value: quay.io/opencloudio/grafana-ocpthanos-proxy:1.0.8
                     image: quay.io/opencloudio/ibm-monitoring-grafana-operator
-                    imagePullPolicy: Always
+                    imagePullPolicy: IfNotPresent
                     name: grafana
                     securityContext:
                       privileged: false
