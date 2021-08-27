@@ -59,8 +59,8 @@ const (
 	DSProxyConfigSecName                      = "grafana-ds-proxy-config"
 
 	grafanaImageEnv      = "GRAFANA_IMAGE"
-	routerImageEnv       = "ROUTER_IMAGE"
-	dsProxyImageEnv      = "DS_PROXY_IMAGE"
-	dashboardCtlImageEnv = "DASHBOARD_CTL_IMAGE"
+	routerImageEnv       = "ICP_MANAGEMENT_INGRESS_IMAGE"
+	dsProxyImageEnv      = "GRAFANA_OCPTHANOS_PROXY_IMAGE"
+	dashboardCtlImageEnv = "DASHBOARD_CONTROLLER_IMAGE"
 	imageDigestKey       = `sha256:`
 )
