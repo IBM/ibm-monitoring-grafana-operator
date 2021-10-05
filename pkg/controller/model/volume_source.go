@@ -16,6 +16,7 @@
 package model
 
 import (
+        "encoding/base64"
 	"bytes"
 	"text/template"
 
@@ -159,7 +160,7 @@ func ReconcileConfigMaps(cr *v1alpha1.Grafana) []*corev1.ConfigMap {
 func CreateGrafanaSecret(cr *v1alpha1.Grafana) *corev1.Secret {
 
 	var password, user string = "admin", "admin"
-	data := map[string][]byte{"username": []byte(user), "password": []byte(password)}
+	data := map[string][]byte{"username": base64.StdEncoding.EncodeToString([]byte(user)), "password": base64.StdEncoding.EncodeToString([]byte(password))}
 
 	labels := map[string]string{"app": "grafana", "component": "grafana"}
 	labels = appendCommonLabels(labels)

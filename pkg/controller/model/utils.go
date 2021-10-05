@@ -16,6 +16,7 @@
 package model
 
 import (
+        "encoding/base64"
 	"os"
 	"reflect"
 	"strconv"
@@ -165,7 +166,7 @@ func createVolumeFromSecret(secretName, volumeName string) corev1.Volume {
 	}
 }
 
-func setupAdminEnv(username, password string) []corev1.EnvVar {
+func setupAdminEnv(base64.StdEncoding.DecodeString(username), base64.StdEncoding.DecodeString(password) string) []corev1.EnvVar {
 	return []corev1.EnvVar{
 		{
 			Name: username,
