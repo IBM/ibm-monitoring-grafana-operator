@@ -487,6 +487,9 @@ func doCheckApplicationMonitoring(r *ReconcileGrafana) (bool, error) {
 		return false, nil
 
 	}
+	if enabled == nil {
+		return false, nil
+	}
 	if enabled.(bool) {
 		return true, nil
 	}
