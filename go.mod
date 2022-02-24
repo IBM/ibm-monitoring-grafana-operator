@@ -3,6 +3,9 @@ module github.com/IBM/ibm-monitoring-grafana-operator
 go 1.17
 
 require (
+        github.com/ghodss/yaml v1.0.0
+	github.com/prometheus/prometheus v1.8.2-0.20200507164740-ecee9c8abfd1
+	gopkg.in/yaml.v2 v2.3.0 // indirect
 	github.com/jetstack/cert-manager v0.13.0
 	github.com/operator-framework/operator-sdk v0.18.0
 	sigs.k8s.io/controller-runtime v0.9.0
