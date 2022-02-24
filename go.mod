@@ -1,6 +1,6 @@
 module github.com/IBM/ibm-monitoring-grafana-operator
 
-go 1.15
+go 1.17
 
 require (
 	github.com/jetstack/cert-manager v0.13.0
