@@ -452,10 +452,7 @@ func checkApplicationMonitoring(r *ReconcileGrafana, cr *v1alpha1.Grafana) error
 		log.Error(err, "Failed to get application monitoring status")
 		return err
 	}
-	if enabled {
-		r.recorder.Eventf(cr, corev1.EventTypeNormal, "OCP application monitoring is enabled", "OCP application monitoring is enabled")
-
-	} else {
+	if !enabled {
 		r.recorder.Eventf(cr, corev1.EventTypeWarning,
 			"OCP application monitoring is not enabled", "OCP application monitoring is not enabled. IBM application metrics can not be collected and related dashboards will not work")
 
