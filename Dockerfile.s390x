@@ -13,6 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+FROM golang:1.17.7 as gobuilder
+ARG GOARCH
+
+WORKDIR /workspace
+
+
+COPY go.mod go.mod
+COPY go.sum go.sum
+
+COPY cmd cmd
+COPY common common
+COPY example example
+COPY pkg pkg
+COPY version version
+COPY Makefile Makefile
+
+RUN  go mod tidy \
+     && make build-s390x
 
 FROM alpine as builder
 
@@ -67,7 +85,7 @@ ENV OPERATOR=/usr/local/bin/ibm-monitoring-grafana-operator \
 COPY --from=builder /qemu-s390x-static /usr/bin/
 
 # install operator binary
-COPY build/_output/bin/ibm-monitoring-grafana-operator-s390x ${OPERATOR}
+COPY --from=gobuilder /workspace/ibm-monitoring-grafana-operator-s390x ${OPERATOR}
 COPY deploy/crds ${DEPLOY_DIR}
 
 COPY build/bin /usr/local/bin
