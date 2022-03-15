@@ -13,7 +13,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+FROM golang:1.17.7 as gobuilder
+ARG GOARCH
 
+WORKDIR /workspace
+
+
+COPY go.mod go.mod
+COPY go.sum go.sum
+
+COPY cmd cmd
+COPY common common
+COPY example example
+COPY pkg pkg
+COPY version version
+COPY Makefile Makefile
+
+RUN  go mod tidy \
+     && make build-ppc64le
+
+FROM alpine as builder
+
+RUN wget -O /qemu-ppc64le-static https://github.com/multiarch/qemu-user-static/releases/download/v5.2.0-2/qemu-ppc64le-static
+
+RUN chmod +x /qemu-ppc64le-static
+
+#Using sha to reference image so that we get the actual architecture image since this build occurrs
+#on amd and using the fat manifest only pulls amd
+#FROM registry.access.redhat.com/ubi8/ubi-minimal:8.1-398
 FROM hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com/build-images/ubi8-minimal
 
 RUN microdnf -y update && microdnf clean all
@@ -55,8 +82,10 @@ ENV OPERATOR=/usr/local/bin/ibm-monitoring-grafana-operator \
     USER_UID=1001 \
     USER_NAME=ibm-monitoring-grafana-operator
 
+COPY --from=builder /qemu-ppc64le-static /usr/bin/
+
 # install operator binary
-COPY build/_output/bin/ibm-monitoring-grafana-operator ${OPERATOR}
+COPY --from=gobuilder /workspace/ibm-monitoring-grafana-operator-ppc64le ${OPERATOR}
 COPY deploy/crds ${DEPLOY_DIR}
 
 COPY build/bin /usr/local/bin
