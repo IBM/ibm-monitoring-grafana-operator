@@ -46,7 +46,7 @@ spec:
       containers:
         - name: grafana
           # Replace this with the built image name
-          image: quay.io/opencloudio/ibm-monitoring-grafana-operator
+          image: quay.io/opencloudio/ibm-monitoring-grafana-operator:1.21.0
           command:
             - ibm-monitoring-grafana-operator
           imagePullPolicy: Always

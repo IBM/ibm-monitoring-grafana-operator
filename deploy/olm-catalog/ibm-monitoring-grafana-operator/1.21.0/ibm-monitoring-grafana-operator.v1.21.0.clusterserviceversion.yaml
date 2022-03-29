@@ -138,7 +138,7 @@ spec:
     - name: GRAFANA_OCPTHANOS_PROXY_IMAGE
       image: quay.io/opencloudio/grafana-ocpthanos-proxy:1.0.15
     - name: ibm-monitoring-grafana-operator
-      image: quay.io/opencloudio/ibm-monitoring-grafana-operator
+      image: quay.io/opencloudio/ibm-monitoring-grafana-operator:1.21.0
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
@@ -449,7 +449,7 @@ spec:
                         value: quay.io/opencloudio/dashboard-controller:v1.2.2-build.14
                       - name: GRAFANA_OCPTHANOS_PROXY_IMAGE
                         value: quay.io/opencloudio/grafana-ocpthanos-proxy:1.0.15
-                    image: quay.io/opencloudio/ibm-monitoring-grafana-operator
+                    image: quay.io/opencloudio/ibm-monitoring-grafana-operator:1.21.0
                     imagePullPolicy: IfNotPresent
                     name: grafana
                     securityContext:
