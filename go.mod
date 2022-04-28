@@ -35,6 +35,8 @@ replace (
 
 replace github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.2
 
+replace github.com/prometheus/client_golang => github.com/prometheus/client_golang v1.11.1
+
 replace github.com/docker/docker => github.com/moby/moby v17.10.0-ce+incompatible // Required by Helm
 
 // pinned to cert manager v0.10
