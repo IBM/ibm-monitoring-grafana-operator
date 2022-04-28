@@ -8,3 +8,4 @@ trustedRegistries:
   - quay.io
   - registry.access.redhat.com
   - hyc-cloud-private-edge-docker-local.artifactory.swg-devops.com
+  - icr.io

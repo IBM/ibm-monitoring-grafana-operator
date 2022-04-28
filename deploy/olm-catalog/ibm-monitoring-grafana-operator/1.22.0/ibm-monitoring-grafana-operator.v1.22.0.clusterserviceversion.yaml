@@ -123,22 +123,22 @@ metadata:
     support: IBM
     description: Provision Grafana with TLS enabled and multi-tenancy
     repository: https://github.com/IBM/ibm-monitoring-grafana-operator
-    containerImage: quay.io/opencloudio/ibm-monitoring-grafana-operator
+    containerImage: icr.io/cpopen/ibm-monitoring-grafana-operator
     operators.operatorframework.io/operator-type: 'non-standalone'
   name: ibm-monitoring-grafana-operator.v1.22.0
   namespace: placeholder
 spec:
   relatedImages:
     - name: GRAFANA_IMAGE
-      image: quay.io/opencloudio/grafana:v7.1.5-build.15
+      image: icr.io/cpopen/cpfs/grafana:v7.1.5-build.15
     - name: ICP_MANAGEMENT_INGRESS_IMAGE
-      image: quay.io/opencloudio/icp-management-ingress:2.5.21
+      image: icr.io/cpopen/cpfs/icp-management-ingress:2.5.21
     - name: DASHBOARD_CONTROLLER_IMAGE
-      image: quay.io/opencloudio/dashboard-controller:v1.2.2-build.15
+      image: icr.io/cpopen/cpfs/dashboard-controller:v1.2.2-build.15
     - name: GRAFANA_OCPTHANOS_PROXY_IMAGE
-      image: quay.io/opencloudio/grafana-ocpthanos-proxy:1.0.16
+      image: icr.io/cpopen/cpfs/grafana-ocpthanos-proxy:1.0.16
     - name: ibm-monitoring-grafana-operator
-      image: quay.io/opencloudio/ibm-monitoring-grafana-operator:1.22.0
+      image: icr.io/cpopen/ibm-monitoring-grafana-operator:1.22.0
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
@@ -442,14 +442,14 @@ spec:
                       - name: OPERATOR_NAME
                         value: ibm-monitoring-grafana-operator
                       - name: GRAFANA_IMAGE
-                        value: quay.io/opencloudio/grafana:v7.1.5-build.15
+                        value: icr.io/cpopen/cpfs/grafana:v7.1.5-build.15
                       - name: ICP_MANAGEMENT_INGRESS_IMAGE
-                        value: quay.io/opencloudio/icp-management-ingress:2.5.21
+                        value: icr.io/cpopen/cpfs/icp-management-ingress:2.5.21
                       - name: DASHBOARD_CONTROLLER_IMAGE
-                        value: quay.io/opencloudio/dashboard-controller:v1.2.2-build.15
+                        value: icr.io/cpopen/cpfs/dashboard-controller:v1.2.2-build.15
                       - name: GRAFANA_OCPTHANOS_PROXY_IMAGE
-                        value: quay.io/opencloudio/grafana-ocpthanos-proxy:1.0.16
-                    image: quay.io/opencloudio/ibm-monitoring-grafana-operator:1.22.0
+                        value: icr.io/cpopen/cpfs/grafana-ocpthanos-proxy:1.0.16
+                    image: icr.io/cpopen/ibm-monitoring-grafana-operator:1.22.0
                     imagePullPolicy: IfNotPresent
                     name: grafana
                     securityContext:
