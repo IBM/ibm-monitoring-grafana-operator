@@ -10,7 +10,7 @@ metadata:
     operatorframework.io/arch.amd64: supported
     operatorframework.io/arch.ppc64le: supported
   annotations:
-    olm.skipRange: "<1.23.0"
+    olm.skipRange: "<1.24.0"
     alm-examples: |-
       [
         {
