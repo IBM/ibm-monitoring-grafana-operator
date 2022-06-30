@@ -123,9 +123,9 @@ metadata:
     support: IBM
     description: Provision Grafana with TLS enabled and multi-tenancy
     repository: https://github.com/IBM/ibm-monitoring-grafana-operator
-    containerImage: icr.io/cpopen/ibm-monitoring-grafana-operator:1.23.0
+    containerImage: icr.io/cpopen/ibm-monitoring-grafana-operator:1.23.1
     operators.operatorframework.io/operator-type: 'non-standalone'
-  name: ibm-monitoring-grafana-operator.v1.23.0
+  name: ibm-monitoring-grafana-operator.v1.23.1
   namespace: placeholder
 spec:
   relatedImages:
