@@ -504,5 +504,4 @@ spec:
       name: Tamilanban Rajendran
   provider:
     name: IBM
-  replaces: ibm-monitoring-grafana-operator.v1.23.0
   version: 1.24.0
