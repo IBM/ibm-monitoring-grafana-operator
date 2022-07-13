@@ -7,6 +7,7 @@ metadata:
     app.kubernetes.io/managed-by: ibm-monitoring-grafana-operator
   name: monitoringdashboards.monitoringcontroller.cloud.ibm.com
 spec:
+  x-kubernetes-preserve-unknown-fields: true
   group: monitoringcontroller.cloud.ibm.com
   names:
     kind: MonitoringDashboard
