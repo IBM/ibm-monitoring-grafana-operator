@@ -7,7 +7,6 @@ metadata:
     app.kubernetes.io/managed-by: ibm-monitoring-grafana-operator
   name: grafanas.operator.ibm.com
 spec:
-  x-kubernetes-preserve-unknown-fields: true
   group: operator.ibm.com
   names:
     kind: Grafana
@@ -34,6 +33,7 @@ spec:
           metadata:
             type: object
           spec:
+            x-kubernetes-preserve-unknown-fields: true
             description: GrafanaSpec defines the desired state of Grafana
             properties:
               baseImage:
