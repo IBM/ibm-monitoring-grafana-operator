@@ -46,7 +46,7 @@ spec:
       containers:
         - name: grafana
           # Replace this with the built image name
-          image: icr.io/cpopen/ibm-monitoring-grafana-operator:1.23.0
+          image: icr.io/cpopen/ibm-monitoring-grafana-operator:1.24.0
           command:
             - ibm-monitoring-grafana-operator
           imagePullPolicy: Always
