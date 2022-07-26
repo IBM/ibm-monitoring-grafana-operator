@@ -125,7 +125,7 @@ metadata:
     repository: https://github.com/IBM/ibm-monitoring-grafana-operator
     containerImage: icr.io/cpopen/ibm-monitoring-grafana-operator:1.23.2
     operators.operatorframework.io/operator-type: 'non-standalone'
-  name: ibm-monitoring-grafana-operator.v1.23.1
+  name: ibm-monitoring-grafana-operator.v1.23.2
   namespace: placeholder
 spec:
   relatedImages:
