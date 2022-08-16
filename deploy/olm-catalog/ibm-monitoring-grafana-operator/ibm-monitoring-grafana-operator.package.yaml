@@ -3,7 +3,7 @@ channels:
   name: stable-v1
 - currentCSV: ibm-monitoring-grafana-operator.v1.11.1
   name: beta
-- currentCSV: ibm-monitoring-grafana-operator.v1.23.2
+- currentCSV: ibm-monitoring-grafana-operator.v1.23.3
   name: dev
 - currentCSV: ibm-monitoring-grafana-operator.v1.22.0
   name: v3
