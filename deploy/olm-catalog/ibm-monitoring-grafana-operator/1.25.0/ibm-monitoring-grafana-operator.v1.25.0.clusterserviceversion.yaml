@@ -130,7 +130,7 @@ metadata:
 spec:
   relatedImages:
     - name: GRAFANA_IMAGE
-      image: icr.io/cpopen/cpfs/grafana:v7.1.5-build.19
+      image: icr.io/cpopen/cpfs/grafana:v7.5.12-build.0
     - name: ICP_MANAGEMENT_INGRESS_IMAGE
       image: icr.io/cpopen/cpfs/icp-management-ingress:2.5.21
     - name: DASHBOARD_CONTROLLER_IMAGE
@@ -442,7 +442,7 @@ spec:
                       - name: OPERATOR_NAME
                         value: ibm-monitoring-grafana-operator
                       - name: GRAFANA_IMAGE
-                        value: icr.io/cpopen/cpfs/grafana:v7.1.5-build.19
+                        value: icr.io/cpopen/cpfs/grafana:v7.5.12-build.0
                       - name: ICP_MANAGEMENT_INGRESS_IMAGE
                         value: icr.io/cpopen/cpfs/icp-management-ingress:2.5.21
                       - name: DASHBOARD_CONTROLLER_IMAGE
