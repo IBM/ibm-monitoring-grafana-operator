@@ -61,7 +61,7 @@ func getVolumeMountsForRouter() []corev1.VolumeMount {
 	}
 }
 
-func getRouterProbe(delay, period, timeout int, iamNamespace string) *corev1.Probe {
+func getRouterProbe(delay, period, timeout, failureThreshold int, iamNamespace string) *corev1.Probe {
 	config := conf.GetControllerConfig()
 	iamServicePort := config.GetConfigString(conf.IAMServicePortName, "")
 	wget := "wget --spider --no-check-certificate -S 'https://platform-identity-provider"
@@ -80,6 +80,7 @@ func getRouterProbe(delay, period, timeout int, iamNamespace string) *corev1.Pro
 		InitialDelaySeconds: int32(delay),
 		PeriodSeconds:       int32(period),
 		TimeoutSeconds:      int32(timeout),
+		FailureThreshold:    int32(failureThreshold),
 	}
 }
 
@@ -106,8 +107,8 @@ func createRouterContainer(cr *v1alpha1.Grafana) corev1.Container {
 			},
 		},
 		Resources:                resources,
-		LivenessProbe:            getRouterProbe(30, 20, 10, cr.Namespace),
-		ReadinessProbe:           getRouterProbe(32, 10, 10, cr.Namespace),
+		LivenessProbe:            getRouterProbe(30, 30, 30, 10, cr.Namespace),
+		ReadinessProbe:           getRouterProbe(32, 20, 30, 10, cr.Namespace),
 		VolumeMounts:             getVolumeMountsForRouter(),
 		Env:                      setupAdminEnv("GF_SECURITY_ADMIN_USER", "GF_SECURITY_ADMIN_PASSWORD"),
 		TerminationMessagePath:   "/dev/termination-log",
