@@ -130,13 +130,13 @@ metadata:
 spec:
   relatedImages:
     - name: GRAFANA_IMAGE
-      image: icr.io/cpopen/cpfs/grafana:v7.5.12-build.5
+      image: icr.io/cpopen/cpfs/grafana:v7.5.12-build.6
     - name: ICP_MANAGEMENT_INGRESS_IMAGE
       image: icr.io/cpopen/cpfs/icp-management-ingress:2.5.21
     - name: DASHBOARD_CONTROLLER_IMAGE
-      image: icr.io/cpopen/cpfs/dashboard-controller:v1.2.2-build.24
+      image: icr.io/cpopen/cpfs/dashboard-controller:v1.2.2-build.25
     - name: GRAFANA_OCPTHANOS_PROXY_IMAGE
-      image: icr.io/cpopen/cpfs/grafana-ocpthanos-proxy:1.0.25
+      image: icr.io/cpopen/cpfs/grafana-ocpthanos-proxy:1.0.26
     - name: ibm-monitoring-grafana-operator
       image: icr.io/cpopen/ibm-monitoring-grafana-operator:1.27.0
   apiservicedefinitions: {}
@@ -442,13 +442,13 @@ spec:
                       - name: OPERATOR_NAME
                         value: ibm-monitoring-grafana-operator
                       - name: GRAFANA_IMAGE
-                        value: icr.io/cpopen/cpfs/grafana:v7.5.12-build.5
+                        value: icr.io/cpopen/cpfs/grafana:v7.5.12-build.6
                       - name: ICP_MANAGEMENT_INGRESS_IMAGE
                         value: icr.io/cpopen/cpfs/icp-management-ingress:2.5.21
                       - name: DASHBOARD_CONTROLLER_IMAGE
-                        value: icr.io/cpopen/cpfs/dashboard-controller:v1.2.2-build.24
+                        value: icr.io/cpopen/cpfs/dashboard-controller:v1.2.2-build.25
                       - name: GRAFANA_OCPTHANOS_PROXY_IMAGE
-                        value: icr.io/cpopen/cpfs/grafana-ocpthanos-proxy:1.0.25
+                        value: icr.io/cpopen/cpfs/grafana-ocpthanos-proxy:1.0.26
                     image: icr.io/cpopen/ibm-monitoring-grafana-operator:1.27.0
                     imagePullPolicy: IfNotPresent
                     name: grafana
