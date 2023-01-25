@@ -18,7 +18,7 @@ BUILD_LOCALLY ?= 1
 # Image URL to use all building/pushing image targets;
 # Use your own docker registry and image name for dev/test by overridding the IMG and REGISTRY environment variable.
 IMG ?= ibm-monitoring-grafana-operator
-REGISTRY ?= "hyc-cloud-private-integration-docker-local.artifactory.swg-devops.com/ibmcom"
+REGISTRY ?= "docker-na-public.artifactory.swg-devops.com/hyc-cloud-private-integration-docker-local/ibmcom"
 CSV_VERSION ?= $(VERSION)
 
 # Github host to use for checking the source tree;
