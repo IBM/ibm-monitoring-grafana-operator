@@ -10,7 +10,7 @@ metadata:
     operatorframework.io/arch.amd64: supported
     operatorframework.io/arch.ppc64le: supported
   annotations:
-    olm.skipRange: "<1.28.0"
+    olm.skipRange: "<1.27.1"
     alm-examples: |-
       [
         {
@@ -123,9 +123,9 @@ metadata:
     support: IBM
     description: Provision Grafana with TLS enabled and multi-tenancy
     repository: https://github.com/IBM/ibm-monitoring-grafana-operator
-    containerImage: icr.io/cpopen/ibm-monitoring-grafana-operator:1.28.0
+    containerImage: icr.io/cpopen/ibm-monitoring-grafana-operator:1.27.1
     operators.operatorframework.io/operator-type: 'non-standalone'
-  name: ibm-monitoring-grafana-operator.v1.28.0
+  name: ibm-monitoring-grafana-operator.v1.27.1
   namespace: placeholder
 spec:
   relatedImages:
@@ -138,7 +138,7 @@ spec:
     - name: GRAFANA_OCPTHANOS_PROXY_IMAGE
       image: icr.io/cpopen/cpfs/grafana-ocpthanos-proxy:1.0.27
     - name: ibm-monitoring-grafana-operator
-      image: icr.io/cpopen/ibm-monitoring-grafana-operator:1.28.0
+      image: icr.io/cpopen/ibm-monitoring-grafana-operator:1.27.1
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
@@ -449,7 +449,7 @@ spec:
                         value: icr.io/cpopen/cpfs/dashboard-controller:v1.2.2-build.26
                       - name: GRAFANA_OCPTHANOS_PROXY_IMAGE
                         value: icr.io/cpopen/cpfs/grafana-ocpthanos-proxy:1.0.27
-                    image: icr.io/cpopen/ibm-monitoring-grafana-operator:1.28.0
+                    image: icr.io/cpopen/ibm-monitoring-grafana-operator:1.27.1
                     imagePullPolicy: IfNotPresent
                     name: grafana
                     securityContext:
@@ -504,4 +504,4 @@ spec:
       name: Tamilanban Rajendran
   provider:
     name: IBM
-  version: 1.28.0
+  version: 1.27.1
