@@ -82,10 +82,10 @@ spec:
             - name: OPERATOR_NAME
               value: ibm-monitoring-grafana-operator
             - name: GRAFANA_IMAGE
-              value: icr.io/cpopen/cpfs/grafana:v7.5.12-build.7
+              value: icr.io/cpopen/cpfs/grafana:v7.5.12-build.8
             - name: ICP_MANAGEMENT_INGRESS_IMAGE
               value: icr.io/cpopen/cpfs/icp-management-ingress:2.5.21
             - name: DASHBOARD_CONTROLLER_IMAGE
-              value: icr.io/cpopen/cpfs/dashboard-controller:v1.2.2-build.26
+              value: icr.io/cpopen/cpfs/dashboard-controller:v1.2.2-build.27
             - name: GRAFANA_OCPTHANOS_PROXY_IMAGE
-              value: icr.io/cpopen/cpfs/grafana-ocpthanos-proxy:1.0.27
+              value: icr.io/cpopen/cpfs/grafana-ocpthanos-proxy:1.0.28
