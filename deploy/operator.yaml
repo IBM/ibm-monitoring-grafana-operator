@@ -46,7 +46,7 @@ spec:
       containers:
         - name: grafana
           # Replace this with the built image name
-          image: icr.io/cpopen/ibm-monitoring-grafana-operator:1.27.1
+          image: icr.io/cpopen/ibm-monitoring-grafana-operator:1.27.2
           command:
             - ibm-monitoring-grafana-operator
           imagePullPolicy: Always
@@ -82,10 +82,10 @@ spec:
             - name: OPERATOR_NAME
               value: ibm-monitoring-grafana-operator
             - name: GRAFANA_IMAGE
-              value: icr.io/cpopen/cpfs/grafana:v7.5.12-build.8
+              value: icr.io/cpopen/cpfs/grafana:v7.5.12-build.9
             - name: ICP_MANAGEMENT_INGRESS_IMAGE
               value: icr.io/cpopen/cpfs/icp-management-ingress:2.5.21
             - name: DASHBOARD_CONTROLLER_IMAGE
-              value: icr.io/cpopen/cpfs/dashboard-controller:v1.2.2-build.27
+              value: icr.io/cpopen/cpfs/dashboard-controller:v1.2.2-build.28
             - name: GRAFANA_OCPTHANOS_PROXY_IMAGE
-              value: icr.io/cpopen/cpfs/grafana-ocpthanos-proxy:1.0.28
+              value: icr.io/cpopen/cpfs/grafana-ocpthanos-proxy:1.0.29
