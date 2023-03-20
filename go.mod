@@ -39,6 +39,8 @@ replace github.com/prometheus/client_golang => github.com/prometheus/client_gola
 
 replace github.com/docker/docker => github.com/moby/moby v17.10.0-ce+incompatible // Required by Helm
 
+replace github.com/emicklei/go-restful => github.com/emicklei/go-restful v2.16.0+incompatible
+
 // pinned to cert manager v0.10
 replace (
 	github.com/Azure/go-autorest => github.com/Azure/go-autorest v14.2.0+incompatible
