@@ -1,0 +1,507 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  labels:
+    app.kubernetes.io/name: ibm-monitoring
+    app.kubernetes.io/instance: common-monitoring
+    app.kubernetes.io/managed-by: ibm-monitoring-grafana-operator
+    operatorframework.io/arch.s390x: supported
+    operatorframework.io/os.linux: supported
+    operatorframework.io/arch.amd64: supported
+    operatorframework.io/arch.ppc64le: supported
+  annotations:
+    olm.skipRange: "<1.27.3"
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "operator.ibm.com/v1alpha1",
+          "kind": "Grafana",
+          "metadata": {
+            "name": "ibm-monitoring"
+          },
+          "spec": {
+            "grafanaConfig": {
+              "resources": {
+                "requests": {
+                  "memory": "512Mi",
+                  "cpu": "300m"
+                },
+                "limits": {
+                  "memory": "1024Mi",
+                  "cpu": "600m"
+                }
+              }
+            },
+            "dashboardConfig": {
+              "resources": {
+                "requests": {
+                  "memory": "64Mi",
+                  "cpu": "50m"
+                },
+                "limits": {
+                  "memory": "128Mi",
+                  "cpu": "100m"
+                }
+              },
+              "ipVersion": "IPv4"
+            },
+            "routerConfig": {
+              "resources":{
+                "requests": {
+                  "memory": "64Mi",
+                  "cpu": "50m"
+                },
+                "limits": {
+                  "memory": "128Mi",
+                  "cpu": "100m"
+                }
+              }
+            },
+            "service": {
+              "ports": [
+                {
+                  "name": "ibm-monitoring-grafana",
+                  "port": 3000,
+                  "protocol": "TCP"
+                }
+              ]
+            },
+            "tlsClientSecretName": "ibm-monitoring-certs",
+            "tlsSecretName": "ibm-monitoring-certs",
+            "prometheusServiceName": "ibm-monitoring-prometheus",
+            "prometheusServicePort": 9090
+          }
+        },
+        {
+          "apiVersion": "monitoringcontroller.cloud.ibm.com/v1",
+          "kind": "MonitoringDashboard",
+          "metadata":{
+            "name": "sample-dashboard"
+          },
+          "spec": {
+            "enabled": true,
+            "data":
+              {
+                "uid": "123456",
+                "title": "Marco Test Dashboard",
+                "tags": [ "test" ],
+                "timezone": "browser",
+                "schemaVersion": 16,
+                "version": 1
+              }
+            }
+        },
+        {
+          "apiVersion":"operator.ibm.com/v1alpha1",
+          "kind":"OperandRequest",
+          "metadata":{
+            "name":"monitoring-grafana-operator-request"
+          },
+          "spec":{
+            "requests":[
+              {
+                "operands":[
+                  {
+                    "name":"ibm-iam-operator"
+                  },
+                  {
+                    "name": "ibm-management-ingress-operator"
+                  },
+                  {
+                    "name": "ibm-commonui-operator"
+                  }
+                ],
+                "registry":"common-service"
+              }
+            ]
+          }
+        }
+      ]
+    capabilities: Seamless Upgrades
+    categories: Monitoring
+    certified: "false"
+    support: IBM
+    description: Provision Grafana with TLS enabled and multi-tenancy
+    repository: https://github.com/IBM/ibm-monitoring-grafana-operator
+    containerImage: icr.io/cpopen/ibm-monitoring-grafana-operator:1.27.3
+    operators.operatorframework.io/operator-type: 'non-standalone'
+  name: ibm-monitoring-grafana-operator.v1.27.3
+  namespace: placeholder
+spec:
+  relatedImages:
+    - name: GRAFANA_IMAGE
+      image: icr.io/cpopen/cpfs/grafana:v7.5.12-build.10
+    - name: ICP_MANAGEMENT_INGRESS_IMAGE
+      image: icr.io/cpopen/cpfs/icp-management-ingress:2.5.21
+    - name: DASHBOARD_CONTROLLER_IMAGE
+      image: icr.io/cpopen/cpfs/dashboard-controller:v1.2.2-build.29
+    - name: GRAFANA_OCPTHANOS_PROXY_IMAGE
+      image: icr.io/cpopen/cpfs/grafana-ocpthanos-proxy:1.0.30
+    - name: ibm-monitoring-grafana-operator
+      image: icr.io/cpopen/ibm-monitoring-grafana-operator:1.27.3
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+      - description: 'Grafana is the Schema for the grafanas API, Documentation For additional details regarding install parameters check: https://ibm.biz/icpfs39install. License By installing this product you accept the license terms https://ibm.biz/icpfs39license.'
+        kind: Grafana
+        name: grafanas.operator.ibm.com
+        version: v1alpha1
+        displayName: IBM Monitoring Grafana
+        resources:
+          - kind: deployments
+            name: A Kubernetes Deployment
+            version: v1
+          - kind: services
+            name: A Kubernetes Service
+            version: v1
+          - kind: servicemonitors
+            name: A Kubernetes Servicemonitor
+            version: v1
+          - kind: ingresses
+            name: A Kubernetes Ingress
+            version: v1beta1
+          - kind: pods
+            name: A Kubernetes Pod
+            version: v1
+          - kind: configmaps
+            name: A Kubernetes Configmap
+            version: v1
+        specDescriptors:
+          - description: grafana spec define initImage as initial image
+            displayName: Initial Image
+            path: initImage
+          - description: grafana spec defines initImageTag as initial image tag
+            displayName: Initial Image Tag
+            path: initImageTag
+          - description: initImageSHA as init image hash value
+            displayName: Initial Image SHA
+            path: initImageSHA
+          - description: baseImage as grafana base image
+            displayName: Base Image
+            path: baseImage
+          - description: baseImagetag as grafana base image tag
+            displayName: Base Image Tag
+            path: baseImageTag
+          - description: baseImageSHA as hash value of base image
+            displayName: Base Image SHA
+            path: baseImageSHA
+          - description: dashboardCtlImage as dashbord controller image
+            displayName: Dashboard Controller Image
+            path: dashboardCtlImage
+          - description: dashboardCtlImageTag as dashboard controller image tag
+            displayName: Dashboard Controller Image Tag
+            path: dashboardCtlImageTag
+          - description: dashboardCtlImageSHA as dashboard controller image hash value
+            displayName: Dashboard Controller Image SHA
+            path: dashboardCtlImageSHA
+          - description: imagePullSecrets as images pull secrets
+            displayName: Image Pull Secrets
+            path: imagePullSecrets
+          - description: ipVersion as IP version, IPv4 or IPv6
+            displayName: IP Version
+            path: ipVersion
+          - description: isHub as it is hub cluster or not
+            displayName: IS HUB
+            path: isHub
+          - description: prometheusServiceName as prometheus service name
+            displayName: Prometheus Service Name
+            path: prometheusServiceName
+          - description: prometheusServicePort as prometheus service port
+            displayName: Prometheus Service Port
+            path: prometheusServicePort
+          - description: resources as time of the base resource unit of components
+            displayName: Resources
+            path: resources
+          - description: routerImage as router image
+            displayName: Router Image
+            path: routerImage
+          - description: routerImageTag as router image tag
+            displayName: Router Image Tag
+            path: routerImageTag
+          - description: routerImageSHA as the router image hash value
+            displayName: Router Image SHA
+            path: routerImageSHA
+          - description: tlsClientSecretName as TLS client secret name
+            displayName: TLS Client Secret Name
+            path: tlsClientSecretName
+          - description: tlsSecretName as TLS secret name
+            displayName: TLS Secret Name
+            path: tlsSecretName
+          - description: service as grafana service
+            displayName: Service
+            path: service
+          - description: config for grafana
+            displayName: GrafanaConfig
+            path: grafanaConfig
+          - description: config for dashboard controller
+            displayName: DashboardConfig
+            path: dashboardConfig
+          - description: config for router
+            displayName: RouterConfig
+            path: routerConfig
+          - description: config for datasource
+            displayName: datasourceConfig
+            path: routerConfig
+      - description: 'MonitoringDashboard is the Schema for Grafana Dashboard, Documentation For additional details regarding install parameters check: https://ibm.biz/icpfs39install. License By installing this product you accept the license terms https://ibm.biz/icpfs39license.'
+        kind: MonitoringDashboard
+        name: monitoringdashboards.monitoringcontroller.cloud.ibm.com
+        version: v1
+        displayName: IBM Grafana Dashboard
+  description: "**Important:** Do not install this operator directly. Only install this operator using the IBM Common Services Operator. For more information about installing this operator and other Common Services operators, see [Installer documentation](http://ibm.biz/cpcs_opinstall). **Additionally, you can exit this panel and navigate to the IBM Common Services tile in OperatorHub to learn more about the operator.** \n\n If you are using this operator as part of an IBM Cloud Pak, see the documentation for that IBM Cloud Pak to learn more about how to install and use the operator service. For more information about IBM Cloud Paks, see [IBM Cloud Paks that use Common Services](http://ibm.biz/cpcs_cloudpaks).\n\n You can use the ibm-monitoring-grafana-operator to install the grafana service for the IBM Cloud Platform Common Services and access the grafana metrics dashboard, \r from other IBM Cloud Platform Common Services or IBM Cloud Paks that you install. And you can also install your service metrics dashboards. \n\nFor more information about the available IBM Cloud Platform Common Services, see the [IBM Knowledge Center](http://ibm.biz/cpcsdocs). \n## Supported platforms \n\n Red Hat OpenShift Container Platform 4.2 or newer installed on one of the following platforms: \n\n- Linux x86_64 \n- Linux on Power (ppc64le) \n- Linux on IBM Z and LinuxONE \n## Prerequisites\n\n Before you install this operator, you need to first install the operator dependencies and prerequisites: \n- For the list of operator dependencies, see the IBM Knowledge Center [Common Services dependencies documentation](http://ibm.biz/cpcs_opdependencies). \n- For the list of prerequisites for installing the operator, see the IBM Knowledge Center [Preparing to install services documentation](http://ibm.biz/cpcs_opinstprereq). \n## Documentation \n\n To install the operator with the IBM Common Services Operator follow the the installation and configuration instructions within the IBM Knowledge Center. \n- If you are using the operator as part of an IBM Cloud Pak, see the documentation for that IBM Cloud Pak, for a list of IBM Cloud Paks, see [IBM Cloud Paks that use Common Services](http://ibm.biz/cpcs_cloudpaks). \n- If you are using the operator with an IBM Containerized Software, see the IBM Cloud Platform Common Services Knowledge Center [Installer documentation](http://ibm.biz/cpcs_opinstall)."
+  displayName: IBM Monitoring Grafana Operator
+  icon:
+    - base64data: iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAFiUlEQVRYhb1Xa2wUVRT+zp25M9vtY1soUtBaWkCKhaJpgihqICa8I1JBkUrkIY2CPBMICf6ASIwEBdFaU3lopC1ExWCAGEQiBGiwCiYNj/KoUCtQQi19bem+7vEHu2V2uruUxniSk+ye+53v+869M7OzhB4GzxngaPLFbSUFb4cul6TtrHL3hEf0SHwtRLPXsZeYXwfxPIfyfsdjxuj/m4GWS0PfBjD+niNMaOl/Y2FPuOhBG5pn5PRiqSoBHmgjus7MxQw6nuyvPn4jJc+Md7tfYkYOBO1JLj1/+oEM1M/Oje/b0O6nHy97AKBx9tBhIqDeBSgfgLzPWPUAAEZasLInubx6+n0N3J41ZClBzAJ4BAAzWL4AUBXA0wD06JwBqkkuPz8o0koYIYGWApxpwwwBeEgU5hYA5wBcBygA5j4QyLZMHgz2RbNmn6g1GtASisFlLLStKZ5zFfQtAnZAY0H2cI1pPoMXAHACyL79WvaKlF3Vm+xY2xFklxJQEEP8KkG96iq/WNkNo/hn5rB0TQRKAJ4IIKCEGNur9NwxKyb8NiQcik7HdT7Fo7srDgC9d5+pc5WfnwzwBgCaYC7hwrywCzjMgN/k76FxIzSGLf2QNK3P7gvXuyseCgI4ufzCauj8OYQa2tzRmm9bD4/muY8tB8F+VsWuHRcXRRJomjdoHEEUgJEHAgG4AeA4KFDq2l5zOYTjGTlGS4LvNAh1rh0XJ0Y3UDhoEQhFlpJSeiAr5bMrtVZcY2GWSyNRCmBKlOH9AEqSnB0rafPfdwCgZcHAZ1jQUY9mpjxUfLYNiPAoFgaPJsmw5DG7OBfmSd2gAyR5yl0MGknyUTK4iiRzsE8nyYtafY4jjYVZLgBI2lpTAclHTPLmdOrZDbDBo2AwQkkSP9sxrQmNS2HwaBjsZakWJ3pdaUlFNWOSPq0ZoRz+gTD5y3scaqSegHIO7bapvham/9EuBhigllUZ80mqTJIKoWTTf7bLLkleSFKB9MBy1+YrRfTFqc4HTfKHtVeSPvpzHgy12sIzqW1V5ssA4NWMvQGhfg/hCQB4bY7R5m/bBSDfLsaknk96r67z3nWvTe+v/OIaA7WJ62szCWB7T2igtjUZh0EYGyydSFxf+2yXYQCgDa1bSHK+7exBkqHpIsHaoEDJJBlC51+iiQcnYzKxzcL1dOv7aX26GHB/kD6VDPUWpEKkZF09bm1IiPfUQio/S+WKJh4KTVKFhUuA9Bw7RkBX68hgRE1TvRA22cqbbjLVPuHg8e2bHnk4lgHSApqVSxicYMcINgJl0aYP5rg7Rf0ywppMXg5dNbAW2N/yaf/sUP3WhtREK06Z/lwrF+kq7CUGAETCkvqNpKuZJLkh0jVAkjUW6mNrU9w7N2qFg54jyTW6ps60F6edbi9OO+lM1FaFsRs8y8oFyRvbi/o+FbZLoQ+8PTWxQ4llDBQA1PX3n2ix8836InuZS3slue/oA3y696+UuU1NoXr7trSRYD6Jrk/bfc4FN1/sYsAa7q9S8wREBcCGVYuZV8TNadhCFP3qB4A72/plQPcfA5AeYfly3Jxbg0NfIr4Vx89pOAXJ63B320JJZGBzR3nqT+6y1Lxo4p6y3lPh9J2A5HRLbzN0PgCJNV6nJ/IR2IO/geah1P0AT4gC+QOEEwCqocgH4iwAkwAMt+EUiCc5pjcejEQS9SWTXkHA80OgIcZmPxnMmMHMyxzTmiKKxzRwd5Vz7ycQI3wEzDcnN+2MKRFrkSSrnuvTJWNcbPFuGFBXGXjCUvqNFK+GYAEWuUw0mMEDCMgEEH7rEh3pjs3YR2CqEmJRw6yusY7D5ih3lWW18z2BD/aN9ye694MxJljyBBifdMfAfxbMEP5f49/wVToPeSud3f6j+i+d81sWOOKIUgAAAABJRU5ErkJggg==
+      mediatype: image/png
+  install:
+    spec:
+      Permissions:
+        - rules:
+            - apiGroups:
+                - ""
+              resources:
+                - pods
+                - services
+                - endpoints
+                - persistentvolumeclaims
+                - events
+                - configmaps
+                - secrets
+              verbs:
+                - get
+                - list
+                - watch
+                - create
+                - update
+                - patch
+                - delete
+            - apiGroups:
+                - apps
+              resources:
+                - deployments
+                - statefulsets
+                - replicasets
+              verbs:
+                - get
+                - list
+                - watch
+                - create
+                - update
+                - patch
+                - delete
+            - apiGroups:
+                - apps
+              resources:
+                - daemonsets
+              verbs:
+                - delete
+            - apiGroups:
+                - certmanager.k8s.io
+              resources:
+                - certificates
+              verbs:
+                - get
+                - list
+                - watch
+                - create
+                - update
+                - patch
+                - delete
+            - apiGroups:
+                - operator.ibm.com
+              resources:
+                - grafanas
+                - grafanas/finalizers
+                - grafanas/status
+              verbs:
+                - get
+                - list
+                - watch
+                - create
+                - update
+                - patch
+                - delete
+            - apiGroups:
+                - extensions
+              resources:
+                - ingresses
+              verbs:
+                - get
+                - list
+                - watch
+                - create
+                - update
+                - patch
+                - delete
+            - apiGroups:
+                - networking.k8s.io
+              resources:
+                - ingresses
+              verbs:
+                - get
+                - list
+                - watch
+                - create
+                - update
+                - patch
+                - delete
+            - apiGroups:
+                - monitoringcontroller.cloud.ibm.com
+              resources:
+                - monitoringdashboards
+              verbs:
+                - get
+                - list
+                - watch
+                - create
+                - update
+                - patch
+                - delete
+          serviceAccountName: ibm-monitoring-grafana-operator
+        - rules:
+            - apiGroups:
+                - ""
+              resources:
+                - services
+                - endpoints
+                - pods
+                - configmaps
+              verbs:
+                - get
+                - list
+                - watch
+            - apiGroups:
+                - monitoringcontroller.cloud.ibm.com
+              resources:
+                - monitoringdashboards
+              verbs:
+                - get
+                - list
+                - watch
+                - create
+                - update
+                - patch
+                - delete
+          serviceAccountName: ibm-monitoring-grafana
+      clusterPermissions:
+        - rules:
+            - apiGroups:
+                - ""
+              resources:
+                - configmaps
+              resourceNames:
+                - cluster-monitoring-config
+              verbs:
+                - get
+          serviceAccountName: ibm-monitoring-grafana-operator
+        - rules:
+            - apiGroups:
+                - ""
+              resources:
+                - namespaces
+              verbs:
+                - get
+          serviceAccountName: ibm-monitoring-grafana
+      deployments:
+        - name: ibm-monitoring-grafana-operator
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                name: ibm-monitoring-grafana-operator
+            strategy: {}
+            template:
+              metadata:
+                labels:
+                  app.kubernetes.io/name: ibm-monitoring
+                  app.kubernetes.io/instance: common-monitoring
+                  app.kubernetes.io/managed-by: ibm-monitoring-grafana-operator
+                  name: ibm-monitoring-grafana-operator
+                  intent: projected
+                annotations:
+                  productName: IBM Cloud Platform Common Services
+                  productID: "068a62892a1e4db39641342e592daa25"
+                  productMetric: FREE
+              spec:
+                containers:
+                  - command:
+                      - ibm-monitoring-grafana-operator
+                    env:
+                      - name: WATCH_NAMESPACE
+                        valueFrom:
+                          fieldRef:
+                            fieldPath: metadata.annotations['olm.targetNamespaces']
+                      - name: DASH_NAMESPACES
+                        valueFrom:
+                          configMapKeyRef:
+                            name: namespace-scope
+                            key: namespaces
+                      - name: POD_NAME
+                        valueFrom:
+                          fieldRef:
+                            fieldPath: metadata.name
+                      - name: OPERATOR_NAME
+                        value: ibm-monitoring-grafana-operator
+                      - name: GRAFANA_IMAGE
+                        value: icr.io/cpopen/cpfs/grafana:v7.5.12-build.10
+                      - name: ICP_MANAGEMENT_INGRESS_IMAGE
+                        value: icr.io/cpopen/cpfs/icp-management-ingress:2.5.21
+                      - name: DASHBOARD_CONTROLLER_IMAGE
+                        value: icr.io/cpopen/cpfs/dashboard-controller:v1.2.2-build.29
+                      - name: GRAFANA_OCPTHANOS_PROXY_IMAGE
+                        value: icr.io/cpopen/cpfs/grafana-ocpthanos-proxy:1.0.30
+                    image: icr.io/cpopen/ibm-monitoring-grafana-operator:1.27.3
+                    imagePullPolicy: IfNotPresent
+                    name: grafana
+                    securityContext:
+                      privileged: false
+                      allowPrivilegeEscalation: false
+                      readOnlyRootFilesystem: true
+                      runAsNonRoot: true
+                      capabilities:
+                        drop:
+                          - ALL
+                    resources:
+                      limits:
+                        cpu: 50m
+                        memory: 512Mi
+                      requests:
+                        cpu: 20m
+                        memory: 64Mi
+                serviceAccountName: ibm-monitoring-grafana-operator
+                hostIPC: false
+                hostNetwork: false
+                hostPID: false
+                affinity:
+                  nodeAffinity:
+                    requiredDuringSchedulingIgnoredDuringExecution:
+                      nodeSelectorTerms:
+                        - matchExpressions:
+                            - key: kubernetes.io/arch
+                              operator: In
+                              values:
+                                - amd64
+                                - ppc64le
+                                - s390x
+    strategy: deployment
+  installModes:
+    - supported: true
+      type: OwnNamespace
+    - supported: true
+      type: SingleNamespace
+    - supported: false
+      type: MultiNamespace
+    - supported: false
+      type: AllNamespaces
+  maturity: alpha
+  minKubeVersion: "1.19.0"
+  links:
+    - name: IBM Monitoring Grafana Operator
+      url: https://github.com/IBM/ibm-monitoring-grafana-operator
+  maintainers:
+    - email: tmannaru@in.ibm.com
+      name: Tirumala Mannaru
+    - email: tamilanban.rajendran@ibm.com
+      name: Tamilanban Rajendran
+  provider:
+    name: IBM
+  version: 1.27.3
