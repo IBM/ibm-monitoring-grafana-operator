@@ -34,7 +34,10 @@ ifdef GOOGLE_APPLICATION_CREDENTIALS
 endif
 
 get-cluster-credentials: activate-serviceaccount
+	mkdir -p ~/.kube; cp -v /etc/kubeconfig/config ~/.kube; kubectl config use-context default; kubectl get nodes; echo going forward retiring google cloud
+ifdef GOOGLE_APPLICATION_CREDENTIALS
 	@gcloud container clusters get-credentials "$(CLUSTER)" --project="$(PROJECT)" --zone="$(ZONE)"
+endif
 
 config-docker: get-cluster-credentials
 	@common/scripts/config_docker.sh
