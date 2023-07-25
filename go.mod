@@ -131,6 +131,6 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.1.0 // indirect
 )
 
-replace github.com/emicklei/go-restful => github.com/emicklei/go-restful/v3 v3.8.0
+replace github.com/emicklei/go-restful => github.com/emicklei/go-restful/v3 v3.10.0
 
 replace github.com/coreos/prometheus-operator => github.com/coreos/prometheus-operator v0.41.1
