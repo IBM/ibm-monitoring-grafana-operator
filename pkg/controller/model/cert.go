@@ -1,4 +1,3 @@
-//
 // Copyright 2020-2021 IBM Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,11 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
 package model
 
 import (
-	cert "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1alpha1"
+	cert "github.com/ibm/ibm-cert-manager-operator/apis/certmanager/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/IBM/ibm-monitoring-grafana-operator/pkg/apis/operator/v1alpha1"
