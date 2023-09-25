@@ -132,3 +132,5 @@ require (
 replace github.com/emicklei/go-restful => github.com/emicklei/go-restful/v3 v3.10.0
 
 replace github.com/coreos/prometheus-operator => github.com/coreos/prometheus-operator v0.41.1
+
+replace gopkg.in/yaml.v3 => gopkg.in/yaml.v3 v3.0.0-20220521103104-8f96da9f5d5e
